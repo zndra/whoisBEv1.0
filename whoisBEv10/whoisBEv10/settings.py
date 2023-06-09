@@ -1,23 +1,14 @@
 
 from pathlib import Path
 import os
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 t = os.path.join(BASE_DIR, 'templates')
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-#_966zao2el-7c%hqh=85b*on!y=p*6c^tr8*oo$-akm8my%+4'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*", "202.131.254.138", "192.168.0.15"]
 
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
