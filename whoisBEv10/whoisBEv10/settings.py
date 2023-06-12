@@ -105,10 +105,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ------------ start Bidnii nemsen tohiruulguud
 
-PGdbname = "sandbox"
-PGuser = "postgres"
-PGhost="127.0.0.1"
-PGpassword="sandbox"
-PGport="5432"
+
 
 # ------------ end Bidnii nemsen tohiruulguud
