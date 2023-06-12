@@ -1,11 +1,11 @@
 from django.http import HttpResponse
 import json
 import psycopg2
-PGdbname = "sandbox"
-PGuser = "postgres"
-PGhost="127.0.0.1"
-PGpassword="sandbox"
-PGport="5432"
+PGdbname = "dbwhois"
+PGuser = "uwhois"
+PGhost="202.131.254.138"
+PGpassword="whoispass"
+PGport="5938"
 def connectDB():
 
     con = psycopg2.connect(
@@ -28,7 +28,7 @@ def userListView(request):
     myCon = connectDB()
     userCursor = myCon.cursor()
     # Ganzo - query yanzlah
-    userCursor.execute('select * from "User"'
+    userCursor.execute('select * from "user"'
                          ' ORDER BY id ASC')
     columns = userCursor.description
     response = [{columns[index][0]:column for index, column in enumerate(
