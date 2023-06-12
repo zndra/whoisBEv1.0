@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 t = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = 'django-insecure-#_966zao2el-7c%hqh=85b*on!y=p*6c^tr8*oo$-akm8my%+4'
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*", "202.131.254.138", "192.168.0.15"]
 
@@ -102,3 +102,13 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ------------ start Bidnii nemsen tohiruulguud
+
+PGdbname = "sandbox"
+PGuser = "postgres"
+PGhost="127.0.0.1"
+PGpassword="sandbox"
+PGport="5432"
+
+# ------------ end Bidnii nemsen tohiruulguud
