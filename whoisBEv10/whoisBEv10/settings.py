@@ -104,7 +104,15 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ------------ start Bidnii nemsen tohiruulguud
+# ... existing code ...
+class DatabaseSettings:
+    def __init__(self):
+        self.PGdbname = "dbwhois"
+        self.PGuser = "uwhois"
+        self.PGhost = "202.131.254.138"
+        self.PGpassword = "whoispass"
+        self.PGport = "5938"
 
-
+# ... existing code ...
 
 # ------------ end Bidnii nemsen tohiruulguud
