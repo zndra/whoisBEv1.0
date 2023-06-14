@@ -1,17 +1,17 @@
 from django.http import HttpResponse
 import json
 import psycopg2
-from whoisBEv10.settings import DatabaseSettings
+from whoisBEv10.settings import *
 
 def connectDB():
-    settings = DatabaseSettings()
+    
 
     con = psycopg2.connect(
-        dbname=settings.PGdbname,
-        user=settings.PGuser,
-        host=settings.PGhost,
-        password=settings.PGpassword,
-        port=settings.PGport,
+        dbname=pgDbName,
+        user=pgUser,
+        host=pgHost,
+        password=pgPassword,
+        port=pgPort,
     )
     return con
 

@@ -113,13 +113,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ------------ start Bidnii nemsen tohiruulguud
 # ... existing code ...
-class DatabaseSettings:
-    def __init__(self):
-        self.PGdbname = "dbwhois"
-        self.PGuser = "uwhois"
-        self.PGhost = "202.131.254.138"
-        self.PGpassword = "whoispass"
-        self.PGport = "5938"
+pgDbName = "dbwhois"
+pgUser = "uwhois"
+pgHost = "202.131.254.138"
+pgPassword = "whoispass"
+pgPort = "5938"
 
 # ... existing code ...
 
