@@ -1,13 +1,14 @@
 
 from pathlib import Path
 import os
+import psycopg2
 
 
 # nemelt importuud 
 import hashlib
 import base64
 import random
-from django.urls import resolve, get_resolver, URLResolver, URLPattern
+from django.urls import resolve
 ###############################
 BASE_DIR = Path(__file__).resolve().parent.parent
 t = os.path.join(BASE_DIR, 'templates')
@@ -112,19 +113,16 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ------------ start Bidnii nemsen tohiruulguud
-# ... existing code ...
+
 pgDbName = "dbwhois"
 pgUser = "uwhois"
 pgHost = "202.131.254.138"
 pgPassword = "whoispass"
 pgPort = "5938"
 
-# ... existing code ...
-
 # ------------ end Bidnii nemsen tohiruulguud
 
 # bidnii nemsen function
-
 
 ## Нууц үгийг md5 хашруу хөрвүүлж байгаа
 def mandakhHash(password):
@@ -171,4 +169,19 @@ def reqValidation(json,keys):
     return validReq
 #   def
 
+def connectDB():
+    
+
+    con = psycopg2.connect(
+        dbname=pgDbName,
+        user=pgUser,
+        host=pgHost,
+        password=pgPassword,
+        port=pgPort,
+    )
+    return con
+
+def disconnectDB(con):
+    if(con):
+        con.close()
 

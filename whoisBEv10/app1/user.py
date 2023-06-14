@@ -1,28 +1,7 @@
 from django.http import HttpResponse
 import json
-import psycopg2
+
 from whoisBEv10.settings import *
-
-def connectDB():
-    
-
-    con = psycopg2.connect(
-        dbname=pgDbName,
-        user=pgUser,
-        host=pgHost,
-        password=pgPassword,
-        port=pgPort,
-    )
-    return con
-
-# ... rest of the code ...
-
-
-
-def disconnectDB(con):
-    if(con):
-        con.close()
-
 
 def userListView(request):    
     myCon = connectDB()
