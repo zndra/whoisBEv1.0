@@ -1,23 +1,26 @@
 from django.http import HttpResponse
 import json
-
 from whoisBEv10.settings import *
-
-def userListView(request):    
+from django.core.serializers.json import DjangoJSONEncoder
+import pytz
+# from django.utils import timezone
+# ...
+def userListView(request):
     myCon = connectDB()
     userCursor = myCon.cursor()
-    userCursor.execute('select * from "user"'
-                         ' ORDER BY id ASC')
+    userCursor.execute('SELECT * FROM "user" ORDER BY id ASC')
     columns = userCursor.description
-    response = [{columns[index][0]:column for index, column in enumerate(
-        value)} for value in userCursor.fetchall()]
-
-    userCursor.close()        
+    response = [{columns[index][0]: column for index, column in enumerate(value)} for value in userCursor.fetchall()]
+    userCursor.close()
     disconnectDB(myCon)
+    # Convert timezone-aware time objects to timezone-naive time objects
+    for item in response:
+        if 'created_at' in item:
+            item['created_at'] = item['created_at'].astimezone(pytz.utc).replace(tzinfo=None)
+    responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
+    return HttpResponse(responseJSON, content_type="application/json")
 
-    responseJSON = json.dumps(response)
-    return HttpResponse(responseJSON,content_type="application/json")
-
+###################################################################
 def userLoginView(request):
     # reqData = request.body
     jsons = json.loads(request.body)
@@ -45,5 +48,27 @@ def userLoginView(request):
     resp["responseCode"] = responseCode
     resp["responseText"] = responseText
 
-
     return  HttpResponse(json.dumps(resp),content_type="application/json")    
+###################################################
+# def userRegisterView(request):
+#     jsons = json.loads(request.body)
+#     firstName = jsons['firstName']
+#     lastName = jsons['lastName']
+#     email = jsons['email']
+#     password = jsons['pass']
+#     username = jsons['userName']
+#     dateJoined = timezone.now()
+#     myCon = connectDB()
+#     userCursor = myCon.cursor()
+#     userCursor.execute('INSERT INTO "user" ("firstName", "lastName", "email", "pass", "userName", "dateJoined") '
+#                        'VALUES (%s, %s, %s, %s, %s, %s)',
+#                        (firstName, lastName, email, password, username, dateJoined))
+#     myCon.commit()
+#     userCursor.close()
+#     disconnectDB(myCon)
+#     response = {
+#         "responseCode": 200,
+#         "responseText": "User registered successfully"
+#     }
+
+#     return HttpResponse(json.dumps(response), content_type="application/json")

@@ -1,4 +1,4 @@
-
+from datetime import datetime
 from pathlib import Path
 import os
 import psycopg2
@@ -148,7 +148,8 @@ def createCodes(length):
 #   createCodes
 
 def base64encode(length):
-    return str(base64.b64encode((createCodes(length-26) + str(datetime.now().time())).encode('ascii'))).replace('\'','').replace('"','').replace('=','')
+    return base64.b64encode((createCodes(length-26) + str(datetime.now().time())).encode('ascii')).decode('ascii').rstrip('=')
+
 #   base64encode
 
 def get_view_name_by_path(path):
