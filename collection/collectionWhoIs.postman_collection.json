@@ -1,0 +1,126 @@
+{
+	"info": {
+		"_postman_id": "b4b3792e-4ee9-49d3-a49b-171eb20afc8f",
+		"name": "collectionWhoIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27892144"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "test_zuu",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "whoisb.mandakh.org/zuu",
+							"host": [
+								"whoisb",
+								"mandakh",
+								"org"
+							],
+							"path": [
+								"zuu"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserList",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "whoisb.mandakh.org/userList",
+							"host": [
+								"whoisb",
+								"mandakh",
+								"org"
+							],
+							"path": [
+								"userList"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserLogin",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "whoisb.mandakh.org/userLogin",
+							"host": [
+								"whoisb",
+								"mandakh",
+								"org"
+							],
+							"path": [
+								"userLogin"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
