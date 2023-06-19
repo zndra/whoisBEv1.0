@@ -185,4 +185,22 @@ def connectDB():
 def disconnectDB(con):
     if(con):
         con.close()
+def emailExists(email):
+    myCon = connectDB()
+    userCursor = myCon.cursor()
+    userCursor.execute('SELECT COUNT(*) FROM "user" WHERE "email" = %s', (email,))
+    result = userCursor.fetchone()
+    userCursor.close()
+    disconnectDB(myCon)
+    return result[0] > 0
+def userNameExists(username):
+    myCon = connectDB()
+    userCursor = myCon.cursor()
+    userCursor.execute('SELECT COUNT(*) FROM "user" WHERE "userName" = %s', (username,))
+    result = userCursor.fetchone()
+    userCursor.close()
+    disconnectDB(myCon)
+    return result[0] > 0
+
+
 
