@@ -56,6 +56,23 @@ def userRegisterView(request):
     email = jsons['email']
     password = jsons['pass']
     username = jsons['userName']
+    
+    # Check if email or username already exist in the database
+    if emailExists(email):
+        response = {
+            "responseCode": 400,
+            "responseText": "Email already exists"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    
+    if userNameExists(username):
+        response = {
+            "responseCode": 400,
+            "responseText": "Username already exists"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    # Proceed with user registration if email and username are unique
     myCon = connectDB()
     userCursor = myCon.cursor()
     passs = mandakhHash(password)
@@ -64,6 +81,7 @@ def userRegisterView(request):
     myCon.commit()
     userCursor.close()
     disconnectDB(myCon)
+    
     response = {
         "responseCode": 200,
         "responseText": "User registered successfully"
