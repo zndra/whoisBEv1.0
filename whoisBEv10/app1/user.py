@@ -3,7 +3,7 @@ import json
 from whoisBEv10.settings import *
 from django.core.serializers.json import DjangoJSONEncoder
 import pytz
-# from django.utils import timezone
+from django.utils import timezone
 # ...
 def userListView(request):
     myCon = connectDB()
@@ -22,16 +22,15 @@ def userListView(request):
 
 ###################################################################
 def userLoginView(request):
-    # reqData = request.body
     jsons = json.loads(request.body)
     myName = jsons['name']
     myPass = jsons['pass']
-
+    passs = mandakhHash(myPass)
     myCon = connectDB()
     userCursor = myCon.cursor()
     userCursor.execute('select count(id) as too from "user"'
                          ' where "userName"=\''+ myName+ '\' '
-                         ' and "pass"=\''+ myPass+ '\''
+                         ' and "pass"=\''+ passs+ '\''
                          )    
     columns = userCursor.description
     response = [{columns[index][0]:column for index, column in enumerate(
@@ -50,25 +49,24 @@ def userLoginView(request):
 
     return  HttpResponse(json.dumps(resp),content_type="application/json")    
 ###################################################
-# def userRegisterView(request):
-#     jsons = json.loads(request.body)
-#     firstName = jsons['firstName']
-#     lastName = jsons['lastName']
-#     email = jsons['email']
-#     password = jsons['pass']
-#     username = jsons['userName']
-#     dateJoined = timezone.now()
-#     myCon = connectDB()
-#     userCursor = myCon.cursor()
-#     userCursor.execute('INSERT INTO "user" ("firstName", "lastName", "email", "pass", "userName", "dateJoined") '
-#                        'VALUES (%s, %s, %s, %s, %s, %s)',
-#                        (firstName, lastName, email, password, username, dateJoined))
-#     myCon.commit()
-#     userCursor.close()
-#     disconnectDB(myCon)
-#     response = {
-#         "responseCode": 200,
-#         "responseText": "User registered successfully"
-#     }
+def userRegisterView(request):
+    jsons = json.loads(request.body)
+    firstName = jsons['firstName']
+    lastName = jsons['lastName']
+    email = jsons['email']
+    password = jsons['pass']
+    username = jsons['userName']
+    myCon = connectDB()
+    userCursor = myCon.cursor()
+    passs = mandakhHash(password)
+    userCursor.execute('INSERT INTO "user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") VALUES(%s, %s, %s, %s, %s, %s, %s)',
+                       (firstName, lastName, email, passs, username, None, 2))
+    myCon.commit()
+    userCursor.close()
+    disconnectDB(myCon)
+    response = {
+        "responseCode": 200,
+        "responseText": "User registered successfully"
+    }
 
-#     return HttpResponse(json.dumps(response), content_type="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
