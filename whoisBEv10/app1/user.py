@@ -25,12 +25,11 @@ def userLoginView(request):
     jsons = json.loads(request.body)
     myName = jsons['name']
     myPass = jsons['pass']
-    passs = mandakhHash(myPass)
     myCon = connectDB()
     userCursor = myCon.cursor()
     userCursor.execute('select count(id) as too from "user"'
                          ' where "userName"=\''+ myName+ '\' '
-                         ' and "pass"=\''+ passs+ '\''
+                         ' and "pass"=\''+ myPass+ '\''
                          )    
     columns = userCursor.description
     response = [{columns[index][0]:column for index, column in enumerate(
