@@ -34,7 +34,7 @@ def userLoginView(request):
     userCursor.execute("SELECT * "
                     " FROM user "
                     " WHERE " 
-                    " deldate = %s AND "
+                    " deldate is %s AND "
                     " pass = %s AND "
                     " isVerified = true AND "
                     " userName = %s ",
