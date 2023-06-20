@@ -32,7 +32,7 @@ def userLoginView(request):
     userCursor = myCon.cursor()
     userTable = "user"
     userCursor.execute("  SELECT * "
-                    " FROM %s "
+                    " FROM user "
                     " WHERE "
                     " deldate is null "
                     " pass = %s AND "
