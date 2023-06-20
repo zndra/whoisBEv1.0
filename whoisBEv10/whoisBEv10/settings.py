@@ -1,10 +1,11 @@
+import psycopg2
+
 from   email.mime.multipart import MIMEMultipart
 from   email.mime.text      import MIMEText
 from   datetime             import datetime
 from   django.urls          import resolve
 from   pathlib              import Path
 import smtplib
-import psycopg2
 import os
 # nemelt importuud 
 import hashlib

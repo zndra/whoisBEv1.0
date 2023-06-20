@@ -1,4 +1,7 @@
 import psycopg2 
+
+
+
 pgDbName   = "dbwhois"
 pgUser     = "uwhois"
 pgHost     = "202.131.254.138"
