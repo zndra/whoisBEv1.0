@@ -237,6 +237,14 @@ def runQuery(query):
 
 # if runQUery("select * from users") == 0:
     
+def reqValidation(json,keys):
+    validReq = True
+    for key in keys:
+        if(key not in json):
+            validReq = False
+            break
+    return validReq
+#   def
 
 
 

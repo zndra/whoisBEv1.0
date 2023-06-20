@@ -26,6 +26,16 @@ def userListView(request):
 
 def userLoginView(request):
     jsons = json.loads(request.body)
+    if(reqValidation(jsons, 
+            {
+                "name",
+                "pass",                 
+            }
+        ) == False):
+        resp = {}
+        resp["responseCode"] = 550
+        resp["responseText"] = "Field-үүд дутуу"        
+        return HttpResponse(json.dumps(resp), content_type="application/json")
     myName = jsons['name']
     myPass = jsons['pass']
     myCon = connectDB()
