@@ -121,8 +121,8 @@ def changePass(request):
     pas = jsons['pas']
     pa = mandakhHash(pas)
     ## a = "UPDATE user SET pass=%s WHERE id = %s", id, pa
-    a = "UPDATE user SET pass=%s WHERE id = %s" % (pa,id)
-    b = runQuery("SELECT * FROM user WHERE id = %s"%(id))
+    a = "UPDATE \"user\" SET pass=%s WHERE id = %s" % (pa,id)
+    b = runQuery("SELECT * FROM \"user\" WHERE id = %s"%(id))
     if b == 0:
         response = {
             "responseCode": 555,
