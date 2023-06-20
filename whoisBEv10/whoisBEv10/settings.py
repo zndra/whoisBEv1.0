@@ -2,6 +2,10 @@ from datetime import datetime
 from pathlib import Path
 import os
 import psycopg2
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
+
 
 
 # nemelt importuud 
@@ -202,16 +206,34 @@ def userNameExists(username):
     userCursor.close()
     disconnectDB(myCon)
     return result[0] > 0
+
+def sendMail(receiver_address, mail_subject, mail_content):
+    sender_address = "mtaxapp@zohomail.com"
+    sender_pass = "N32sH@fGn2NtZAn"
+
+    message = MIMEMultipart()
+    message['From'] = sender_address
+    message['To'] = receiver_address
+    message['Subject'] = mail_subject   #The subject line
+    #The body and the attachments for the mail
+    message.attach(MIMEText(mail_content, 'plain'))
+    #Create SMTP session for sending the mail
+    session = smtplib.SMTP_SSL('smtp.zoho.com', 465) #use gmail with port
+    # session.starttls() #enable security
+    session.login(sender_address, sender_pass) #login with mail_id and password
+    text = message.as_string()
+    session.sendmail(sender_address, receiver_address, text)
+    session.quit()
 ##########################################
 
-# def runQuery(query):
-#     myCon = connectDB()
-#     userCursor = myCon.cursor()
-#     userCursor.execute(query)
-#     result = userCursor.fetchone()
-#     userCursor.close()
-#     disconnectDB(myCon)
-#     return result[0] > 0
+def runQuery(query):
+    myCon = connectDB()
+    userCursor = myCon.cursor()
+    userCursor.execute(query)
+    result = userCursor.fetchone()
+    userCursor.close()
+    disconnectDB(myCon)
+    return result[0] > 0
 
 
 # if runQUery("select * from users") == 0:

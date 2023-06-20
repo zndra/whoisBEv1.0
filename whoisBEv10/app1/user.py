@@ -12,13 +12,15 @@ def userListView(request):
     userCursor = myCon.cursor()
     userCursor.execute('SELECT * FROM "user" ORDER BY id ASC')
     columns = userCursor.description
-    response = [{columns[index][0]: column for index, column in enumerate(value)} for value in userCursor.fetchall()]
+    response = [{columns[index][0]: column for index,
+                 column in enumerate(value)} for value in userCursor.fetchall()]
     userCursor.close()
     disconnectDB(myCon)
     # Convert timezone-aware time objects to timezone-naive time objects
     for item in response:
         if 'created_at' in item:
-            item['created_at'] = item['created_at'].astimezone(pytz.utc).replace(tzinfo=None)
+            item['created_at'] = item['created_at'].astimezone(
+                pytz.utc).replace(tzinfo=None)
     responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
     return HttpResponse(responseJSON, content_type="application/json")
 #   userListView
@@ -31,16 +33,16 @@ def userLoginView(request):
     myCon = connectDB()
     userCursor = myCon.cursor()
     userCursor.execute('select count(id) as too from "user"'
-                         ' where "userName"=\''+ myName+ '\' '
-                         ' and "pass"=\''+ myPass+ '\''
-                         )    
+                       ' where "userName"=\'' + myName + '\' '
+                       ' and "pass"=\'' + myPass + '\''
+                       )
     columns = userCursor.description
     response = [{columns[index][0]:column for index, column in enumerate(
-        value)} for value in userCursor.fetchall()]    
-    userCursor.close()        
+        value)} for value in userCursor.fetchall()]
+    userCursor.close()
     disconnectDB(myCon)
 
-    responseCode = 521 # login error
+    responseCode = 521  # login error
     responseText = 'Буруу нэр/нууц үг'
     if response[0]['too'] != 0:
         responseCode = 200
@@ -49,9 +51,11 @@ def userLoginView(request):
     resp["responseCode"] = responseCode
     resp["responseText"] = responseText
 
-    return  HttpResponse(json.dumps(resp),content_type="application/json")    
+    return HttpResponse(json.dumps(resp), content_type="application/json")
 ###################################################
 #   userLoginView
+
+
 def userRegisterView(request):
     jsons = json.loads(request.body)
     firstName = jsons['firstName']
@@ -59,7 +63,7 @@ def userRegisterView(request):
     email = jsons['email']
     password = jsons['pass']
     username = jsons['userName']
-    
+
     # Check if email or username already exist in the database
     if emailExists(email):
         response = {
@@ -67,7 +71,7 @@ def userRegisterView(request):
             "responseText": "Email already exists"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
-    
+
     if userNameExists(username):
         response = {
             "responseCode": 400,
@@ -84,7 +88,7 @@ def userRegisterView(request):
     myCon.commit()
     userCursor.close()
     disconnectDB(myCon)
-    
+
     response = {
         "responseCode": 200,
         "responseText": "User registered successfully"
@@ -92,3 +96,47 @@ def userRegisterView(request):
 
     return HttpResponse(json.dumps(response), content_type="application/json")
 #   userRegisterView
+
+
+def forgetPass(request):
+    jsons = json.loads(request.body)
+    email = jsons['email']
+    if request.method == 'POST':
+        if runQuery == ('SELECT email FROM users WHERE email=%s', (email)):
+            sendMail(email, 
+                     'Reset Password',
+                     'https://www.facebook.com/recover/initiate/?ldata=AWe3DyZjElBs5PGSw6BbaSjaPZm49o3OoUm7YM5HvpnAeNfxn-6QADMiYkZP0JDAohjE5d8M_2f8fGwFyMICZhAQX1ehnOiC4xur9Lqn7QqrTPld7YQqzfaDA9EE1xQBwWhQ26A-vXt07-h3qZkn6uCgNxKSaURadprdJ9aQqvjypi8SqPus5wyasseqpnYqgb_k_T-mgxm2E30qlG_s0SQa_3lGdbKdm0ibnh1aYEPMWdVVwLq5J3U9ExYVBnKWWSJfJvZHpCCAPdTApc6jIc9t'
+                     )
+
+        response = {
+            "responseCode": 555,
+            "responseText": ""
+        }
+    return HttpResponse(json.dumps(response), content_type="application/json")
+
+def changePass(request):
+    jsons = json.load(request.body)
+    id = jsons['id']
+    pas = jsons['pas']
+    pa = mandakhHash(pas)
+    a = runQuery("UPDATE user SET pass=%s WHERE id = %s", id, pa)
+    b = runQuery("SELECT * FROM user WHERE id = %s", id)
+    if b == 0:
+        response = {
+            "responseCode": 555,
+            "responseText": "user not found"
+            }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    else:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute(a)
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+        response = {
+            "responseCode": 556,
+            "responseText": "Change password successfully"
+            }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+

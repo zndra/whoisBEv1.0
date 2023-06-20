@@ -7,5 +7,7 @@ urlpatterns = [
     path('userLogin/', user.userLoginView, name='userLoginView'),
     path('zuu/', basic.zuu, name='zuuListView'),
     path('userRegister/', user.userRegisterView, name='userRegisterView'),
+    path('forgetPass/', user.forgetPass, name='forgetPass'),
+    path('changePass/', user.changePass, name='changePass'),
     ######################################################
 ]
