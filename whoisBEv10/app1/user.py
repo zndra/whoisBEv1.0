@@ -51,7 +51,8 @@ def userLoginView(request):
 
     responseCode = 521  # login error
     responseText = 'Буруу нэр/нууц үг'
-    if response[0]:
+
+    if len(response)>0:
         responseCode = 200
         responseText = 'Зөв нэр/нууц үг байна хөгшөөн'
         responseData = response[0]
