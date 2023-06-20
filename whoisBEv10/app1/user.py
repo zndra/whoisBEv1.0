@@ -31,15 +31,14 @@ def userLoginView(request):
     myCon = connectDB()
     userCursor = myCon.cursor()
     userTable = "user"
-    userCursor.execute("  SELECT * "
+    userCursor.execute("SELECT * "
                     " FROM user "
                     " WHERE "
                     " deldate is null "
                     " pass = %s AND "
                     " isVerified = true AND "
                     " userName = %s AND ",
-                    (
-                     userTable,
+                    (                     
                      myPass, 
                      myName, 
                     ))    
