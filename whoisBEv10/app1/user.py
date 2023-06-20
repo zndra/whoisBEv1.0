@@ -115,6 +115,7 @@ def forgetPass(request):
         }
     return HttpResponse(json.dumps(response), content_type="application/json")
 
+#### Change password #####
 def changePass(request):
     jsons = json.loads(request.body)
     id = jsons['id']
@@ -124,7 +125,7 @@ def changePass(request):
     # a = "UPDATE \"user\" SET pass=%s WHERE id = %s" % (pa,id)
     # b = runQuery("SELECT * FROM \"user\" WHERE id = %s"%(id))
     
-    if id:
+    if id==0:
         myCon = connectDB()
         userCursor = myCon.cursor()
         userCursor.execute('select count(id) from "user"'
@@ -152,3 +153,4 @@ def changePass(request):
             }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
+#######################################################################################
