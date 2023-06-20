@@ -72,14 +72,11 @@
 						"disableBodyPruning": true
 					},
 					"request": {
-						"auth": {
-							"type": "noauth"
-						},
 						"method": "GET",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "",
+							"raw": "\r\n{\r\n    \"name\" : \"admin2\",\r\n    \"pass\" : \"password123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -87,14 +84,15 @@
 							}
 						},
 						"url": {
-							"raw": "whoisb.mandakh.org/userLogin",
+							"raw": "whoisb.mandakh.org/userLogin/",
 							"host": [
 								"whoisb",
 								"mandakh",
 								"org"
 							],
 							"path": [
-								"userLogin"
+								"userLogin",
+								""
 							]
 						}
 					},
