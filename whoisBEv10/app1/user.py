@@ -51,6 +51,7 @@ def userLoginView(request):
 
     responseCode = 521  # login error
     responseText = 'Буруу нэр/нууц үг'
+    responseData = []
 
     if len(response)>0:
         responseCode = 200
