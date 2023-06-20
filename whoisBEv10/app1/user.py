@@ -31,7 +31,7 @@ def userLoginView(request):
     myCon = connectDB()
     userCursor = myCon.cursor()
     userTable = "user"
-    userCursor.execute("SELECT * "
+    userCursor.execute("SELECT \"id\",\"userName\",\"firstName\",\"lastName\",\"email\" "
                     " FROM f_user"
                     " WHERE " 
                     " deldate IS NULL AND "
