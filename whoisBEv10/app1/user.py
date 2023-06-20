@@ -4,7 +4,9 @@ from whoisBEv10.settings import *
 from django.core.serializers.json import DjangoJSONEncoder
 import pytz
 from django.utils import timezone
-# ...
+
+
+# ene debug uyed ajillah yostoi
 def userListView(request):
     myCon = connectDB()
     userCursor = myCon.cursor()
@@ -19,8 +21,9 @@ def userListView(request):
             item['created_at'] = item['created_at'].astimezone(pytz.utc).replace(tzinfo=None)
     responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
     return HttpResponse(responseJSON, content_type="application/json")
+#   userListView
 
-###################################################################
+
 def userLoginView(request):
     jsons = json.loads(request.body)
     myName = jsons['name']
@@ -37,7 +40,7 @@ def userLoginView(request):
     userCursor.close()        
     disconnectDB(myCon)
 
-    responseCode = 0
+    responseCode = 521 # login error
     responseText = 'Буруу нэр/нууц үг'
     if response[0]['too'] != 0:
         responseCode = 200
@@ -48,6 +51,7 @@ def userLoginView(request):
 
     return  HttpResponse(json.dumps(resp),content_type="application/json")    
 ###################################################
+#   userLoginView
 def userRegisterView(request):
     jsons = json.loads(request.body)
     firstName = jsons['firstName']
@@ -87,3 +91,4 @@ def userRegisterView(request):
     }
 
     return HttpResponse(json.dumps(response), content_type="application/json")
+#   userRegisterView

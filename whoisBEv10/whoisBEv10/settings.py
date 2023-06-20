@@ -171,8 +171,6 @@ def reqValidation(json,keys):
 #   def
 
 def connectDB():
-    
-
     con = psycopg2.connect(
         dbname=pgDbName,
         user=pgUser,
@@ -205,5 +203,19 @@ def userNameExists(username):
     disconnectDB(myCon)
     return result[0] > 0
 ##########################################
+
+# def runQuery(query):
+#     myCon = connectDB()
+#     userCursor = myCon.cursor()
+#     userCursor.execute(query)
+#     result = userCursor.fetchone()
+#     userCursor.close()
+#     disconnectDB(myCon)
+#     return result[0] > 0
+
+
+# if runQUery("select * from users") == 0:
+    
+
 
 
