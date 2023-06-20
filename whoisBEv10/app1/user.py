@@ -119,11 +119,19 @@ def changePass(request):
     jsons = json.loads(request.body)
     id = jsons['id']
     pas = jsons['pas']
-    pa = mandakhHash(pas)
+    # pa = mandakhHash(pas)
     ## a = "UPDATE user SET pass=%s WHERE id = %s", id, pa
-    a = "UPDATE \"user\" SET pass=%s WHERE id = %s" % (pa,id)
-    b = runQuery("SELECT * FROM \"user\" WHERE id = %s"%(id))
-    if b == 0:
+    # a = "UPDATE \"user\" SET pass=%s WHERE id = %s" % (pa,id)
+    # b = runQuery("SELECT * FROM \"user\" WHERE id = %s"%(id))
+    
+    if id:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute('select count(id) from "user"'
+                       ' where "id"=\'' + id + '\' ')
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
         response = {
             "responseCode": 555,
             "responseText": "user not found"
@@ -132,7 +140,9 @@ def changePass(request):
     else:
         myCon = connectDB()
         userCursor = myCon.cursor()
-        userCursor.execute(a)
+        userCursor.execute('update "user"'
+                           ' set "pass"=\'' + pas + '\''
+                       ' where "id"=\'' + id + '\' ')
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
