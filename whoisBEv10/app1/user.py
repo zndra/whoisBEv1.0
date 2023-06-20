@@ -116,7 +116,7 @@ def forgetPass(request):
     return HttpResponse(json.dumps(response), content_type="application/json")
 
 def changePass(request):
-    jsons = json.load(request.body)
+    jsons = json.loads(request.body)
     id = jsons['id']
     pas = jsons['pas']
     pa = mandakhHash(pas)
