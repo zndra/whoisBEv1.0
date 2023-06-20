@@ -81,8 +81,8 @@ def userRegisterView(request):
     myCon = connectDB()
     userCursor = myCon.cursor()
     passs = mandakhHash(password)
-    userCursor.execute('INSERT INTO "user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") VALUES(%s, %s, %s, %s, %s, %s, %s)',
-                       (firstName, lastName, email, passs, username, None, 2))
+    userCursor.execute('INSERT INTO "user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid", "isVerified") VALUES(%s, %s, %s, %s, %s, %s, %s, %s)',
+                       (firstName, lastName, email, passs, username, None, 2, False))
     myCon.commit()
     userCursor.close()
     disconnectDB(myCon)
@@ -94,10 +94,11 @@ def userRegisterView(request):
 
     response = {
         "responseCode": 200,
-        "responseText": "User registered successfully"
+        "responseText": "Mail sent successfully"
     }
 
     return HttpResponse(json.dumps(response), content_type="application/json")
+###################################################################################
 
 def forgetPass(request):
     jsons = json.loads(request.body)
@@ -141,4 +142,19 @@ def changePass(request):
             "responseText": "Change password successfully"
             }
         return HttpResponse(json.dumps(response), content_type="application/json")
+####################################################################################
+def verifyEmail(request, email):
+    myCon = connectDB()
+    userCursor = myCon.cursor()
+    userCursor.execute('UPDATE "user" SET "isVerified" = true WHERE "email" = %s', [email])
+    myCon.commit()
+    userCursor.close()
+    disconnectDB(myCon)
+    
+    response = {
+        "responseCode": 202,
+        "responseText": "Email verified successfully"
+    }
+
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
