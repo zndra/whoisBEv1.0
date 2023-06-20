@@ -185,6 +185,7 @@ def connectDB():
 def disconnectDB(con):
     if(con):
         con.close()
+        # is email overlaped
 def emailExists(email):
     myCon = connectDB()
     userCursor = myCon.cursor()
@@ -193,6 +194,8 @@ def emailExists(email):
     userCursor.close()
     disconnectDB(myCon)
     return result[0] > 0
+##########################################
+#is username overlaped
 def userNameExists(username):
     myCon = connectDB()
     userCursor = myCon.cursor()
@@ -201,6 +204,6 @@ def userNameExists(username):
     userCursor.close()
     disconnectDB(myCon)
     return result[0] > 0
-
+##########################################
 
 
