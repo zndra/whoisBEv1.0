@@ -34,11 +34,12 @@ def userLoginView(request):
     userCursor.execute("SELECT * "
                     " FROM user "
                     " WHERE " 
-                    " deldate is None AND "
+                    " deldate = %s AND "
                     " pass = %s AND "
                     " isVerified = true AND "
                     " userName = %s ",
-                    (                     
+                    (
+                     None,
                      myPass, 
                      myName, 
                     ))    
