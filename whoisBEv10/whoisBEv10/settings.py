@@ -1,16 +1,15 @@
 from   email.mime.multipart import MIMEMultipart
 from   email.mime.text      import MIMEText
 from   datetime             import datetime
+from   django.urls          import resolve
 from   pathlib              import Path
 import smtplib
 import psycopg2
 import os
-
 # nemelt importuud 
 import hashlib
 import base64
 import random
-from django.urls import resolve
 ###############################
 BASE_DIR = Path(__file__).resolve().parent.parent
 t = os.path.join(BASE_DIR, 'templates')
