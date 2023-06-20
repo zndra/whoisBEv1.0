@@ -33,8 +33,8 @@ def userLoginView(request):
     userTable = "user"
     userCursor.execute("SELECT * "
                     " FROM user "
-                    " WHERE "
-                    " deldate is null AND "
+                    " WHERE " 
+                    " deldate is None AND "
                     " pass = %s AND "
                     " isVerified = true AND "
                     " userName = %s ",
