@@ -3,8 +3,8 @@ import json
 from whoisBEv10.settings import *
 from django.core.serializers.json import DjangoJSONEncoder
 import pytz
-from django.utils import timezone
-
+# from django.utils import timezone
+from app1.sendEmail.sendEmail import*
 
 # ene debug uyed ajillah yostoi
 def userListView(request):
@@ -54,8 +54,6 @@ def userLoginView(request):
     return HttpResponse(json.dumps(resp), content_type="application/json")
 ###################################################
 #   userLoginView
-
-
 def userRegisterView(request):
     jsons = json.loads(request.body)
     firstName = jsons['firstName']
@@ -88,6 +86,11 @@ def userRegisterView(request):
     myCon.commit()
     userCursor.close()
     disconnectDB(myCon)
+    
+    # Send email verification email
+    mail_subject = "Email Verification"
+    mail_content = f"Dear {firstName},\n\nThank you for registering. Please click the following link to verify your email:\n\nhttp://example.com/verify-email/{email}"
+    sendMail(email, mail_subject, mail_content)
 
     response = {
         "responseCode": 200,
@@ -95,8 +98,6 @@ def userRegisterView(request):
     }
 
     return HttpResponse(json.dumps(response), content_type="application/json")
-#   userRegisterView
-
 
 def forgetPass(request):
     jsons = json.loads(request.body)
