@@ -32,12 +32,12 @@ def userLoginView(request):
     userCursor = myCon.cursor()
     userTable = "user"
     userCursor.execute("SELECT * "
-                    " FROM \"user\" "
+                    " FROM dbwhois.user"
                     " WHERE " 
-                    " deldate IS NULL AND "
-                    " pass = %s AND "
-                    " isVerified = true AND "
-                    " userName = %s ",
+                    " user.deldate IS NULL AND "
+                    " user.pass = %s AND "
+                    " user.isVerified = true AND "
+                    " user.userName = %s ",
                     (                     
                      myPass, 
                      myName, 
