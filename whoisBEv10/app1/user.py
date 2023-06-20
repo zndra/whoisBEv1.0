@@ -90,7 +90,7 @@ def userRegisterView(request):
     
     # Send email verification email
     mail_subject = "Email Verification"
-    mail_content = f"Dear {firstName},\n\nThank you for registering. Please click the following link to verify your email:\n\nhttp://example.com/verify-email/{email}"
+    mail_content = f"Dear {firstName},\n\nThank you for registering. Please click the following link to verify your email:\n\nhttp://whois.mandakh.org/profile/{email}"
     sendMail(email, mail_subject, mail_content)
 
     response = {
