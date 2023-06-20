@@ -26,12 +26,7 @@ def userListView(request):
 
 def userLoginView(request):
     jsons = json.loads(request.body)
-    if(reqValidation(jsons, 
-            {
-                "name",
-                "pass",                 
-            }
-        ) == False):
+    if( reqValidation( jsons, {"name","pass",} ) == False):
         resp = {}
         resp["responseCode"] = 550
         resp["responseText"] = "Field-үүд дутуу"        
@@ -74,8 +69,10 @@ def userLoginView(request):
     resp["responseCode"] = responseCode
     resp["responseText"] = responseText
     resp["userData"] = responseData
+    resp["Сургууль"]["Нэр"] = "Мандах"
+    resp["Сургууль"]["Хаяг"] = "3-р хороолол"
     
-
+    
     return HttpResponse(json.dumps(resp), content_type="application/json")
 #   userLoginView end
 
