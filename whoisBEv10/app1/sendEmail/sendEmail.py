@@ -21,5 +21,4 @@ def sendMail(receiver_address, mail_subject, mail_content):
     session.quit()
 #   sendMail
 
-sendMail("uprogr@gmail.com","lskdfasfd","asdasdads asd asd asd \nasd klajsd;lkjaslkdjalskd \n lkdsjfl;kjalk;sajdflkasdf")
 

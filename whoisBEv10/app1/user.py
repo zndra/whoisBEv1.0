@@ -25,26 +25,26 @@ def userListView(request):
     return HttpResponse(responseJSON, content_type="application/json")
 #   userListView
 
-
 def userLoginView(request):
     jsons = json.loads(request.body)
     myName = jsons['name']
     myPass = jsons['pass']
     myCon = connectDB()
     userCursor = myCon.cursor()
-    userCursor.execute('select count(id) as too from "user"'
-                       ' where "userName"=\'' + myName + '\' '
-                       ' and "pass"=\'' + myPass + '\''
+    userCursor.execute('SELECT count(id) as too, "isVerified" FROM "user"'
+                       ' WHERE "userName"=\'' + myName + '\' '
+                       ' AND "pass"=\'' + myPass + '\''
+                       ' GROUP BY "isVerified"'
+                       ' HAVING "isVerified"=true'
                        )
     columns = userCursor.description
-    response = [{columns[index][0]:column for index, column in enumerate(
-        value)} for value in userCursor.fetchall()]
+    response = [{columns[index][0]: column for index, column in enumerate(value)} for value in userCursor.fetchall()]
     userCursor.close()
     disconnectDB(myCon)
 
     responseCode = 521  # login error
     responseText = 'Буруу нэр/нууц үг'
-    if response[0]['too'] != 0:
+    if response and response[0]['too'] != 0:
         responseCode = 200
         responseText = 'Зөв нэр/нууц үг байна хөгшөөн'
     resp = {}
@@ -52,6 +52,7 @@ def userLoginView(request):
     resp["responseText"] = responseText
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 ###################################################
 #   userLoginView
 def userRegisterView(request):
