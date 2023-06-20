@@ -1,21 +1,21 @@
-from django.http import HttpResponse
-import json
-from whoisBEv10.settings import *
-from django.core.serializers.json import DjangoJSONEncoder
-import pytz
-from app1.sendEmail.sendEmail import *
+from    django.http                  import HttpResponse
+from    django.core.serializers.json import DjangoJSONEncoder
+from    app1.sendEmail.sendEmail     import *
+from    whoisBEv10.settings          import *
+import  pytz
+import  json
 
 # ene debug uyed ajillah yostoi
 def userListView(request):
-    myCon = connectDB()
+    myCon      = connectDB()
     userCursor = myCon.cursor()
     userCursor.execute('SELECT * FROM "f_user" ORDER BY id ASC')
-    columns = userCursor.description
-    response = [{columns[index][0]: column for index,
+    columns    = userCursor.description
+    response   = [{columns[index][0]: column for index,
                  column in enumerate(value)} for value in userCursor.fetchall()]
     userCursor.close()
     disconnectDB(myCon)
-    # Convert timezone-aware time objects to timezone-naive time objects
+# Convert timezone-aware time objects to timezone-naive time objects
     for item in response:
         if 'created_at' in item:
             item['created_at'] = item['created_at'].astimezone(
@@ -34,7 +34,7 @@ def userLoginView(request):
     myName = jsons['name']
     myPass = jsons['pass']
     try:
-        myCon = connectDB()
+        myCon      = connectDB()
         userCursor = myCon.cursor()    
         userCursor.execute("SELECT \"id\",\"userName\",\"firstName\",\"lastName\",\"email\" "
                         " FROM f_user"
@@ -47,7 +47,7 @@ def userLoginView(request):
                         myPass, 
                         myName, 
                         ))    
-        columns = userCursor.description
+        columns  = userCursor.description
         response = [{columns[index][0]: column for index, column in enumerate(value)} for value in userCursor.fetchall()]
         userCursor.close()
     except Exception as e:
@@ -66,11 +66,11 @@ def userLoginView(request):
         responseText = 'Зөв нэр/нууц үг байна хөгшөөн'
         responseData = response[0]
     resp = {}
-    resp["responseCode"] = responseCode
-    resp["responseText"] = responseText
-    resp["userData"] = responseData
-    resp["Сургууль"] = {}
-    resp["Сургууль"]["Нэр"] = "Мандах"
+    resp["responseCode"]     = responseCode
+    resp["responseText"]     = responseText
+    resp["userData"]         = responseData
+    resp["Сургууль"]         = {}
+    resp["Сургууль"]["Нэр"]  = "Мандах"
     resp["Сургууль"]["Хаяг"] = "3-р хороолол"
     
     
@@ -82,10 +82,10 @@ def userLoginView(request):
 def userRegisterView(request):
     jsons = json.loads(request.body)
     firstName = jsons['firstName']
-    lastName = jsons['lastName']
-    email = jsons['email']
-    password = jsons['pass']
-    username = jsons['userName']
+    lastName  = jsons['lastName']
+    email     = jsons['email']
+    password  = jsons['pass']
+    username  = jsons['userName']
 
     # Check if email or username already exist in the database
     if emailExists(email):
@@ -103,9 +103,9 @@ def userRegisterView(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     # Proceed with user registration if email and username are unique
-    myCon = connectDB()
+    myCon      = connectDB()
     userCursor = myCon.cursor()
-    passs = mandakhHash(password)
+    passs      = mandakhHash(password)
     userCursor.execute('INSERT INTO "user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") VALUES(%s, %s, %s, %s, %s, %s, %s)',
                        (firstName, lastName, email, passs, username, None, 2))
     myCon.commit()
@@ -143,15 +143,15 @@ def forgetPass(request):
 #### Change password #####
 def changePass(request):
     jsons = json.loads(request.body)
-    id = jsons['id']
-    pas = jsons['pas']
+    id    = jsons['id']
+    pas   = jsons['pas']
     # pa = mandakhHash(pas)
     ## a = "UPDATE user SET pass=%s WHERE id = %s", id, pa
     # a = "UPDATE \"f_user\" SET pass=%s WHERE id = %s" % (pa,id)
     # b = runQuery("SELECT * FROM \"user\" WHERE id = %s"%(id))
     
     if id==0:
-        myCon = connectDB()
+        myCon      = connectDB()
         userCursor = myCon.cursor()
         userCursor.execute('select count(id) from "f_user"'
                        ' where "id"=\'' + id + '\' ')
@@ -164,7 +164,7 @@ def changePass(request):
             }
         return HttpResponse(json.dumps(response), content_type="application/json")
     else:
-        myCon = connectDB()
+        myCon      = connectDB()
         userCursor = myCon.cursor()
         userCursor.execute('update "user"'
                            ' set "pass"=\'' + pas + '\''
