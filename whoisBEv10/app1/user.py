@@ -38,27 +38,30 @@ def userLoginView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
     myName = jsons['name']
     myPass = jsons['pass']
-    myCon = connectDB()
-    userCursor = myCon.cursor()
-    userTable = "user"
-    userCursor.execute("SELECT \"id\",\"userName\",\"firstName\",\"lastName\",\"email\" "
-                    " FROM f_user"
-                    " WHERE " 
-                    " deldate IS NULL AND "
-                    " pass = %s AND "
-                    " \"isVerified\" = true AND "
-                    " \"userName\" = %s ",
-                    (                     
-                     myPass, 
-                     myName, 
-                    ))    
-    columns = userCursor.description
-    response = [{columns[index][0]: column for index, column in enumerate(value)} for value in userCursor.fetchall()]
-    userCursor.close()
-    disconnectDB(myCon)
-
-    print(response)
-
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()    
+        userCursor.execute("SELECT \"id\",\"userName\",\"firstName\",\"lastName\",\"email\" "
+                        " FROM f_user"
+                        " WHERE " 
+                        " deldate IS NULL AND "
+                        " pass = %s AND "
+                        " \"isVerified\" = true AND "
+                        " \"userName\" = %s ",
+                        (                     
+                        myPass, 
+                        myName, 
+                        ))    
+        columns = userCursor.description
+        response = [{columns[index][0]: column for index, column in enumerate(value)} for value in userCursor.fetchall()]
+        userCursor.close()
+    except Exception as e:
+        resp = {}
+        resp["responseCode"] = 551
+        resp["responseText"] = "Баазын алдаа"        
+        return HttpResponse(json.dumps(resp), content_type="application/json")        
+    finally:
+        disconnectDB(myCon)
     responseCode = 521  # login error
     responseText = 'Буруу нэр/нууц үг'
     responseData = []
@@ -71,11 +74,13 @@ def userLoginView(request):
     resp["responseCode"] = responseCode
     resp["responseText"] = responseText
     resp["userData"] = responseData
+    
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
+#   userLoginView end
 
-###################################################
-#   userLoginView
+
+
 def userRegisterView(request):
     jsons = json.loads(request.body)
     firstName = jsons['firstName']
