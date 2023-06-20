@@ -69,6 +69,7 @@ def userLoginView(request):
     resp["responseCode"] = responseCode
     resp["responseText"] = responseText
     resp["userData"] = responseData
+    resp["Сургууль"] = {}
     resp["Сургууль"]["Нэр"] = "Мандах"
     resp["Сургууль"]["Хаяг"] = "3-р хороолол"
     
