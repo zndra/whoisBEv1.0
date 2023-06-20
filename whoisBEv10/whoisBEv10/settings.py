@@ -11,8 +11,8 @@ import hashlib
 import base64
 import random
 ###############################
-BASE_DIR = Path(__file__).resolve().parent.parent
-t = os.path.join(BASE_DIR, 'templates')
+BASE_DIR   = Path(__file__).resolve().parent.parent
+t          = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = 'django-insecure-#_966zao2el-7c%hqh=85b*on!y=p*6c^tr8*oo$-akm8my%+4'
 
 DEBUG = True
@@ -64,7 +64,7 @@ WSGI_APPLICATION = 'whoisBEv10.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+        'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
@@ -94,12 +94,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_TZ = True
+TIME_ZONE     = 'UTC'
+USE_I18N      = True
+USE_TZ        = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -114,11 +111,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ------------ start Bidnii nemsen tohiruulguud
 
-pgDbName = "dbwhois"
-pgUser = "uwhois"
-pgHost = "202.131.254.138"
+pgDbName   = "dbwhois"
+pgUser     = "uwhois"
+pgHost     = "202.131.254.138"
 pgPassword = "whoispass"
-pgPort = "5938"
+pgPort     = "5938"
 
 # ------------ end Bidnii nemsen tohiruulguud
 
@@ -172,11 +169,11 @@ def reqValidation(json,keys):
 
 def connectDB():
     con = psycopg2.connect(
-        dbname=pgDbName,
-        user=pgUser,
-        host=pgHost,
-        password=pgPassword,
-        port=pgPort,
+        dbname   = pgDbName,
+        user     = pgUser,
+        host     = pgHost,
+        password = pgPassword,
+        port     = pgPort,
     )
     return con
 
@@ -195,21 +192,21 @@ def emailExists(email):
 ##########################################
 #is username overlaped
 def userNameExists(username):
-    myCon = connectDB()
+    myCon      = connectDB()
     userCursor = myCon.cursor()
     userCursor.execute('SELECT COUNT(*) FROM "user" WHERE "userName" = %s', (username,))
-    result = userCursor.fetchone()
+    result     = userCursor.fetchone()
     userCursor.close()
     disconnectDB(myCon)
     return result[0] > 0
 
 def sendMail(receiver_address, mail_subject, mail_content):
     sender_address = "mtaxapp@zohomail.com"
-    sender_pass = "N32sH@fGn2NtZAn"
+    sender_pass    = "N32sH@fGn2NtZAn"
 
     message = MIMEMultipart()
-    message['From'] = sender_address
-    message['To'] = receiver_address
+    message['From']    = sender_address
+    message['To']      = receiver_address
     message['Subject'] = mail_subject   #The subject line
     #The body and the attachments for the mail
     message.attach(MIMEText(mail_content, 'plain'))
@@ -223,10 +220,10 @@ def sendMail(receiver_address, mail_subject, mail_content):
 ##########################################
 
 def runQuery(query):
-    myCon = connectDB()
+    myCon      = connectDB()
     userCursor = myCon.cursor()
     userCursor.execute(query)
-    result = userCursor.fetchone()
+    result     = userCursor.fetchone()
     userCursor.close()
     disconnectDB(myCon)
     return result[0] > 0
