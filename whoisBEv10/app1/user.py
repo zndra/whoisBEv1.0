@@ -3,8 +3,7 @@ import json
 from whoisBEv10.settings import *
 from django.core.serializers.json import DjangoJSONEncoder
 import pytz
-# from django.utils import timezone
-from app1.sendEmail.sendEmail import*
+from app1.sendEmail.sendEmail import *
 
 # ene debug uyed ajillah yostoi
 def userListView(request):
@@ -31,22 +30,31 @@ def userLoginView(request):
     myPass = jsons['pass']
     myCon = connectDB()
     userCursor = myCon.cursor()
-    userCursor.execute('SELECT count(id) as too, "isVerified" FROM "user"'
-                       ' WHERE "userName"=\'' + myName + '\' '
-                       ' AND "pass"=\'' + myPass + '\''
-                       ' GROUP BY "isVerified"'
-                       ' HAVING "isVerified"=true'
-                       )
+    userTable = "user"
+    userCursor.execute("  SELECT * "
+                    " FROM %s "
+                    " WHERE "
+                    " deldate is null "
+                    " pass = %s AND "
+                    " isVerified = true AND "
+                    " userName = %s AND ",
+                    (
+                     userTable,
+                     myPass, 
+                     myName, 
+                    ))    
     columns = userCursor.description
     response = [{columns[index][0]: column for index, column in enumerate(value)} for value in userCursor.fetchall()]
     userCursor.close()
     disconnectDB(myCon)
 
+    print(response)
+
     responseCode = 521  # login error
     responseText = 'Буруу нэр/нууц үг'
-    if response and response[0]['too'] != 0:
-        responseCode = 200
-        responseText = 'Зөв нэр/нууц үг байна хөгшөөн'
+    # if response and response[0]['too'] != 0:
+    #     responseCode = 200
+    #     responseText = 'Зөв нэр/нууц үг байна хөгшөөн'
     resp = {}
     resp["responseCode"] = responseCode
     resp["responseText"] = responseText
