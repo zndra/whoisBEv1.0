@@ -36,8 +36,8 @@ def userLoginView(request):
                     " WHERE " 
                     " deldate IS NULL AND "
                     " pass = %s AND "
-                    " isVerified = true AND "
-                    " userName = %s ",
+                    " \"isVerified\" = true AND "
+                    " \"userName\" = %s ",
                     (                     
                      myPass, 
                      myName, 
