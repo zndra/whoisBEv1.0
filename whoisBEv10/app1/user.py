@@ -9,7 +9,7 @@ from app1.sendEmail.sendEmail import *
 def userListView(request):
     myCon = connectDB()
     userCursor = myCon.cursor()
-    userCursor.execute('SELECT * FROM "user" ORDER BY id ASC')
+    userCursor.execute('SELECT * FROM "f_user" ORDER BY id ASC')
     columns = userCursor.description
     response = [{columns[index][0]: column for index,
                  column in enumerate(value)} for value in userCursor.fetchall()]
@@ -32,12 +32,12 @@ def userLoginView(request):
     userCursor = myCon.cursor()
     userTable = "user"
     userCursor.execute("SELECT * "
-                    " FROM whoisdb.user"
+                    " FROM f_user"
                     " WHERE " 
-                    " user.deldate IS NULL AND "
-                    " user.pass = %s AND "
-                    " user.isVerified = true AND "
-                    " user.userName = %s ",
+                    " deldate IS NULL AND "
+                    " pass = %s AND "
+                    " isVerified = true AND "
+                    " userName = %s ",
                     (                     
                      myPass, 
                      myName, 
@@ -111,7 +111,7 @@ def forgetPass(request):
     jsons = json.loads(request.body)
     email = jsons['email']
     if request.method == 'POST':
-        if runQuery == ('SELECT email FROM users WHERE email=%s', (email)):
+        if runQuery == ('SELECT email FROM f_user WHERE email=%s', (email)):
             sendMail(email, 
                      'Reset Password',
                      'https://www.facebook.com/recover/initiate/?ldata=AWe3DyZjElBs5PGSw6BbaSjaPZm49o3OoUm7YM5HvpnAeNfxn-6QADMiYkZP0JDAohjE5d8M_2f8fGwFyMICZhAQX1ehnOiC4xur9Lqn7QqrTPld7YQqzfaDA9EE1xQBwWhQ26A-vXt07-h3qZkn6uCgNxKSaURadprdJ9aQqvjypi8SqPus5wyasseqpnYqgb_k_T-mgxm2E30qlG_s0SQa_3lGdbKdm0ibnh1aYEPMWdVVwLq5J3U9ExYVBnKWWSJfJvZHpCCAPdTApc6jIc9t'
@@ -130,13 +130,13 @@ def changePass(request):
     pas = jsons['pas']
     # pa = mandakhHash(pas)
     ## a = "UPDATE user SET pass=%s WHERE id = %s", id, pa
-    # a = "UPDATE \"user\" SET pass=%s WHERE id = %s" % (pa,id)
+    # a = "UPDATE \"f_user\" SET pass=%s WHERE id = %s" % (pa,id)
     # b = runQuery("SELECT * FROM \"user\" WHERE id = %s"%(id))
     
     if id==0:
         myCon = connectDB()
         userCursor = myCon.cursor()
-        userCursor.execute('select count(id) from "user"'
+        userCursor.execute('select count(id) from "f_user"'
                        ' where "id"=\'' + id + '\' ')
         myCon.commit()
         userCursor.close()
