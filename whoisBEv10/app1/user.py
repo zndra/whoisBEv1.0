@@ -138,7 +138,7 @@ def userRegisterView(request):
     resp["responseCode"] = 200
     resp["responseText"] = "User registered successfully"
     return HttpResponse(json.dumps(resp), content_type="application/json")
-
+######################################################################################
 def forgetPass(request):
     jsons = json.loads(request.body)
     email = jsons['email']
