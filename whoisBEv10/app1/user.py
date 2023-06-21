@@ -4,6 +4,7 @@ from    app1.sendEmail.sendEmail     import *
 from    whoisBEv10.settings          import *
 import  pytz
 import  json
+from django.core.exceptions import ObjectDoesNotExist
 
 # ene debug uyed ajillah yostoi
 def userListView(request):
@@ -157,39 +158,52 @@ def forgetPass(request):
 #### Change password #####
 def changePass(request):
     jsons = json.loads(request.body)
-    id    = jsons['id']
-    pas   = jsons['pas']
-    # pa = mandakhHash(pas)
-    ## a = "UPDATE user SET pass=%s WHERE id = %s", id, pa
-    # a = "UPDATE \"f_user\" SET pass=%s WHERE id = %s" % (pa,id)
-    # b = runQuery("SELECT * FROM \"user\" WHERE id = %s"%(id))
     
-    if id==0:
-        myCon      = connectDB()
+    # Validate request body
+    required_fields = ["id", "pas"]
+    if not reqValidation(jsons, required_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "Invalid request body"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    
+    id = jsons['id']
+    pas = jsons['pas']
+
+    try:
+        myCon = connectDB()
         userCursor = myCon.cursor()
-        userCursor.execute('select count(id) from "f_user"'
-                       ' where "id"=\'' + id + '\' ')
+        
+        # Check if the user exists
+        userCursor.execute('SELECT * FROM "user" WHERE "id" = %s', (id,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+        
+        # Update the password
+        userCursor.execute('UPDATE "user" SET "pass" = %s WHERE "id" = %s', (pas, id))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
+        
+    except Exception as e:
         response = {
-            "responseCode": 555,
-            "responseText": "user not found"
-            }
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
         return HttpResponse(json.dumps(response), content_type="application/json")
-    else:
-        myCon      = connectDB()
-        userCursor = myCon.cursor()
-        userCursor.execute('update "user"'
-                           ' set "pass"=\'' + pas + '\''
-                       ' where "id"=\'' + id + '\' ')
-        myCon.commit()
-        userCursor.close()
-        disconnectDB(myCon)
-        response = {
-            "responseCode": 200,
-            "responseText": "Change password successfully"
-            }
-        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    response = {
+        "responseCode": 200,
+        "responseText": "Password changed successfully"
+    }
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 #######################################################################################
