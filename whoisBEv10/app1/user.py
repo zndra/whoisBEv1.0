@@ -120,9 +120,9 @@ def userRegisterView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     # Proceed with user registration if email and username are unique
-    passs      = mandakhHash(password)
+    # passs      = mandakhHash(password)
     userCursor.execute('INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") VALUES(%s, %s, %s, %s, %s, %s, %s)',
-                       (firstName, lastName, email, passs, username, None, 2))
+                       (firstName, lastName, email, password, username, None, 2))
     myCon.commit()
     userCursor.close()
     disconnectDB(myCon)
