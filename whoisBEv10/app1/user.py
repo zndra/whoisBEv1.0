@@ -4,7 +4,7 @@ from    app1.sendEmail.sendEmail     import *
 from    whoisBEv10.settings          import *
 import  pytz
 import  json
-from django.core.exceptions import ObjectDoesNotExist
+
 
 # ene debug uyed ajillah yostoi
 def userListView(request):
@@ -138,21 +138,38 @@ def userRegisterView(request):
     resp["responseCode"] = 200
     resp["responseText"] = "User registered successfully"
     return HttpResponse(json.dumps(resp), content_type="application/json")
-
+######################################################################################
 def forgetPass(request):
     jsons = json.loads(request.body)
     email = jsons['email']
-    if request.method == 'POST':
-        if runQuery == ('SELECT email FROM f_user WHERE email=%s', (email)):
-            sendMail(email, 
-                     'Reset Password',
-                     'https://www.facebook.com/recover/initiate/?ldata=AWe3DyZjElBs5PGSw6BbaSjaPZm49o3OoUm7YM5HvpnAeNfxn-6QADMiYkZP0JDAohjE5d8M_2f8fGwFyMICZhAQX1ehnOiC4xur9Lqn7QqrTPld7YQqzfaDA9EE1xQBwWhQ26A-vXt07-h3qZkn6uCgNxKSaURadprdJ9aQqvjypi8SqPus5wyasseqpnYqgb_k_T-mgxm2E30qlG_s0SQa_3lGdbKdm0ibnh1aYEPMWdVVwLq5J3U9ExYVBnKWWSJfJvZHpCCAPdTApc6jIc9t'
-                     )
 
-        response = {
-            "responseCode": 555,
-            "responseText": ""
+    # Validate request body
+    if reqValidation(jsons, {"email"}) == False:
+        resp = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
         }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    if request.method == 'POST':
+        try:
+            # Check if the email exists in the database
+            if runQuery('SELECT email FROM f_user WHERE email=%s', (email,)):
+                sendMail(email,
+                         'Reset Password',
+                         'https://www.facebook.com/recover/initiate/?ldata=AWe3DyZjElBs5PGSw6BbaSjaPZm49o3OoUm7YM5HvpnAeNfxn-6QADMiYkZP0JDAohjE5d8M_2f8fGwFyMICZhAQX1ehnOiC4xur9Lqn7QqrTPld7YQqzfaDA9EE1xQBwWhQ26A-vXt07-h3qZkn6uCgNxKSaURadprdJ9aQqvjypi8SqPus5wyasseqpnYqgb_k_T-mgxm2E30qlG_s0SQa_3lGdbKdm0ibnh1aYEPMWdVVwLq5J3U9ExYVBnKWWSJfJvZHpCCAPdTApc6jIc9t'
+                         )
+                
+            response = {
+                "responseCode": 555,
+                "responseText": "success"
+            }
+        except Exception as e:
+            response = {
+                "responseCode": 551,
+                "responseText": "Алдаа гарлаа"
+            }
+    
     return HttpResponse(json.dumps(response), content_type="application/json")
 
 #### Change password #####
