@@ -207,3 +207,35 @@ def changePass(request):
     return HttpResponse(json.dumps(response), content_type="application/json")
 
 #######################################################################################
+#CreateCv
+
+
+def userNemeltMedeelel(request):
+    #  jsons = json.loads(request.body)
+#    uid = jsons['user_id'] (uid,)
+
+
+   if request.method == 'GET':
+       myCon = connectDB()
+       userCursor = myCon.cursor()
+       userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"=66')
+       columns = [column[0] for column in userCursor.description]
+    #    response = [{columns[index][0]: column for index, column in enumerate(value)} for value in userCursor.fetchall()]
+       response = [
+                    {columns[index]: column for index, column in enumerate(value)}
+                     for value in userCursor.fetchall()
+                  ]
+       userCursor.close()
+       disconnectDB(myCon)
+       responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
+       return HttpResponse(responseJSON, content_type="application/json")
+  
+       
+       
+       
+# elif request.method == 'POST':
+       
+       
+
+   
+       
