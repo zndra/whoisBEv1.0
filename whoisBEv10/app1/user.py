@@ -176,7 +176,7 @@ def changePass(request):
         userCursor = myCon.cursor()
         
         # Check if the user exists
-        userCursor.execute('SELECT * FROM "user" WHERE "id" = %s', (id,))
+        userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (id,))
         user = userCursor.fetchone()
         if not user:
             response = {
@@ -188,7 +188,7 @@ def changePass(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
         
         # Update the password
-        userCursor.execute('UPDATE "user" SET "pass" = %s WHERE "id" = %s', (pas, id))
+        userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "id" = %s', (pas, id))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
