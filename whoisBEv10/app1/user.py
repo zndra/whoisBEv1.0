@@ -81,6 +81,13 @@ def userLoginView(request):
 
 def userRegisterView(request):
     jsons = json.loads(request.body)
+    # Validate request body
+    if( reqValidation( jsons, {"firstName", "lastName", "email", "pass", "userName",} ) == False):
+        resp = {}
+        resp["responseCode"] = 550
+        resp["responseText"] = "Field-үүд дутуу"        
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
     firstName = jsons['firstName']
     lastName  = jsons['lastName']
     email     = jsons['email']
@@ -88,41 +95,48 @@ def userRegisterView(request):
     username  = jsons['userName']
 
     # Check if email or username already exist in the database
-    if emailExists(email):
-        response = {
-            "responseCode": 400,
-            "responseText": "Email already exists"
-        }
-        return HttpResponse(json.dumps(response), content_type="application/json")
+    try:
+        myCon      = connectDB()
+        userCursor = myCon.cursor()
+        if emailExists(email):
+            resp = {}
+            resp["responseCode"] = 400
+            resp["responseText"] = "Email already exists"
+            return HttpResponse(json.dumps(resp), content_type="application/json")
 
-    if userNameExists(username):
-        response = {
-            "responseCode": 400,
-            "responseText": "Username already exists"
-        }
-        return HttpResponse(json.dumps(response), content_type="application/json")
+        if userNameExists(username):
+            resp = {}
+            resp["responseCode"] = 400
+            resp["responseText"] = "Username already exists"
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+
+        # Check if the database is connected
+        if not myCon:
+            raise Exception("Can not connect database")
+    except Exception as e:
+        resp = {}
+        resp["responseCode"] =  551
+        resp["responseText"] = "Баазын алдаа"
+        return HttpResponse(json.dumps(resp), content_type="application/json")
 
     # Proceed with user registration if email and username are unique
-    myCon      = connectDB()
-    userCursor = myCon.cursor()
     passs      = mandakhHash(password)
-    userCursor.execute('INSERT INTO "user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") VALUES(%s, %s, %s, %s, %s, %s, %s)',
+    userCursor.execute('INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") VALUES(%s, %s, %s, %s, %s, %s, %s)',
                        (firstName, lastName, email, passs, username, None, 2))
     myCon.commit()
     userCursor.close()
     disconnectDB(myCon)
-    
+
     # Send email verification email
     mail_subject = "Email Verification"
     mail_content = f"Dear {firstName},\n\nThank you for registering. Please click the following link to verify your email:\n\nhttp://whois.mandakh.org/profile/{email}"
     sendMail(email, mail_subject, mail_content)
 
-    response = {
-        "responseCode": 200,
-        "responseText": "User registered successfully"
-    }
-
-    return HttpResponse(json.dumps(response), content_type="application/json")
+    # Return success response
+    resp = {}
+    resp["responseCode"] = 200
+    resp["responseText"] = "User registered successfully"
+    return HttpResponse(json.dumps(resp), content_type="application/json")
 
 def forgetPass(request):
     jsons = json.loads(request.body)
