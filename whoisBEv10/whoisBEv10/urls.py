@@ -1,4 +1,4 @@
-from app1        import user, basic
+from app1        import user, testViews
 from django.urls import path
 urlpatterns = [    
     #    user servoces
