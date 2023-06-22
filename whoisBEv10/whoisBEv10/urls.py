@@ -2,11 +2,15 @@ from app1        import user, basic
 from django.urls import path
 urlpatterns = [    
     #    user servoces
-    path('userList/',     user.userListView,     name='userListView'),
     path('userLogin/',    user.userLoginView,    name='userLoginView'),
-    path('zuu/',          basic.zuu,             name='zuuListView'),
     path('userRegister/', user.userRegisterView, name='userRegisterView'),
     path('forgetPass/',   user.forgetPass,       name='forgetPass'),
     path('changePass/',   user.changePass,       name='changePass'),
+    ######################################################
+
+    # тестийн service-үүд. төслөө хийж дуусчаад устганаа.
+    path('userList/',     user.userListView,         name='userListView'),
+    path('zuu/',          testViews.zuu,             name='zuuListView'),
+    path('tavFact/',      testViews.tavFactView,     name='tavFactListView'),
     ######################################################
 ]
