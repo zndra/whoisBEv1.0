@@ -8,6 +8,7 @@ urlpatterns = [
     path('changePass/',      user.changePass,          name='changePass'),
     path('resetPassword/',   user.resetPasswordView,   name='resetPasswordView'),
     path('userNemelt/',      user.userNemeltMedeelel,  name='userNemeltMedeelelView'),
+    path('verifyCode/',      user.verifyCodeView,      name='verifyCodeView'),
     ######################################################
 
     # тестийн service-үүд. төслөө хийж дуусчаад устганаа.

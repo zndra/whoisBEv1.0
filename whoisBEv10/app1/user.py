@@ -356,4 +356,53 @@ def resetPasswordView(request):
     resp["responseText"] = "Уг email рүү баталгаажуулах код илгээв"
     return HttpResponse(json.dumps(resp), content_type="application/json")
 #############################################################
+       # Баталгаажуулах кодоор нууц үгээ сэргээх /email, verifyCode/
+def verifyCodeView(request):
+    jsonsData = json.loads(request.body)   
+    resp = {}
+    # Хэрэв мэдээлэл дутуу байвал алдааны мэдээлэл дамжуулах
+    if( reqValidation(jsonsData, {"verifyCode", "email"} ) == False):
+        resp["responseCode"] = "522"
+        resp["responseText"] = "Field дутуу байна"        
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+    
+    email = jsonsData["email"]
+    verifyCode = jsonsData["verifyCode"]
+    
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        # email баталгаажсан болон verifyCode нь DB дээр бйагаа эсэхийг уншиж байна. 
+        userCursor.execute('SELECT * FROM "f_user" WHERE  "email" = %s AND  "isVerified" = true AND "verifyCode" = %s', (email,verifyCode))
+        user = userCursor.fetchone()
+        # print("helloooooo")
+        # print(user)
+        # myCon.commit()
+        # verifyCode нь таарахгүй бол алдааны мэдээлэл дамжуулан
+        if not user:   
+            resp["responseCode"] = "523"
+            resp["responseText"] = "Баталгаажуулах код таарсангүй."
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        # newPass = userCursor.execute('SELECT "newPass" FROM "f_user" WHERE "email" = %s', (email))
+        # print(str(newPass))
+        # pass-аа өөрчлөх
+        user = list(user)
+        userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "email" = %s', (str(user[len(user)-2]), email))
+        myCon.commit()
+        userCursor.close()
+    # Баазтай холбоо тасрах үед
+    except Exception as e:
+        resp = {}
+        resp["responseCode"] = 551
+        resp["responseText"] = "Баазын алдаа"        
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+    finally:
+        disconnectDB(myCon)
+    resp["responseCode"] = "200"
+    resp["responseText"] = "Амжилттай хэрэглэгчийн кодыг шинэчлэлээ"
+    return HttpResponse(json.dumps(resp), content_type="application/json")
+#############################################################    
+   
        
