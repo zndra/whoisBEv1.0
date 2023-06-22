@@ -224,24 +224,47 @@ def changePass(request):
 
 
 def userNemeltMedeelel(request):
-    #  jsons = json.loads(request.body)
-#    uid = jsons['user_id'] (uid,)
+ 
 
 
-   if request.method == 'GET':
+   jsons = json.loads(request.body)
+   user_id = jsons['user_id']
+   try:
        myCon = connectDB()
        userCursor = myCon.cursor()
-       userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"=66')
-       columns = [column[0] for column in userCursor.description]
-    #    response = [{columns[index][0]: column for index, column in enumerate(value)} for value in userCursor.fetchall()]
-       response = [
+       userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"= %s',(user_id,) )
+       user = userCursor.fetchone()
+       if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+       else:
+            userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"= %s',(user_id,) )
+            columns = [column[0] for column in userCursor.description]
+   
+            response = [
                     {columns[index]: column for index, column in enumerate(value)}
                      for value in userCursor.fetchall()
                   ]
-       userCursor.close()
-       disconnectDB(myCon)
-       responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
-       return HttpResponse(responseJSON, content_type="application/json")
+            userCursor.close()
+            disconnectDB(myCon)
+       
+            responseJSON = json.dumps((response), cls=DjangoJSONEncoder, default=str)
+            return HttpResponse(responseJSON, content_type="application/json")
+ 
+           
+         
+   except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+           
   #########################################################################
 def checkEmailExistence(request):
     jsons = json.loads(request.body)
