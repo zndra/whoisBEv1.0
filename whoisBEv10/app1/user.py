@@ -401,7 +401,7 @@ def verifyCodeView(request):
     finally:
         disconnectDB(myCon)
     resp["responseCode"] = "200"
-    resp["responseText"] = "Амжилттай хэрэглэгчийн кодыг шинэчлэлээ"
+    resp["responseText"] = "Амжилттай хэрэглэгчийн нууц үгийг шинэчлэлээ"
     return HttpResponse(json.dumps(resp), content_type="application/json")
 #############################################################    
    
