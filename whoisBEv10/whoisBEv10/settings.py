@@ -145,6 +145,7 @@ def createCodes(length):
     # Output example: ryxay
 #   createCodes
 
+
 def base64encode(length):
     return base64.b64encode((createCodes(length-26) + str(datetime.now().time())).encode('ascii')).decode('ascii').rstrip('=')
 

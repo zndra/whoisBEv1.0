@@ -129,10 +129,6 @@ def userRegisterView(request):
     disconnectDB(myCon)
 
     # Send email verification email
-    mail_subject = "Email Verification"
-    mail_content = f"Dear {firstName},\n\nThank you for registering. Please click the following link to verify your email:\n\nhttp://whois.mandakh.org/profile/"
-    sendMail(email, mail_subject, mail_content)
-
     # Return success response
     resp = {}
     resp["responseCode"] = 200
@@ -246,11 +242,29 @@ def userNemeltMedeelel(request):
        disconnectDB(myCon)
        responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
        return HttpResponse(responseJSON, content_type="application/json")
-  
-       
-       
-       
-# elif request.method == 'POST':
+  #########################################################################
+def checkEmailExistence(request):
+    jsons = json.loads(request.body)
+    email = jsons['email']
+    
+    exists = emailExists(email)
+    if exists:
+        otp = createCodes(6)  # Generate OTP
+        mail_subject = "Email Verification"
+        mail_content = f"Dear User,\n\nPlease click the following link to verify your email:\n\nhttp:whois.mandakh.org/signUpWar/{otp}/{email}"
+        sendMail(email, mail_subject, mail_content)
+        response = {
+            'success': True,
+            'message': 'Email verification email sent.'
+        }
+    else:
+        response = {
+            'success': False,
+            'message': 'Email does not exist.'
+        }
+    
+    responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
+    return HttpResponse(responseJSON, content_type="application/json")
        
        
 
