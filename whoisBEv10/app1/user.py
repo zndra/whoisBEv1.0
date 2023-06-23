@@ -130,6 +130,10 @@ def userRegisterView(request):
 
     # Send email verification email
     # Return success response
+    otp = createCodes(6)  # Generate OTP
+    mail_subject = "Email Verification"
+    mail_content = f"Dear User,\n\nPlease click the following link to verify your email:\n\nhttp:whois.mandakh.org/signUpWar/{otp}/{email}"
+    sendMail(email, mail_subject, mail_content)
     resp = {}
     resp["responseCode"] = 200
     resp["responseText"] = "User registered successfully"
@@ -266,28 +270,28 @@ def userNemeltMedeelel(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
            
   #########################################################################
-def checkEmailExistence(request):
-    jsons = json.loads(request.body)
-    email = jsons['email']
+# def checkEmailExistence(request):
+#     jsons = json.loads(request.body)
+#     email = jsons['email']
     
-    exists = emailExists(email)
-    if exists:
-        otp = createCodes(6)  # Generate OTP
-        mail_subject = "Email Verification"
-        mail_content = f"Dear User,\n\nPlease click the following link to verify your email:\n\nhttp:whois.mandakh.org/signUpWar/{otp}/{email}"
-        sendMail(email, mail_subject, mail_content)
-        response = {
-            'success': True,
-            'message': 'Email verification email sent.'
-        }
-    else:
-        response = {
-            'success': False,
-            'message': 'Email does not exist.'
-        }
+#     exists = emailExists(email)
+#     if exists:
+#         otp = createCodes(6)  # Generate OTP
+#         mail_subject = "Email Verification"
+#         mail_content = f"Dear User,\n\nPlease click the following link to verify your email:\n\nhttp:whois.mandakh.org/signUpWar/{otp}/{email}"
+#         sendMail(email, mail_subject, mail_content)
+#         response = {
+#             'success': True,
+#             'message': 'Email verification email sent.'
+#         }
+#     else:
+#         response = {
+#             'success': False,
+#             'message': 'Email does not exist.'
+#         }
     
-    responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
-    return HttpResponse(responseJSON, content_type="application/json")
+#     responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
+#     return HttpResponse(responseJSON, content_type="application/json")
        
      # # response дамжуулах дугаар болон утгыг оноож өгөх функц
 # def respUgukh(code, text):
