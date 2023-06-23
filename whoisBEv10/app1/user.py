@@ -78,10 +78,6 @@ def userLoginView(request):
     return HttpResponse(json.dumps(resp), content_type="application/json")
 #   userLoginView end
 
-
-import json
-from django.http import HttpResponse
-
 def userRegisterView(request):
     jsons = json.loads(request.body)
 
