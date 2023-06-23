@@ -228,9 +228,6 @@ def changePass(request):
 
 
 def userNemeltMedeelel(request):
- 
-
-
    jsons = json.loads(request.body)
    user_id = jsons['user_id']
    try:
