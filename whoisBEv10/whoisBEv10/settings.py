@@ -248,5 +248,3 @@ def reqValidation(json,keys):
     return validReq
 #   def
 
-
-

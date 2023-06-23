@@ -271,10 +271,10 @@ def changePass(request):
 #CreateCv
 
 
-def userNemeltMedeelel(request):
+def userNemeltGet(request):
    jsons = json.loads(request.body)
    user_id = jsons['user_id']
-   try:
+   if request.method == 'GET':
        myCon = connectDB()
        userCursor = myCon.cursor()
        userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"= %s',(user_id,) )
@@ -287,7 +287,7 @@ def userNemeltMedeelel(request):
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
-       else:
+       elif user:
             userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"= %s',(user_id,) )
             columns = [column[0] for column in userCursor.description]
    
@@ -300,15 +300,119 @@ def userNemeltMedeelel(request):
        
             responseJSON = json.dumps((response), cls=DjangoJSONEncoder, default=str)
             return HttpResponse(responseJSON, content_type="application/json")
- 
-           
-         
-   except Exception as e:
+       else:
+           response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+           return HttpResponse(json.dumps(response), content_type="application/json") 
+       
+####################################################################
+def userNemeltUpdate(request):
+    jsons = json.loads(request.body)
+    required_fields = ["user_id", "regDug", "torsonOgnoo", "dugaar", "huis", "irgenshil", "ysUndes", "hayg", "hobby"]
+
+    if not reqValidation(jsons, required_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    user_id = jsons['user_id']
+    regDug = jsons['regDug']
+    torsonOgnoo = jsons['torsonOgnoo']
+    dugaar = jsons['dugaar']
+    huis = jsons['huis']
+    irgenshil = jsons['irgenshil']
+    ysUndes = jsons['ysUndes']
+    hayg = jsons['hayg']
+    hobby = jsons['hobby']
+
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+
+        userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
+        userCursor.execute('UPDATE "f_userNemeltMedeelel" SET "regDug" = %s,"torsonOgnoo" = %s,"dugaar" = %s, "huis" = %s,"irgenshil" = %s,"ysUndes" = %s,"hayg" = %s,"hobby" = %s WHERE "user_id" = %s',
+                           (regDug, torsonOgnoo, dugaar, huis, irgenshil, ysUndes, hayg, hobby, user_id,))
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+
+        response = {
+            "responseCode": 200,
+            "responseText": "Changed successfully"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    except Exception as e:
         response = {
             "responseCode": 551,
             "responseText": "Database error"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
+
+
+  
+###########################################################
+# def userNemeltInsert(request):
+#    jsons = json.loads(request.body)
+#    required_fields = ["regDug","torsonOgnoo","dugaar","huis","irgenshil","ysUndes","hayg","hobby"]
+#    if not reqValidation(jsons, required_fields):
+#         response = {
+#             "responseCode": 550,
+#             "responseText": "Field-үүд дутуу"
+#         }
+#         return HttpResponse(json.dumps(response), content_type="application/json")
+ 
+#    regDug = jsons['regDug']
+#    torsonOgnoo  = jsons['torsonOgnoo']    
+#    dugaar     = jsons['dugaar']
+#    huis  = jsons['huis']
+#    irgenshil  = jsons['irgenshil']
+#    ysUndes  = jsons['ysUndes']
+#    hayg  = jsons['hayg']
+#    hobby  = jsons['hobby']
+   
+#    try:
+#         myCon      = connectDB()
+#         userCursor = myCon.cursor()
+#         userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "regDug" = %s', (regDug,))
+#         user = userCursor.fetchone
+#         if user:
+#             resp["responseCode"] = 400
+#             resp["responseText"] = "Username already exists"
+#             return HttpResponse(json.dumps(resp), content_type="application/json")
+
+#         userCursor.execute (' INSERT INTO "f_userNemeltMedeelel"("regDug","torsonOgnoo","dugaar","huis","irgenshil",ysUndes","hayg")VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+#                             (regDug, torsonOgnoo,dugaar,huis,irgenshil,ysUndes,hayg,hobby,))
+#         myCon.commit()
+#         userCursor.close()
+#         disconnectDB(myCon)
+        
+#    except Exception as e:
+#         resp = {}
+#         resp["responseCode"] =  551
+#         resp["responseText"] = "Баазын алдаа"
+#         return HttpResponse(json.dumps(resp), content_type="application/json")
+
+
+          
+ 
+           
+         
+ 
            
   #########################################################################
 def resetPasswordView(request):
