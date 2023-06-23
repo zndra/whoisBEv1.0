@@ -1,9 +1,10 @@
-from    django.http                  import HttpResponse
+from    django.http                  import HttpResponse,HttpResponseServerError
 from    django.core.serializers.json import DjangoJSONEncoder
 from    app1.sendEmail.sendEmail     import *
 from    whoisBEv10.settings          import *
 import  pytz
 import  json
+from django.db import connection
 
 
 # ene debug uyed ajillah yostoi
@@ -446,6 +447,68 @@ def verifyCodeView(request):
     resp["responseCode"] = "200"
     resp["responseText"] = "Амжилттай хэрэглэгчийн нууц үгийг шинэчлэлээ"
     return HttpResponse(json.dumps(resp), content_type="application/json")
-#############################################################    
-   
-       
+#########################################################################
+def getUserInfo(username, password):
+    myCon = connectDB()
+    userCursor = myCon.cursor()
+    
+    userCursor.execute('SELECT "id", "userName", "firstName", "lastName", "email" '
+                       'FROM "f_user" '
+                       'WHERE "deldate" IS NULL '
+                       'AND "pass" = %s '
+                       'AND "isVerified" = true '
+                       'AND "userName" = %s',
+                       (password, username))
+    
+    columns = userCursor.description
+    user_info = [{columns[index][0]: column for index, column in enumerate(row)} for row in userCursor.fetchall()]
+    
+    userCursor.close()
+    myCon.close()
+    
+    return user_info
+#################################################################################################################
+def updateUser(request):
+    if request.method == 'POST':
+        # Parse the JSON data from the request body
+        data = json.loads(request.body)
+
+        # Extract the updated user information from the parsed data
+        userId = data.get('id')
+        firstName = data.get('firstName')
+        lastName = data.get('lastName')
+        email = data.get('email')
+
+        # Retrieve the user's current information from the database
+        currentUserInfo = getUserInfo(data.get('pass'), data.get('userName'))
+        if not currentUserInfo:
+            return HttpResponseServerError("Invalid credentials.")
+
+        # Extract the current user information from the response
+        currentFirstName = currentUserInfo[0]['firstName']
+        currentLastName = currentUserInfo[0]['lastName']
+        currentEmail = currentUserInfo[0]['email']
+
+        # Check which fields have been updated
+        if firstName and firstName != currentFirstName:
+            currentFirstName = firstName
+        if lastName and lastName != currentLastName:
+            currentLastName = lastName
+        if email and email != currentEmail:
+            currentEmail = email
+
+        # Update the user's information in the database
+        with connection.cursor() as userCursor:
+            userCursor.execute(
+                'UPDATE "f_user" '
+                'SET "firstName" = %s, '
+                '"lastName" = %s, '
+                '"email" = %s '
+                'WHERE "id" = %s',
+                (currentFirstName, currentLastName, currentEmail, userId)
+            )
+            userCursor.close()
+
+        return HttpResponse("User information updated successfully.")
+    else:
+        return HttpResponseServerError("Invalid request method.")
