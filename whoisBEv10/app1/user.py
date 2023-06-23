@@ -470,26 +470,20 @@ def getUserInfo(username, password):
 #################################################################################################################
 def updateUser(request):
     if request.method == 'POST':
-        # Parse the JSON data from the request body
         data = json.loads(request.body)
-
-        # Extract the updated user information from the parsed data
         userId = data.get('id')
         firstName = data.get('firstName')
         lastName = data.get('lastName')
         email = data.get('email')
-
-        # Retrieve the user's current information from the database
+        
         currentUserInfo = getUserInfo(data.get('pass'), data.get('userName'))
         if not currentUserInfo:
             return HttpResponseServerError("Invalid credentials.")
 
-        # Extract the current user information from the response
         currentFirstName = currentUserInfo[0]['firstName']
         currentLastName = currentUserInfo[0]['lastName']
         currentEmail = currentUserInfo[0]['email']
 
-        # Check which fields have been updated
         if firstName and firstName != currentFirstName:
             currentFirstName = firstName
         if lastName and lastName != currentLastName:
@@ -497,7 +491,6 @@ def updateUser(request):
         if email and email != currentEmail:
             currentEmail = email
 
-        # Update the user's information in the database
         with connection.cursor() as userCursor:
             userCursor.execute(
                 'UPDATE "f_user" '
