@@ -438,7 +438,7 @@ def updateUser(request):
         firstName = data.get('firstName')
         lastName = data.get('lastName')
         email = data.get('email')
-        
+
         currentUserInfo = getUserInfo(data.get('pass'), data.get('userName'))
         if not currentUserInfo:
             return HttpResponseServerError("Invalid credentials.")
@@ -454,17 +454,20 @@ def updateUser(request):
         if email and email != currentEmail:
             currentEmail = email
 
-        with connection.cursor() as userCursor:
-            userCursor.execute(
-                'UPDATE "f_user" '
-                'SET "firstName" = %s, '
-                '"lastName" = %s, '
-                '"email" = %s '
-                'WHERE "id" = %s',
-                (currentFirstName, currentLastName, currentEmail, userId)
-            )
-            userCursor.close()
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute(
+            'UPDATE "f_user" '
+            'SET "firstName" = %s, '
+            '"lastName" = %s, '
+            '"email" = %s '
+            'WHERE "id" = %s',
+            (currentFirstName, currentLastName, currentEmail, userId)
+        )
+        userCursor.close()
+        myCon.commit()
+        myCon.close()
 
-        return HttpResponse("User information updated successfully.")
+        return HttpResponse("User information updated successfully.", status=200)
     else:
-        return HttpResponseServerError("Invalid request method.")
+        return HttpResponseServerError("Invalid request method.", status=400)
