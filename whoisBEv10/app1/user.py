@@ -90,8 +90,7 @@ def userRegisterView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     firstName = jsons['firstName']
-    lastName  = jsons['lastName']
-    lastName = "popo"
+    lastName  = jsons['lastName']    
     email     = jsons['email']
     password  = jsons['pass']
     username  = jsons['userName']
