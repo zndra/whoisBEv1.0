@@ -90,7 +90,7 @@ def userRegisterView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     firstName = jsons['firstName']
-    lastName  = jsons['lastName']
+    lastName  = jsons['lastName']+'a'
     email     = jsons['email']
     password  = jsons['pass']
     username  = jsons['userName']
@@ -131,9 +131,9 @@ def userRegisterView(request):
     # Send email verification email
     # Return success response
     otp = createCodes(6)  # Generate OTP
-    mail_subject = "Email Verification"
-    mail_content = f"Dear User,\n\nPlease click the following link to verify your email:\n\nhttp:whois.mandakh.org/signUpWar/{otp}/{email}"
-    sendMail(email, mail_subject, mail_content)
+    myVerifyEmailLink = verifyEmailLink + otp
+    myMailContent = verifyEmailContent+"Холбоос: "+myVerifyEmailLink
+    sendMail(email, verifyEmailSubject, myMailContent)
     resp = {}
     resp["responseCode"] = 200
     resp["responseText"] = "User registered successfully"

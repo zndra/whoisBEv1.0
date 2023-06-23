@@ -118,6 +118,12 @@ pgHost     = "202.131.254.138"
 pgPassword = "whoispass"
 pgPort     = "5938"
 
+verifyEmailSubject = "WhoIs: Имэйл баталгаажуулах"
+verifyEmailContent = "Та манай системд бүртгүүлсэн байна. \n\n Доорх холбоос дээр дарж бүртгэлээ баталгаажуулна уу!\n\n"
+verifyEmailLink = "http://whois.mandakh.org/verifyEmail/"
+
+
+
 # ------------ end Bidnii nemsen tohiruulguud
 
 # bidnii nemsen function
@@ -219,7 +225,7 @@ def sendMail(receiver_address, mail_subject, mail_content):
     text = message.as_string()
     session.sendmail(sender_address, receiver_address, text)
     session.quit()
-##########################################
+#   sendMail
 
 def runQuery(query):
     myCon      = connectDB()

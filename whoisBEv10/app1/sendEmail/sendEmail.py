@@ -22,3 +22,4 @@ def sendMail(receiver_address, mail_subject, mail_content):
 #   sendMail
 
 
+sendMail("uprogr@gmail.com","asd","dfkljdsfkljsddfjkl")
