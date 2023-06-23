@@ -311,42 +311,6 @@ def userNemeltMedeelel(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
            
   #########################################################################
-# def checkEmailExistence(request):
-#     jsons = json.loads(request.body)
-#     email = jsons['email']
-    
-#     exists = emailExists(email)
-#     if exists:
-#         otp = createCodes(6)  # Generate OTP
-#         mail_subject = "Email Verification"
-#         mail_content = f"Dear User,\n\nPlease click the following link to verify your email:\n\nhttp:whois.mandakh.org/signUpWar/{otp}/{email}"
-#         sendMail(email, mail_subject, mail_content)
-#         response = {
-#             'success': True,
-#             'message': 'Email verification email sent.'
-#         }
-#     else:
-#         response = {
-#             'success': False,
-#             'message': 'Email does not exist.'
-#         }
-    
-#     responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
-#     return HttpResponse(responseJSON, content_type="application/json")
-
-         # # response дамжуулах дугаар болон утгыг оноож өгөх функц
-# def respUgukh(code, text):
-#     resp["responseCode"] = code
-#     resp["responseText"] = text        
-# #############################################################    
-# # DB tugsgukh kheseg
-# def tasal():
-#     userCursor.close()
-#     disconnectDB(myCon)
-# #############################################################    
-
-
-# email, өөрчлөх кодыг аваад DB дээрээ хадгалаад otp code email рүү илгээнэ.
 def resetPasswordView(request):
     jsonsData = json.loads(request.body) 
     resp = {}
@@ -451,7 +415,6 @@ def verifyCodeView(request):
 def getUserInfo(username, password):
     myCon = connectDB()
     userCursor = myCon.cursor()
-    
     userCursor.execute('SELECT "id", "userName", "firstName", "lastName", "email" '
                        'FROM "f_user" '
                        'WHERE "deldate" IS NULL '
