@@ -79,66 +79,113 @@ def userLoginView(request):
 #   userLoginView end
 
 
+import json
+from django.http import HttpResponse
 
 def userRegisterView(request):
     jsons = json.loads(request.body)
+
     # Validate request body
-    if( reqValidation( jsons, {"firstName", "lastName", "email", "pass", "userName",} ) == False):
-        resp = {}
-        resp["responseCode"] = 550
-        resp["responseText"] = "Field-үүд дутуу"        
+    if reqValidation(jsons, {"firstName", "lastName", "email", "pass", "userName"}) == False:
+        resp = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     firstName = jsons['firstName']
-    lastName  = jsons['lastName']    
-    email     = jsons['email']
-    password  = jsons['pass']
-    username  = jsons['userName']
+    lastName = jsons['lastName']
+    email = jsons['email']
+    password = jsons['pass']
+    username = jsons['userName']
 
-    # Check if email or username already exist in the database
     try:
-        myCon      = connectDB()
+        myCon = connectDB()
         userCursor = myCon.cursor()
+
         if emailExists(email):
-            resp = {}
-            resp["responseCode"] = 400
-            resp["responseText"] = "Email already exists"
+            resp = {
+                "responseCode": 400,
+                "responseText": "Email already exists"
+            }
             return HttpResponse(json.dumps(resp), content_type="application/json")
 
         if userNameExists(username):
-            resp = {}
-            resp["responseCode"] = 400
-            resp["responseText"] = "Username already exists"
+            resp = {
+                "responseCode": 400,
+                "responseText": "Username already exists"
+            }
             return HttpResponse(json.dumps(resp), content_type="application/json")
 
-        # Check if the database is connected
         if not myCon:
-            raise Exception("Can not connect database")
+            raise Exception("Can not connect to the database")
     except Exception as e:
-        resp = {}
-        resp["responseCode"] =  551
-        resp["responseText"] = "Баазын алдаа"
+        resp = {
+            "responseCode": 551,
+            "responseText": "Баазын алдаа"
+        }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
-    # Proceed with user registration if email and username are unique
-    # passs      = mandakhHash(password)
-    userCursor.execute('INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") VALUES(%s, %s, %s, %s, %s, %s, %s)',
-                       (firstName, lastName, email, password, username, None, 2))
+    hashed_password = mandakhHash(password)
+    otp = createCodes(6)
+    otp = str(otp)  # Convert OTP to string
+    userCursor.execute(
+        'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
+        'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',  # Replace "userId" with the correct column name
+        (firstName, lastName, email, hashed_password, username, None, 2,))
+    
+    # Fetch the user ID from the returned row
+    userId = userCursor.fetchone()[0]
+    
+    # Update the "f_otp" table with the user ID and OTP
+    userCursor.execute(
+        'INSERT INTO "f_otp"("userId", "value") VALUES(%s, %s)',
+        (userId, otp))
+    
     myCon.commit()
+
+    # Send email verification email
+    myVerifyEmailLink = verifyEmailLink + otp
+    myMailContent = verifyEmailContent + "Холбоос: " + myVerifyEmailLink
+    sendMail(email, verifyEmailSubject, myMailContent)
+
+    # Close the userCursor and disconnect from the database
     userCursor.close()
     disconnectDB(myCon)
 
-    # Send email verification email
     # Return success response
-    otp = createCodes(6)  # Generate OTP
-    myVerifyEmailLink = verifyEmailLink + otp
-    myMailContent = verifyEmailContent+"Холбоос: "+myVerifyEmailLink
-    sendMail(email, verifyEmailSubject, myMailContent)
-    resp = {}
-    resp["responseCode"] = 200
-    resp["responseText"] = "User registered successfully"
+    resp = {
+        "responseCode": 200,
+        "responseText": "User registered successfully"
+    }
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
+
 ######################################################################################
+def verifyEmailView(request, otp):
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+
+        # Retrieve the user ID associated with the provided OTP
+        userCursor.execute('SELECT "userId" FROM "f_otp" WHERE "value" = %s', (otp,))
+        result = userCursor.fetchone()
+        
+        if result:
+            userId = result[0]
+            # Update the user's isVerified flag to True in the f_user table
+            userCursor.execute('UPDATE "f_user" SET "isVerified" = TRUE WHERE "id" = %s', (userId,))
+            myCon.commit()
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse("Email verification successful")
+        else:
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse("Invalid or expired OTP")
+    except Exception as e:
+        return HttpResponse("An error occurred during email verification")
+###################################################################################                            
 def forgetPass(request):
     jsons = json.loads(request.body)
     email = jsons['email']
@@ -309,7 +356,7 @@ def resetPasswordView(request):
     # Хэрэв мэдээлэл дутуу байвал алдааны мэдээлэл дамжуулах
     if( reqValidation(jsonsData, {"newPassword", "email"} ) == False):
         # def respUgukh("522", "Field дутуу байна"):
-        resp["responseCode"] = "550"
+        resp["responseCode"] = "522"
         resp["responseText"] = "Field дутуу байна"        
         return HttpResponse(json.dumps(resp), content_type="application/json")
     
@@ -326,7 +373,7 @@ def resetPasswordView(request):
         # Хэрэглэч байгаа үгүйг шалгах
         if not user:
             # respUgukh("523", "Уг email хаягтай хэрэглэгч олдсонгүй", resp)     
-            resp["responseCode"] = "553"
+            resp["responseCode"] = "523"
             resp["responseText"] = "Уг email хаягтай хэрэглэгч олдсонгүй"
             # tasal()   
             userCursor.close()
@@ -362,47 +409,14 @@ def verifyCodeView(request):
     jsonsData = json.loads(request.body)   
     resp = {}
     # Хэрэв мэдээлэл дутуу байвал алдааны мэдээлэл дамжуулах
-    if( reqValidation(jsonsData, {"verifyCode"} ) == False):
-        resp["responseCode"] = "550"
+    if( reqValidation(jsonsData, {"verifyCode", "email"} ) == False):
+        resp["responseCode"] = "522"
         resp["responseText"] = "Field дутуу байна"        
         return HttpResponse(json.dumps(resp), content_type="application/json")
     
+    email = jsonsData["email"]
     verifyCode = jsonsData["verifyCode"]
     
-    try:
-        myCon = connectDB()
-        userCursor = myCon.cursor()
-        # email баталгаажсан болон verifyCode нь DB дээр бйагаа эсэхийг уншиж байна. 
-        userCursor.execute('SELECT * FROM "f_user" WHERE "verifyCode" = %s', (verifyCode,))
-        # print("helloooooo")
-        user = userCursor.fetchone()
-        # print(user)
-        # myCon.commit()
-        # verifyCode нь таарахгүй бол алдааны мэдээлэл дамжуулан
-        if not user:   
-            resp["responseCode"] = "553"
-            resp["responseText"] = "Баталгаажуулах код таарсангүй."
-            userCursor.close()
-            disconnectDB(myCon)
-            return HttpResponse(json.dumps(resp), content_type="application/json")
-        # newPass = userCursor.execute('SELECT "newPass" FROM "f_user" WHERE "email" = %s', (email))
-        # print(str(newPass))
-        # pass-аа өөрчлөх
-        user = list(user)
-        userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "verifyCode" = %s', (str(user[len(user)-3]), verifyCode))
-        myCon.commit()
-        userCursor.close()
-    # Баазтай холбоо тасрах үед
-    except Exception as e:
-        resp = {}
-        resp["responseCode"] = 551
-        resp["responseText"] = "Баазын алдаа"        
-        return HttpResponse(json.dumps(resp), content_type="application/json")
-    finally:
-        disconnectDB(myCon)
-    resp["responseCode"] = "200"
-    resp["responseText"] = "Амжилттай хэрэглэгчийн нууц үгийг шинэчлэлээ"
-    return HttpResponse(json.dumps(resp), content_type="application/json")
-#############################################################    
-   
-       
+
+# def addOtp():
+    
