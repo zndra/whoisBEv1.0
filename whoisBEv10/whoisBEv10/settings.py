@@ -11,6 +11,8 @@ import os
 import hashlib
 import base64
 import random
+import smtplib
+
 ###############################
 BASE_DIR   = Path(__file__).resolve().parent.parent
 t          = os.path.join(BASE_DIR, 'templates')
@@ -207,11 +209,7 @@ def userNameExists(username):
     userCursor.close()
     disconnectDB(myCon)
     return result[0] > 0
-
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-
+############################################
 def sendMail(receiver_address, mail_subject, mail_content):
     sender_address = "mtaxapp@zohomail.com"
     sender_pass = "N32sH@fGn2NtZAn"
