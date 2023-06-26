@@ -370,46 +370,59 @@ def userNemeltUpdate(request):
 
   
 ###########################################################
-# def userNemeltInsert(request):
-#    jsons = json.loads(request.body)
-#    required_fields = ["regDug","torsonOgnoo","dugaar","huis","irgenshil","ysUndes","hayg","hobby"]
-#    if not reqValidation(jsons, required_fields):
-#         response = {
-#             "responseCode": 550,
-#             "responseText": "Field-үүд дутуу"
-#         }
-#         return HttpResponse(json.dumps(response), content_type="application/json")
- 
-#    regDug = jsons['regDug']
-#    torsonOgnoo  = jsons['torsonOgnoo']    
-#    dugaar     = jsons['dugaar']
-#    huis  = jsons['huis']
-#    irgenshil  = jsons['irgenshil']
-#    ysUndes  = jsons['ysUndes']
-#    hayg  = jsons['hayg']
-#    hobby  = jsons['hobby']
-   
-#    try:
-#         myCon      = connectDB()
-#         userCursor = myCon.cursor()
-#         userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "regDug" = %s', (regDug,))
-#         user = userCursor.fetchone
-#         if user:
-#             resp["responseCode"] = 400
-#             resp["responseText"] = "Username already exists"
-#             return HttpResponse(json.dumps(resp), content_type="application/json")
+def userNemeltInsert(request):
+    jsons = json.loads(request.body)
+    required_fields = ["id", "regDug", "torsonOgnoo", "dugaar", "huis", "irgenshil", "ysUndes", "hayg", "hobby"]
 
-#         userCursor.execute (' INSERT INTO "f_userNemeltMedeelel"("regDug","torsonOgnoo","dugaar","huis","irgenshil",ysUndes","hayg")VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-#                             (regDug, torsonOgnoo,dugaar,huis,irgenshil,ysUndes,hayg,hobby,))
-#         myCon.commit()
-#         userCursor.close()
-#         disconnectDB(myCon)
-        
-#    except Exception as e:
-#         resp = {}
-#         resp["responseCode"] =  551
-#         resp["responseText"] = "Баазын алдаа"
-#         return HttpResponse(json.dumps(resp), content_type="application/json")
+    if not reqValidation(jsons, required_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    user_id = jsons['id']
+    regDug = jsons['regDug']
+    torsonOgnoo = jsons['torsonOgnoo']
+    dugaar = jsons['dugaar']
+    huis = jsons['huis']
+    irgenshil = jsons['irgenshil']
+    ysUndes = jsons['ysUndes']
+    hayg = jsons['hayg']
+    hobby = jsons['hobby']
+
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
+        userCursor.execute('INSERT INTO "f_userNemeltMedeelel" ("regDug", "torsonOgnoo", "dugaar", "huis", "irgenshil", "ysUndes", "hayg", "hobby", "user_id") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                           (regDug, torsonOgnoo, dugaar, huis, irgenshil, ysUndes, hayg, hobby, user_id))
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+
+        response = {
+            "responseCode": 200,
+            "responseText": "Inserted successfully"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
 
 
           
