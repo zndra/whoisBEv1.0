@@ -541,7 +541,6 @@ def updateUserView(request):
         userId = data.get('id')
         firstName = data.get('firstName')
         lastName = data.get('lastName')
-        email = data.get('email')
 
         currentUserInfo = getUserInfo(data.get('userName'), data.get('pass'))
         if not currentUserInfo:
@@ -555,8 +554,6 @@ def updateUserView(request):
             currentFirstName = firstName
         if lastName and lastName != currentLastName:
             currentLastName = lastName
-        if email and email != currentEmail:
-            currentEmail = email
 
         myCon = connectDB()
         userCursor = myCon.cursor()
