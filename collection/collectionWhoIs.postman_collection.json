@@ -3,7 +3,8 @@
 		"_postman_id": "b4b3792e-4ee9-49d3-a49b-171eb20afc8f",
 		"name": "collectionWhoIs",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "27892144"
+		"_exporter_id": "27892144",
+		"_collection_link": "https://lunar-meadow-692247.postman.co/workspace/whoIS~36a2abb4-6283-4e2d-be53-9f46fc118ee4/collection/27892144-b4b3792e-4ee9-49d3-a49b-171eb20afc8f?action=share&creator=27892144&source=collection_link"
 	},
 	"item": [
 		{
@@ -67,7 +68,7 @@
 					"response": []
 				},
 				{
-					"name": "getUserLogin",
+					"name": "userLogin",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -76,7 +77,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "\r\n{\r\n    \"name\" : \"admin2\",\r\n    \"pass\" : \"password123\"\r\n}",
+							"raw": "\r\n{\r\n    \"name\" : \"bilguun\",\r\n    \"pass\" : \"1efd13afb28e67335af245a566c51914\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -92,6 +93,205 @@
 							],
 							"path": [
 								"userLogin",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "userNemelt",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \r\n    \"user_id\" : \"66\"\r\n    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "whoisb.mandakh.org/userNemelt/",
+							"host": [
+								"whoisb",
+								"mandakh",
+								"org"
+							],
+							"path": [
+								"userNemelt",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "userNemeltUp",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\":\"66\",\r\n    \"regDug\" :\"rg461164\",\r\n    \"torsonOgnoo\" : \"07/01/1146\",\r\n    \"dugaar\" : \"123 436 66\",\r\n    \"huis\" : \"1\",\r\n    \"irgenshil\" : \"irgen B \",\r\n    \"ysUndes\" : \"ysUndes\",\r\n    \"hayg\" : \"hayg\",\r\n    \"hobby\":\"hobby\"\r\n\r\n   \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/userNemeltUp/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"userNemeltUp",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "userNemeltIns",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\":\"128\",\r\n    \"regDug\" :\"kk2321\",\r\n    \"torsonOgnoo\" : \"07/01/1146\",\r\n    \"dugaar\" : \"555 44 44 66\",\r\n    \"huis\" : \"1\",\r\n    \"irgenshil\" : \"irgen j \",\r\n    \"ysUndes\" : \"ys\",\r\n    \"hayg\" : \"x-99 y-21\",\r\n    \"hobby\":\"xxcxfdgd\"\r\n\r\n   \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/userNemeltIns/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"userNemeltIns",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "resetPassword",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n\"email\":\"odko@mandakh.com\",\r\n\"newPassword\": \"202cb962ac59075b964b07152d234b70\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "whoisb.mandakh.org/resetPassword/",
+							"host": [
+								"whoisb",
+								"mandakh",
+								"org"
+							],
+							"path": [
+								"resetPassword",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "userRegister",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "getUserInfo",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"john.doe\",\r\n  \"password\": \"mypassword\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "whoisb.mandakh.org/getUserInfo/",
+							"host": [
+								"whoisb",
+								"mandakh",
+								"org"
+							],
+							"path": [
+								"getUserInfo",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUser",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"John\",\r\n  \"lastName\": \"Doe\",\r\n  \"pass\": \"mypassword\",\r\n  \"userName\": \"john.doe\",\r\n  \"id\": \"1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "whoisb.mandakh.org//updateUser/",
+							"host": [
+								"whoisb",
+								"mandakh",
+								"org"
+							],
+							"path": [
+								"",
+								"updateUser",
 								""
 							]
 						}
