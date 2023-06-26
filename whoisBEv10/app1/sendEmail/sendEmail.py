@@ -9,13 +9,12 @@
 #     message = MIMEMultipart()
 #     message['From']    = sender_address
 #     message['To']      = receiver_address
-#     message['Subject'] = mail_subject   #The subject line
-#     #The body and the attachments for the mail
+#     message['Subject'] = mail_subject  
 #     message.attach(MIMEText(mail_content, 'plain'))
 #     #Create SMTP session for sending the mail
-#     session = smtplib.SMTP_SSL('smtp.zoho.com', 465) #use gmail with port
+#     session = smtplib.SMTP_SSL('smtp.zoho.com', 465)
 #     # session.starttls() #enable security
-#     session.login(sender_address, sender_pass) #login with mail_id and password
+#     session.login(sender_address, sender_pass)
 #     text = message.as_string()
 #     session.sendmail(sender_address, receiver_address, text)
 #     session.quit()
