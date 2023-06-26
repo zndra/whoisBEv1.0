@@ -535,7 +535,7 @@ def getUserInfo(username, password):
     
     return user_info
 #################################################################################################################
-def updateUser(request):
+def updateUserView(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         userId = data.get('id')
