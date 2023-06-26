@@ -527,13 +527,13 @@ def getUserInfo(username, password):
                        'AND "userName" = %s',
                        (password, username))
     
-    columns = userCursor.description
-    user_info = [{columns[index][0]: column for index, column in enumerate(row)} for row in userCursor.fetchall()]
+    user_info = userCursor.fetchone()
     
     userCursor.close()
     myCon.close()
     
     return user_info
+
 #################################################################################################################
 def updateUserView(request):
     if request.method == 'POST':
@@ -543,13 +543,13 @@ def updateUserView(request):
         lastName = data.get('lastName')
         email = data.get('email')
 
-        currentUserInfo = getUserInfo(data.get('pass'), data.get('userName'))
+        currentUserInfo = getUserInfo(data.get('userName'), data.get('pass'))
         if not currentUserInfo:
             return HttpResponseServerError("Invalid credentials.")
 
-        currentFirstName = currentUserInfo[0]['firstName']
-        currentLastName = currentUserInfo[0]['lastName']
-        currentEmail = currentUserInfo[0]['email']
+        currentFirstName = currentUserInfo[2]  # Index 2 corresponds to 'firstName' in the SELECT query
+        currentLastName = currentUserInfo[3]  # Index 3 corresponds to 'lastName' in the SELECT query
+        currentEmail = currentUserInfo[4]  # Index 4 corresponds to 'email' in the SELECT query
 
         if firstName and firstName != currentFirstName:
             currentFirstName = firstName
