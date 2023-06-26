@@ -1,10 +1,8 @@
 from    django.http                  import HttpResponse,HttpResponseServerError
 from    django.core.serializers.json import DjangoJSONEncoder
-# from    app1.sendEmail.sendEmail     import *
 from    whoisBEv10.settings          import *
 import  pytz
 import  json
-import logging
 from django.db import connection
 
 

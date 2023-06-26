@@ -1,4 +1,5 @@
 from app1        import user, testViews
+
 from django.urls import path
 urlpatterns = [    
     #    user servoces
@@ -13,6 +14,7 @@ urlpatterns = [
     path('updateUser/',    user.updateUserView,      name='updateUserView'),
     path('verifyEmail/<str:otp>/', user.verifyEmailView, name='verifyEmailView'),
     path('userNemeltIns/',    user.userNemeltInsert,      name='userNemeltInsert'),
+
     ######################################################
 
     # тестийн service-үүд. төслөө хverifyEmailийж дуусчаад устганаа.

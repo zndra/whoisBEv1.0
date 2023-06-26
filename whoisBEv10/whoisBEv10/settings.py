@@ -1,6 +1,6 @@
 import psycopg2
-
-from   email.mime.multipart import MIMEMultipart
+from    django.http                  import HttpResponse
+from email.mime.multipart import MIMEMultipart
 from   email.mime.text      import MIMEText
 from   datetime             import datetime
 from   django.urls          import resolve
@@ -11,6 +11,8 @@ import os
 import hashlib
 import base64
 import random
+from smtplib import SMTPDataError
+import json
 ###############################
 BASE_DIR   = Path(__file__).resolve().parent.parent
 t          = os.path.join(BASE_DIR, 'templates')
@@ -207,24 +209,62 @@ def userNameExists(username):
     userCursor.close()
     disconnectDB(myCon)
     return result[0] > 0
+####################################
+
+# def sendMail(receiver_address, mail_subject, mail_content):
+#     sender_address = "mtaxapp@zohomail.com"
+#     sender_pass    = "N32sH@fGn2NtZAn"
+
+#     message = MIMEMultipart()
+#     message['From']    = sender_address
+#     message['To']      = receiver_address
+#     message['Subject'] = mail_subject   #The subject line
+#     #The body and the attachments for the mail
+#     message.attach(MIMEText(mail_content, 'plain'))
+#     #Create SMTP session for sending the mail
+#     session = smtplib.SMTP_SSL('smtp.zoho.com', 465) #use gmail with port
+#     # session.starttls() #enable security
+#     session.login(sender_address, sender_pass) #login with mail_id and password
+#     text = message.as_string()
+#     session.sendmail(sender_address, receiver_address, text)
+#     session.quit()
+# #   sendMail
 
 def sendMail(receiver_address, mail_subject, mail_content):
     sender_address = "mtaxapp@zohomail.com"
-    sender_pass    = "N32sH@fGn2NtZAn"
+    sender_pass = "N32sH@fGn2NtZAn"
 
     message = MIMEMultipart()
-    message['From']    = sender_address
-    message['To']      = receiver_address
-    message['Subject'] = mail_subject   #The subject line
-    #The body and the attachments for the mail
+    message['From'] = sender_address
+    message['To'] = receiver_address
+    message['Subject'] = mail_subject
     message.attach(MIMEText(mail_content, 'plain'))
-    #Create SMTP session for sending the mail
-    session = smtplib.SMTP_SSL('smtp.zoho.com', 465) #use gmail with port
-    # session.starttls() #enable security
-    session.login(sender_address, sender_pass) #login with mail_id and password
-    text = message.as_string()
-    session.sendmail(sender_address, receiver_address, text)
-    session.quit()
+
+    try:
+        # Create SMTP session for sending the mail
+        session = smtplib.SMTP_SSL('smtp.zoho.com', 465)
+        session.login(sender_address, sender_pass)
+        session.sendmail(sender_address, receiver_address, message.as_string())
+        session.quit()
+
+        # Create a success response
+        resp = {
+            'message': "Email sent successfully!"
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+    except SMTPDataError as e:
+        # Create an error response
+        resp = {
+            'error': "SMTPDataError occurred: " + str(e)
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+    except Exception as e:
+        # Create an error response
+        resp = {
+            'error': "An error occurred: " + str(e)
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
 
 #   sendMail
 
