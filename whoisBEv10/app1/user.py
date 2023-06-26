@@ -80,23 +80,24 @@ def userLoginView(request):
 #   userLoginView end
 
 def userRegisterView(request):
-    jsons = json.loads(request.body)
-
-    # Validate request body
-    if reqValidation(jsons, {"firstName", "lastName", "email", "pass", "userName"}) == False:
-        resp = {
-            "responseCode": 550,
-            "responseText": "Field-үүд дутуу"
-        }
-        return HttpResponse(json.dumps(resp), content_type="application/json")
-
-    firstName = jsons['firstName']
-    lastName = jsons['lastName']
-    email = jsons['email']
-    password = jsons['pass']
-    username = jsons['userName']
-
     try:
+        jsons = json.loads(request.body)
+
+        # Validate request body
+        required_fields = {"firstName", "lastName", "email", "pass", "userName"}
+        if not reqValidation(jsons, required_fields):
+            resp = {
+                "responseCode": 550,
+                "responseText": "Field-үүд дутуу"
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+
+        firstName = jsons['firstName']
+        lastName = jsons['lastName']
+        email = jsons['email']
+        password = jsons['pass']
+        username = jsons['userName']
+
         myCon = connectDB()
         userCursor = myCon.cursor()
 
@@ -105,6 +106,8 @@ def userRegisterView(request):
                 "responseCode": 400,
                 "responseText": "Email already exists"
             }
+            userCursor.close()
+            disconnectDB(myCon)
             return HttpResponse(json.dumps(resp), content_type="application/json")
 
         if userNameExists(username):
@@ -112,53 +115,54 @@ def userRegisterView(request):
                 "responseCode": 400,
                 "responseText": "Username already exists"
             }
+            userCursor.close()
+            disconnectDB(myCon)
             return HttpResponse(json.dumps(resp), content_type="application/json")
 
-        if not myCon:
-            raise Exception("Can not connect to the database")
+        # Insert user data into "f_user" table
+        hashed_password = mandakhHash(password)
+        otp = createCodes(6)
+        otp = str(otp)  # Convert OTP to string
+        userCursor.execute(
+            'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
+            'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',  # Replace "userId" with the correct column name
+            (firstName, lastName, email, hashed_password, username, None, 2,))
+        
+        # Fetch the user ID from the returned row
+        userId = userCursor.fetchone()[0]
+        
+        # Update the "f_otp" table with the user ID and OTP
+        userCursor.execute(
+            'INSERT INTO "f_otp"("userId", "value") VALUES(%s, %s)',
+            (userId, otp))
+        
+        myCon.commit()
+
+        # Send email verification email
+        myVerifyEmailLink = f"{verifyEmailLink}/{otp}"
+        myMailContent = f"{verifyEmailContent} Холбоос: {myVerifyEmailLink}"
+        sendMail(email, verifyEmailSubject, myMailContent)
+
+        # Close the userCursor and disconnect from the database
+        userCursor.close()
+        disconnectDB(myCon)
+
+        # Return success response
+        resp = {
+            "responseCode": 200,
+            "responseText": "User registered successfully"
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
     except Exception as e:
         resp = {
             "responseCode": 551,
             "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
+###################################################################################
 
-    hashed_password = mandakhHash(password)
-    otp = createCodes(6)
-    otp = str(otp)  # Convert OTP to string
-    userCursor.execute(
-        'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
-        'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',  # Replace "userId" with the correct column name
-        (firstName, lastName, email, hashed_password, username, None, 2,))
-    
-    # Fetch the user ID from the returned row
-    userId = userCursor.fetchone()[0]
-    
-    # Update the "f_otp" table with the user ID and OTP
-    userCursor.execute(
-        'INSERT INTO "f_otp"("userId", "value") VALUES(%s, %s)',
-        (userId, otp))
-    
-    myCon.commit()
-
-    # Send email verification email
-    myVerifyEmailLink = verifyEmailLink + otp
-    myMailContent = verifyEmailContent + "Холбоос: " + myVerifyEmailLink
-    sendMail(email, verifyEmailSubject, myMailContent)
-
-    # Close the userCursor and disconnect from the database
-    userCursor.close()
-    disconnectDB(myCon)
-
-    # Return success response
-    resp = {
-        "responseCode": 200,
-        "responseText": "User registered successfully"
-    }
-    return HttpResponse(json.dumps(resp), content_type="application/json")
-
-
-######################################################################################
+# Verify email view
 def verifyEmailView(request, otp):
     try:
         myCon = connectDB()

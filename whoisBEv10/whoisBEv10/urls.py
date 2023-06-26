@@ -11,9 +11,10 @@ urlpatterns = [
     path('verifyCode/',      user.verifyCodeView,        name='verifyCodeView'),
     path('userNemeltUp/',    user.userNemeltUpdate,      name='userNemeltUpdate'),
     path('updateUser/',    user.updateUserView,      name='updateUserView'),
+    path('verifyEmail/<str:otp>/', user.verifyEmailView, name='verifyEmailView'),
     ######################################################
 
-    # тестийн service-үүд. төслөө хийж дуусчаад устганаа.
+    # тестийн service-үүд. төслөө хverifyEmailийж дуусчаад устганаа.
     path('userList/',     user.userListView,         name='userListView'),
     path('zuu/',          testViews.zuu,             name='zuuListView'),
     path('tavFact/',      testViews.tavFactView,     name='tavFactListView'),
