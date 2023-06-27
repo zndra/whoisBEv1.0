@@ -17,7 +17,7 @@ urlpatterns = [
     path('userEduUp/',             user.userEduUp,          name='userEduUp'),
     path('userSocial/',            user.userSocial,         name='userSocial'),
     path('userEduGet/',            user.userEduGet,         name='userEduGet'),
-    path('userEduInsert/',         user.userEdutInsert,     name='usereduInsert'),
+    path('userEduInsert/',         user.userEduInsert,      name='userEduInsert'),
     ######################################################
 
     # тестийн service-үүд. төслөө хverifyEmailийж дуусчаад устганаа.
