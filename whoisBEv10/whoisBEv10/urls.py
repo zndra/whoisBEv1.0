@@ -13,8 +13,8 @@ urlpatterns = [
     path('verifyEmail/<str:otp>/', user.verifyEmailView,    name='verifyEmailView'),
     path('userNemeltIns/',         user.userNemeltInsert,   name='userNemeltInsert'),
     path('userInfoShow/',          user.userInfoShowView,   name='userInfoShow'),
-    path('userInfoUpdate/',        user.userInfoUpdateView,   name='uuserInfoUpdateView'),
-    path('userEdu/',               user.userEdu,            name='userEdu'),
+    path('userInfoUpdate/',        user.userInfoUpdateView, name='uuserInfoUpdateView'),
+    path('userEduUp/',             user.userEduUp,          name='userEduUp'),
     path('userSocial/',            user.userSocial,         name='userSocial'),
     ######################################################
 

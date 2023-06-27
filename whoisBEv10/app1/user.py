@@ -552,7 +552,7 @@ def verifyCodeView(request):
     resp = aldaaniiMedegdel(200,"Амжилттай хэрэглэгчийн нууц үгийг шинэчлэлээ")
     return HttpResponse(json.dumps(resp), content_type="application/json")
 #########################################################################
-def userEdu(request):
+def userEduUp(request):
             jsons = json.loads(request.body)
             required_fields = ["user_id", "haana", "elssen", "duussan", "togssonMergejil"]
         
