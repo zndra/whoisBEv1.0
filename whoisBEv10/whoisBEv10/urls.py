@@ -10,9 +10,10 @@ urlpatterns = [
     path('userNemelt/',            user.userNemeltGet,      name='userNemeltMedeelelView'),
     path('verifyCode/',            user.verifyCodeView,     name='verifyCodeView'),
     path('userNemeltUp/',          user.userNemeltUpdate,   name='userNemeltUpdate'),
-    path('updateUser/',            user.updateUserView,     name='updateUserView'),
     path('verifyEmail/<str:otp>/', user.verifyEmailView,    name='verifyEmailView'),
     path('userNemeltIns/',         user.userNemeltInsert,   name='userNemeltInsert'),
+    path('userInfoShow/',          user.userInfoShowView,   name='userInfoShow'),
+    path('userInfoUpdate/',        user.userInfoUpdateView,   name='uuserInfoUpdateView'),
     path('userEdu/',               user.userEdu,            name='userEdu'),
     path('userSocial/',            user.userSocial,         name='userSocial'),
     ######################################################
