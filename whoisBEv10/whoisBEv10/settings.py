@@ -1,18 +1,18 @@
-import psycopg2
-from    django.http                  import HttpResponse
-from email.mime.multipart import MIMEMultipart
+from   email.mime.multipart import MIMEMultipart
+from   django.http          import HttpResponse
+from   smtplib              import SMTPDataError
 from   email.mime.text      import MIMEText
 from   datetime             import datetime
 from   django.urls          import resolve
 from   pathlib              import Path
-import smtplib
-import os
-# nemelt importuud 
+import psycopg2
 import hashlib
+import smtplib
 import base64
 import random
-from smtplib import SMTPDataError
 import json
+import os
+# nemelt importuud 
 ###############################
 BASE_DIR   = Path(__file__).resolve().parent.parent
 t          = os.path.join(BASE_DIR, 'templates')
@@ -68,8 +68,8 @@ WSGI_APPLICATION = 'whoisBEv10.wsgi.application'
 
 DATABASES = {
         'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE' : 'django.db.backends.sqlite3',
+        'NAME'   : BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -122,7 +122,7 @@ pgPort     = "5938"
 
 verifyEmailSubject = "WhoIs: Имэйл баталгаажуулах"
 verifyEmailContent = "Та манай системд бүртгүүлсэн байна. \n\n Доорх холбоос дээр дарж бүртгэлээ баталгаажуулна уу!\n\n"
-verifyEmailLink = "http://whois.mandakh.org/verifyEmail/"
+verifyEmailLink    = "http://whois.mandakh.org/verifyEmail/"
 
 
 
@@ -232,11 +232,11 @@ def userNameExists(username):
 
 def sendMail(receiver_address, mail_subject, mail_content):
     sender_address = "mtaxapp@zohomail.com"
-    sender_pass = "N32sH@fGn2NtZAn"
+    sender_pass    = "N32sH@fGn2NtZAn"
 
     message = MIMEMultipart()
-    message['From'] = sender_address
-    message['To'] = receiver_address
+    message['From']    = sender_address
+    message['To']      = receiver_address
     message['Subject'] = mail_subject
     message.attach(MIMEText(mail_content, 'plain'))
 
