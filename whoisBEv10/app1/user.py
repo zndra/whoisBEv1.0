@@ -743,6 +743,116 @@ def userSocial(request):
          }
             return HttpResponse(json.dumps(response), content_type="application/json") 
 #############################################################################################
+def userSocialUp(request):
+    jsons = json.loads(request.body)
+    required_fields = ["user_id", "ner", "site"]
+
+    if not reqValidation(jsons, required_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    user_id     = jsons['user_id']
+    ner      = jsons['ner']
+    site = jsons['site']
+  
+
+    try:
+        myCon      = connectDB()
+        userCursor = myCon.cursor()
+
+        userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
+        userCursor.execute('UPDATE "f_userSocial" SET "ner" = %s,"site" = %s WHERE "user_id" = %s',
+                           (ner, site, user_id,))
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+
+        response = {
+            "responseCode": 200,
+            "responseText": "Changed successfully"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+#############################################################################################
+
+def userSocialIn(request):
+    jsons = json.loads(request.body)
+    required_fields = ["id", "ner", "site"]
+
+    if not reqValidation(jsons, required_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    user_id = jsons['id']
+    ner = jsons['ner']
+    site = jsons['site']
+
+
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+        
+        userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if user:
+            response = {
+                "responseCode": 400,
+                "responseText": "User already exists"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
+        userCursor.execute('INSERT INTO "f_userSocial" ("ner", "site", "user_id") VALUES (%s, %s, %s)',
+                           (ner, site, user_id,))
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+
+        response = {
+            "responseCode": 200,
+            "responseText": "Inserted successfully"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
 def userInfoUpdateView(request):
     jsons = json.loads(request.body)
     allowed_fields = ["id", "firstName", "lastName", "email", "userName"]

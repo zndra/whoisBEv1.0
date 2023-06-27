@@ -15,7 +15,11 @@ urlpatterns = [
     path('userInfoShow/',          user.userInfoShowView,   name='userInfoShow'),
     path('userInfoUpdate/',        user.userInfoUpdateView, name='uuserInfoUpdateView'),
     path('userEduUp/',             user.userEduUp,          name='userEduUp'),
+    ################################################################################
     path('userSocial/',            user.userSocial,         name='userSocial'),
+    path('userSocialUp/',          user.userSocialUp,       name='userSocialup'),
+    path('userSocialIn/',          user.userSocialIn,       name='userSocialIn'),
+    ################################################################################
     path('userEduGet/',            user.userEduGet,         name='userEduGet'),
     path('userEduInsert/',         user.userEduInsert,     name='usereduInsert'),
     path('userTurshlaga/' ,        user.userTurshlaga,      name='userTurshlaga'   ),
