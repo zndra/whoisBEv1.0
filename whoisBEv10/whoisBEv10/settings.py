@@ -1,18 +1,19 @@
-from   email.mime.multipart import MIMEMultipart
-from   django.http          import HttpResponse
-from   smtplib              import SMTPDataError
+import psycopg2
+from    django.http                  import HttpResponse
+from email.mime.multipart import MIMEMultipart
 from   email.mime.text      import MIMEText
 from   datetime             import datetime
 from   django.urls          import resolve
 from   pathlib              import Path
-import psycopg2
-import hashlib
 import smtplib
-import base64
-import random
-import json
 import os
 # nemelt importuud 
+import hashlib
+import base64
+import random
+from smtplib import SMTPDataError
+import json
+
 ###############################
 BASE_DIR   = Path(__file__).resolve().parent.parent
 t          = os.path.join(BASE_DIR, 'templates')
@@ -68,8 +69,8 @@ WSGI_APPLICATION = 'whoisBEv10.wsgi.application'
 
 DATABASES = {
         'default': {
-        'ENGINE' : 'django.db.backends.sqlite3',
-        'NAME'   : BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -122,7 +123,7 @@ pgPort     = "5938"
 
 verifyEmailSubject = "WhoIs: Имэйл баталгаажуулах"
 verifyEmailContent = "Та манай системд бүртгүүлсэн байна. \n\n Доорх холбоос дээр дарж бүртгэлээ баталгаажуулна уу!\n\n"
-verifyEmailLink    = "http://whois.mandakh.org/verifyEmail/"
+verifyEmailLink = "http://whois.mandakh.org/verifyEmail/"
 
 
 
@@ -211,61 +212,21 @@ def userNameExists(username):
     return result[0] > 0
 ####################################
 
-# def sendMail(receiver_address, mail_subject, mail_content):
-#     sender_address = "mtaxapp@zohomail.com"
-#     sender_pass = "N32sH@fGn2NtZAn"
-
-#     message = MIMEMultipart()
-#     message['From'] = sender_address
-#     message['To'] = receiver_address
-#     message['Subject'] = mail_subject  # The subject line
-#     # The body and the attachments for the mail
-#     message.attach(MIMEText(mail_content, 'plain'))
-#     # Create SMTP session for sending the mail
-#     session = smtplib.SMTP_SSL('smtp.zoho.com', 465)  # use gmail with port
-#     # session.starttls() #enable security
-#     session.login(sender_address, sender_pass)  # login with mail_id and password
-#     text = message.as_string()
-#     session.sendmail(sender_address, receiver_address, text)
-#     session.quit()
-# #   sendMail
-
 def sendMail(receiver_address, mail_subject, mail_content):
-    sender_address = "mtaxapp@zohomail.com"
-    sender_pass    = "N32sH@fGn2NtZAn"
-
+    sender_address = "sw22d004@mandakh.edu.mn"
+    sender_pass    = "04232719"
     message = MIMEMultipart()
-    message['From']    = sender_address
-    message['To']      = receiver_address
-    message['Subject'] = mail_subject
+    message['From'] = sender_address
+    message['To'] = receiver_address
+    message['Subject'] = mail_subject  # The subject line
+    # The body and the attachments for the mail
     message.attach(MIMEText(mail_content, 'plain'))
-
-    try:
-        # Create SMTP session for sending the mail
-        session = smtplib.SMTP_SSL('smtp.zoho.com', 465)
-        session.login(sender_address, sender_pass)
-        session.sendmail(sender_address, receiver_address, message.as_string())
-        session.quit()
-
-        # Create a success response
-        resp = {
-            'message': "Email sent successfully!"
-        }
-        return HttpResponse(json.dumps(resp), content_type="application/json")
-    except SMTPDataError as e:
-        # Create an error response
-        resp = {
-            'error': "SMTPDataError occurred: " + str(e)
-        }
-        return HttpResponse(json.dumps(resp), content_type="application/json")
-    except Exception as e:
-        # Create an error response
-        resp = {
-            'error': "An error occurred: " + str(e)
-        }
-        return HttpResponse(json.dumps(resp), content_type="application/json")
-
-
+    # Create SMTP session for sending the mail
+    session = smtplib.SMTP_SSL('smtp.gmail.com', 465)  # use gmail with port 465
+    session.login(sender_address, sender_pass)  # login with mail_id and password
+    text = message.as_string()
+    session.sendmail(sender_address, receiver_address, text)
+    session.quit()
 #   sendMail
 
 def runQuery(query):

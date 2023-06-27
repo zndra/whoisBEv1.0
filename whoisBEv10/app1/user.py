@@ -130,15 +130,15 @@ def userRegisterView(request):
         'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
         'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',  # Replace "userId" with the correct column name
         (firstName, lastName, email, hashed_password, username, None, 2,))
-    
+
     # Fetch the user ID from the returned row
     userId = userCursor.fetchone()[0]
-    
+
     # Update the "f_otp" table with the user ID and OTP
     userCursor.execute(
         'INSERT INTO "f_otp"("userId", "value") VALUES(%s, %s)',
         (userId, otp))
-    
+
     myCon.commit()
 
     # Send email verification email
