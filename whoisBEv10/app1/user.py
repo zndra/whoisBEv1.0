@@ -609,3 +609,53 @@ def updateUserView(request):
         return HttpResponse("User information updated successfully.", status=200)
     else:
         return HttpResponseServerError("Invalid request method.",     status=400)
+def userEdu(request):
+            jsons = json.loads(request.body)
+            required_fields = ["user_id", "haana", "elssen", "duussan", "togssonMergejil"]
+        
+            if not reqValidation(jsons, required_fields):
+                response = {
+                    "responseCode": 550,
+                    "responseText": "Field-үүд дутуу"
+                }
+                return HttpResponse(json.dumps(response), content_type="application/json")
+        
+            user_id         = jsons['user_id']
+            haana           = jsons['haana']
+            elssen          = jsons['elssen']
+            duussan         = jsons['duussan']
+            togssonMergejil = jsons['togssonMergejil']
+        
+            try:
+                myCon      = connectDB()
+                userCursor = myCon.cursor()
+        
+                userCursor.execute('SELECT * FROM "f_userEdu" WHERE "user_id" = %s', (user_id,))
+                user = userCursor.fetchone()
+                if not user:
+                    response = {
+                        "responseCode": 555,
+                        "responseText": "User not found"
+                    }
+                    userCursor.close()
+                    disconnectDB(myCon)
+                    return HttpResponse(json.dumps(response), content_type="application/json")
+        
+                userCursor.execute('UPDATE "f_userEdu" SET "haana" = %s,"elssen" = %s,"duussan" = %s, "togssonMergejil" = %s, "user_id" = %s',
+                                   (haana, elssen, duussan, togssonMergejil, user_id,))
+                myCon.commit()
+                userCursor.close()
+                disconnectDB(myCon)
+        
+                response = {
+                    "responseCode": 200,
+                    "responseText": "Changed successfully"
+                }
+                return HttpResponse(json.dumps(response), content_type="application/json")
+        
+            except Exception as e:
+                response = {
+                    "responseCode": 551,
+                    "responseText": "Database error"
+                }
+                return HttpResponse(json.dumps(response), content_type="application/json")
