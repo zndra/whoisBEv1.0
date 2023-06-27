@@ -552,63 +552,6 @@ def verifyCodeView(request):
     resp = aldaaniiMedegdel(200,"Амжилттай хэрэглэгчийн нууц үгийг шинэчлэлээ")
     return HttpResponse(json.dumps(resp), content_type="application/json")
 #########################################################################
-
-def getUserInfo(username, password):
-    myCon = connectDB()
-    userCursor = myCon.cursor()
-    userCursor.execute('SELECT "id", "userName", "firstName", "lastName", "email" '
-                       'FROM "f_user" '
-                       'WHERE "deldate" IS NULL '
-                       'AND "pass" = %s '
-                       'AND "isVerified" = true '
-                       'AND "userName" = %s',
-                       (password, username))
-    
-    user_info = userCursor.fetchone()
-    
-    userCursor.close()
-    myCon.close()
-    
-    return user_info
-
-#################################################################################################################
-def updateUserView(request):
-    if request.method == 'POST':
-        data      = json.loads(request.body)
-        userId    = data.get('id')
-        firstName = data.get('firstName')
-        lastName  = data.get('lastName')
-
-        currentUserInfo = getUserInfo(data.get('userName'), data.get('pass'))
-        if not currentUserInfo:
-            return HttpResponseServerError("Invalid credentials.")
-
-        currentFirstName = currentUserInfo[2]  # Index 2 corresponds to 'firstName' in the SELECT query
-        currentLastName  = currentUserInfo[3]  # Index 3 corresponds to 'lastName' in the SELECT query
-        currentEmail     = currentUserInfo[4]  # Index 4 corresponds to 'email' in the SELECT query
-
-        if firstName and firstName != currentFirstName:
-            currentFirstName = firstName
-        if lastName  and lastName  != currentLastName:
-            currentLastName  = lastName
-
-        myCon      = connectDB()
-        userCursor = myCon.cursor()
-        userCursor.execute(
-            'UPDATE "f_user" '
-            'SET "firstName" = %s, '
-            '"lastName"      = %s, '
-            '"email"         = %s '
-            'WHERE "id"      = %s',
-            (currentFirstName, currentLastName, currentEmail, userId)
-        )
-        userCursor.close()
-        myCon.commit()
-        myCon.close()
-
-        return HttpResponse("User information updated successfully.", status=200)
-    else:
-        return HttpResponseServerError("Invalid request method.",     status=400)
 def userEdu(request):
             jsons = json.loads(request.body)
             required_fields = ["user_id", "haana", "elssen", "duussan", "togssonMergejil"]
@@ -695,4 +638,117 @@ def userSocial(request):
              "responseText": "Database error"
          }
             return HttpResponse(json.dumps(response), content_type="application/json") 
+#############################################################################################
+def userInfoUpdateView(request):
+    jsons = json.loads(request.body)
+    allowed_fields = ["id", "firstName", "lastName", "email", "userName"]
+
+    if not any(field in jsons for field in allowed_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "No valid fields provided for update"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    user_id = jsons['id']
+
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+
+        userCursor.execute('SELECT "isVerified" FROM "f_user" WHERE "id" = %s', (user_id,))
+        result = userCursor.fetchone()
+
+        if not result:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
+        is_verified = result[0]
+
+        if not is_verified:
+            response = {
+                "responseCode": 556,
+                "responseText": "User is not verified"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
+        update_fields = []
+        update_values = []
+
+        if "firstName" in jsons:
+            update_fields.append('"firstName"')
+            update_values.append(jsons['firstName'])
+        if "lastName" in jsons:
+            update_fields.append('"lastName"')
+            update_values.append(jsons['lastName'])
+        if "email" in jsons:
+            update_fields.append('"email"')
+            update_values.append(jsons['email'])
+        if "userName" in jsons:
+            update_fields.append('"userName"')
+            update_values.append(jsons['userName'])
+
+        # Construct the SQL query
+        update_query = 'UPDATE "f_user" SET ' + ', '.join([field + ' = %s' for field in update_fields]) + ' WHERE "id" = %s'
+        update_values.append(user_id)
+
+        userCursor.execute(update_query, tuple(update_values))
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+
+        response = {
+            "responseCode": 200,
+            "responseText": "Changed successfully"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+###################################################################################
+def userInfoShowView(request):
+   jsons   = json.loads(request.body)
+   user_id = jsons['id']
+   if request.method == 'GET':
+       myCon = connectDB()
+       userCursor = myCon.cursor()
+       userCursor.execute('SELECT * FROM "f_user" WHERE "id"= %s',(user_id,) )
+       user = userCursor.fetchone()
+       if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+       elif user:
+            userCursor.execute('SELECT * FROM "f_user" WHERE "id"= %s',(user_id,) )
+            columns = [column[0] for column in userCursor.description]
+   
+            response = [
+                    {columns[index]: column for index, column in enumerate(value)}
+                     for value in userCursor.fetchall()
+                  ]
+            userCursor.close()
+            disconnectDB(myCon)
        
+            responseJSON = json.dumps((response), cls=DjangoJSONEncoder, default=str)
+            return HttpResponse(responseJSON, content_type="application/json")
+       else:
+           response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+           return HttpResponse(json.dumps(response), content_type="application/json") 
