@@ -603,9 +603,11 @@ def userEduUp(request):
                 }
                 return HttpResponse(json.dumps(response), content_type="application/json")
 ###############################################################################################          
-def userEdutInsert(request):
+import traceback
+
+def userEduInsert(request):
     jsons = json.loads(request.body)
-    required_fields = ["id", "elssen", "duussan", "togssonMergejil"]
+    required_fields = ["id", "haana", "elssen", "duussan", "togssonMergejil"]
 
     if not reqValidation(jsons, required_fields):
         response = {
@@ -614,11 +616,11 @@ def userEdutInsert(request):
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
-    user_id         = jsons['id']
-    elssen          = jsons['elssen']
-    duussan         = jsons['duussan']
+    user_id = jsons['id']
+    haana  =  jsons['haana']
+    elssen = jsons['elssen']
+    duussan = jsons['duussan']
     togssonMergejil = jsons['togssonMergejil']
-
 
     try:
         myCon = connectDB()
@@ -633,7 +635,7 @@ def userEdutInsert(request):
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
-        
+
         userCursor.execute('SELECT * FROM "f_userEdu" WHERE "user_id" = %s', (user_id,))
         user = userCursor.fetchone()
         if user:
@@ -645,8 +647,9 @@ def userEdutInsert(request):
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
 
-        userCursor.execute('INSERT INTO "f_userEdu" ("elssen", "duussan", "togssonMergejil","user_id") VALUES (%s, %s, %s, %s)',
-                           (elssen, duussan, togssonMergejil, user_id))
+        userCursor.execute(
+            'INSERT INTO "f_userEdu" ("haana", "elssen", "duussan", "togssonMergejil","user_id") VALUES (%s, %s, %s, %s, %s)',
+            (haana, elssen, duussan, togssonMergejil, user_id))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
@@ -658,9 +661,12 @@ def userEdutInsert(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     except Exception as e:
+        error_message = traceback.format_exc()
+        print(error_message)  # Print the detailed error message for debugging purposes
+
         response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Database error: " + str(e)
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
