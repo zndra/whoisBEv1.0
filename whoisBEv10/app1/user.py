@@ -602,7 +602,69 @@ def userEduUp(request):
                     "responseText": "Database error"
                 }
                 return HttpResponse(json.dumps(response), content_type="application/json")
-            
+###############################################################################################          
+def userEdutInsert(request):
+    jsons = json.loads(request.body)
+    required_fields = ["id", "elssen", "duussan", "togssonMergejil"]
+
+    if not reqValidation(jsons, required_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    user_id         = jsons['id']
+    elssen          = jsons['elssen']
+    duussan         = jsons['duussan']
+    togssonMergejil = jsons['togssonMergejil']
+
+
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+        
+        userCursor.execute('SELECT * FROM "f_userEdu" WHERE "user_id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if user:
+            response = {
+                "responseCode": 400,
+                "responseText": "User already exists"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
+        userCursor.execute('INSERT INTO "f_userEdu" ("elssen", "duussan", "togssonMergejil","user_id") VALUES (%s, %s, %s, %s)',
+                           (elssen, duussan, togssonMergejil, user_id))
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+
+        response = {
+            "responseCode": 200,
+            "responseText": "Inserted successfully"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+################################################################################################
 def userSocial(request):
     jsons = json.loads(request.body)
     user_id = jsons['user_id']
