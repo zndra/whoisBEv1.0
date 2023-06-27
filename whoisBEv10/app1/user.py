@@ -610,4 +610,4 @@ def updateUserView(request):
 
         return HttpResponse("User information updated successfully.", status=200)
     else:
-        return HttpResponseServerError("Invalid request method.", status=400)
+        return HttpResponseServerError("Invalid request method.",     status=400)
