@@ -659,3 +659,40 @@ def userEdu(request):
                     "responseText": "Database error"
                 }
                 return HttpResponse(json.dumps(response), content_type="application/json")
+            
+def userSocial(request):
+    jsons = json.loads(request.body)
+    user_id = jsons['user_id']
+    if request.method == "GET":
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id"= %s',(user_id,) )
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+        elif user:
+             userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id"= %s',(user_id,) )
+             columns = [column[0] for column in userCursor.description]
+  
+             response = [
+                     {columns[index]: column for index, column in enumerate(value)}
+                      for value in userCursor.fetchall()
+                   ]
+             userCursor.close()
+             disconnectDB(myCon)
+      
+             responseJSON = json.dumps((response), cls=DjangoJSONEncoder, default=str)
+             return HttpResponse(responseJSON, content_type="application/json")
+        else:
+            response = {
+             "responseCode": 551,
+             "responseText": "Database error"
+         }
+            return HttpResponse(json.dumps(response), content_type="application/json") 
+       

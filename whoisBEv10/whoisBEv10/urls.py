@@ -14,6 +14,7 @@ urlpatterns = [
     path('verifyEmail/<str:otp>/', user.verifyEmailView,    name='verifyEmailView'),
     path('userNemeltIns/',         user.userNemeltInsert,   name='userNemeltInsert'),
     path('userEdu/',               user.userEdu,            name='userEdu'),
+    path('userSocial/',            user.userSocial,         name='userSocial'),
     ######################################################
 
     # тестийн service-үүд. төслөө хverifyEmailийж дуусчаад устганаа.
