@@ -403,25 +403,36 @@ def userNemeltInsert(request):
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
-    user_id     = jsons['id']
-    regDug      = jsons['regDug']
+    user_id = jsons['id']
+    regDug = jsons['regDug']
     torsonOgnoo = jsons['torsonOgnoo']
-    dugaar      = jsons['dugaar']
-    huis        = jsons['huis']
-    irgenshil   = jsons['irgenshil']
-    ysUndes     = jsons['ysUndes']
-    hayg        = jsons['hayg']
-    hobby       = jsons['hobby']
+    dugaar = jsons['dugaar']
+    huis = jsons['huis']
+    irgenshil = jsons['irgenshil']
+    ysUndes = jsons['ysUndes']
+    hayg = jsons['hayg']
+    hobby = jsons['hobby']
 
     try:
-        myCon      = connectDB()
+        myCon = connectDB()
         userCursor = myCon.cursor()
         userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
-        user       = userCursor.fetchone()
+        user = userCursor.fetchone()
         if not user:
             response = {
                 "responseCode": 555,
                 "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+        
+        userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if user:
+            response = {
+                "responseCode": 400,
+                "responseText": "User already exists"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -444,7 +455,7 @@ def userNemeltInsert(request):
             "responseCode": 551,
             "responseText": "Database error"
         }
-        return HttpResponse(json.dumps(response), content_type="application/json")  
+        return HttpResponse(json.dumps(response), content_type="application/json")
   #########################################################################
   
 
