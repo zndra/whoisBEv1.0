@@ -444,29 +444,30 @@ def userNemeltInsert(request):
             "responseCode": 551,
             "responseText": "Database error"
         }
-        return HttpResponse(json.dumps(response), content_type="application/json")
-
-
-          
- 
-           
-         
- 
-           
+        return HttpResponse(json.dumps(response), content_type="application/json")  
   #########################################################################
+  
+
+# response буцаахад ашиглах 
+def aldaaniiMedegdel(code, tailbar):
+    resp = {}
+    resp["responseCode"] = code
+    resp["responseText"] = tailbar 
+    return resp
+#############################################################
+
+# response буцаахад ашиглах 
 def resetPasswordView(request):
     jsonsData = json.loads(request.body) 
     resp = {}
     # Хэрэв мэдээлэл дутуу байвал алдааны мэдээлэл дамжуулах
     if( reqValidation(jsonsData, {"newPassword", "email"} ) == False):
-        # def respUgukh("522", "Field дутуу байна"):
-        resp["responseCode"] = "550"
-        resp["responseText"] = "Field дутуу байна"        
+        resp = aldaaniiMedegdel(550, "Field дутуу байна")        
         return HttpResponse(json.dumps(resp), content_type="application/json")
     
     email       = jsonsData["email"]
     newPassword = jsonsData["newPassword"]
-    verifyCode  = createCodes(10) # Batalgaajuulakh codenii urt
+    verifyCode  = createCodes(10) # Batalgaajuulakh codenii urt ni 10
     
     try:
         myCon      = connectDB()
@@ -474,22 +475,19 @@ def resetPasswordView(request):
         # email баталгаажсан нь DB дээр бйагаа эсэхийг уншиж байна. 
         userCursor.execute('SELECT * FROM "f_user" WHERE  "email" = %s AND  "isVerified" = true', (email,))
         user = userCursor.fetchone()
+        print(user)
         # Хэрэглэч байгаа үгүйг шалгах
         if not user:
-            # respUgukh("523", "Уг email хаягтай хэрэглэгч олдсонгүй", resp)     
-            resp["responseCode"] = "553"
-            resp["responseText"] = "Уг email хаягтай хэрэглэгч олдсонгүй"
-            # tasal()   
+            resp = aldaaniiMedegdel(553, "Уг email хаягтай хэрэглэгч олдсонгүй.")
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(resp), content_type="application/json")
         # Email илгээх
-        mail_subject = "Баталгаажуулах код"
-        mail_content = f"Нууц үг сэргээх баталгаажуулах код:\n\n{verifyCode}"
-        sendMail(email, mail_subject, mail_content)
+        mailSubject = "Баталгаажуулах код"
+        mailContent = f"Нууц үг сэргээх баталгаажуулах код:\n\n{verifyCode}"
+        sendMail(email, mailSubject, mailContent)
         # newPass-ийг өөрчлөх
         userCursor.execute('UPDATE "f_user" SET "newPass" = %s WHERE "email" = %s', (newPassword, email))
-        # myCon.commit()
         # verifyCode-ийг өөрчлөх
         userCursor.execute('UPDATE "f_user" SET "verifyCode" = %s WHERE "email" = %s', (verifyCode, email))
         myCon.commit()
@@ -497,25 +495,21 @@ def resetPasswordView(request):
         
     except Exception as e:
         resp = {}
-        resp["responseCode"] = 551
-        resp["responseText"] = "Баазын алдаа"        
+        resp = aldaaniiMedegdel(551, "Баазын алдаа")    
         return HttpResponse(json.dumps(resp), content_type="application/json")
     finally:
         disconnectDB(myCon)
-    # tasal()   
-    # respUgukh("200", "Уг email рүү баталгаажуулах код илгээв", resp)     
-    resp["responseCode"] = "200"
-    resp["responseText"] = "Уг email рүү баталгаажуулах код илгээв"
+    resp = aldaaniiMedegdel(200, "Уг email рүү баталгаажуулах код илгээв")
     return HttpResponse(json.dumps(resp), content_type="application/json")
 #############################################################
-       # Баталгаажуулах кодоор нууц үгээ сэргээх /email, verifyCode/
+
+# Баталгаажуулах кодоор нууц үгээ сэргээх /email, verifyCode/
 def verifyCodeView(request):
     jsonsData = json.loads(request.body)   
     resp = {}
     # Хэрэв мэдээлэл дутуу байвал алдааны мэдээлэл дамжуулах
     if( reqValidation(jsonsData, {"verifyCode"} ) == False):
-        resp["responseCode"] = "550"
-        resp["responseText"] = "Field дутуу байна"        
+        resp = aldaaniiMedegdel(550, "Field дутуу байна")  
         return HttpResponse(json.dumps(resp), content_type="application/json")
     
     verifyCode = jsonsData["verifyCode"]
@@ -525,19 +519,13 @@ def verifyCodeView(request):
         userCursor = myCon.cursor()
         # email баталгаажсан болон verifyCode нь DB дээр бйагаа эсэхийг уншиж байна. 
         userCursor.execute('SELECT * FROM "f_user" WHERE "verifyCode" = %s', (verifyCode,))
-        # print("helloooooo")
         user = userCursor.fetchone()
-        # print(user)
-        # myCon.commit()
         # verifyCode нь таарахгүй бол алдааны мэдээлэл дамжуулан
         if not user:   
-            resp["responseCode"] = "553"
-            resp["responseText"] = "Баталгаажуулах код таарсангүй."
+            resp = aldaaniiMedegdel(553,"Баталгаажуулах код таарсангүй.")
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(resp), content_type="application/json")
-        # newPass = userCursor.execute('SELECT "newPass" FROM "f_user" WHERE "email" = %s', (email))
-        # print(str(newPass))
         # pass-аа өөрчлөх
         user = list(user)
         userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "verifyCode" = %s', (str(user[len(user)-2]), verifyCode))
@@ -546,15 +534,14 @@ def verifyCodeView(request):
     # Баазтай холбоо тасрах үед
     except Exception as e:
         resp = {}
-        resp["responseCode"] = 551
-        resp["responseText"] = "Баазын алдаа"        
+        resp = aldaaniiMedegdel(551,"Баазын алдаа")        
         return HttpResponse(json.dumps(resp), content_type="application/json")
     finally:
         disconnectDB(myCon)
-    resp["responseCode"] = "200"
-    resp["responseText"] = "Амжилттай хэрэглэгчийн нууц үгийг шинэчлэлээ"
+    resp = aldaaniiMedegdel(200,"Амжилттай хэрэглэгчийн нууц үгийг шинэчлэлээ")
     return HttpResponse(json.dumps(resp), content_type="application/json")
 #########################################################################
+
 def getUserInfo(username, password):
     myCon = connectDB()
     userCursor = myCon.cursor()
