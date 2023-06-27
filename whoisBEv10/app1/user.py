@@ -1,9 +1,10 @@
 from    django.http                  import HttpResponse,HttpResponseServerError
 from    django.core.serializers.json import DjangoJSONEncoder
 from    whoisBEv10.settings          import *
+from    django.db                    import connection
 import  pytz
 import  json
-from django.db import connection
+
 
 
 # ene debug uyed ajillah yostoi
@@ -90,13 +91,13 @@ def userRegisterView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     firstName = jsons['firstName']
-    lastName = jsons['lastName']
-    email = jsons['email']
-    password = jsons['pass']
-    username = jsons['userName']
+    lastName  = jsons['lastName']
+    email     = jsons['email']
+    password  = jsons['pass']
+    username  = jsons['userName']
 
     try:
-        myCon = connectDB()
+        myCon      = connectDB()
         userCursor = myCon.cursor()
 
         if emailExists(email):
@@ -142,7 +143,7 @@ def userRegisterView(request):
 
     # Send email verification email
     myVerifyEmailLink = verifyEmailLink + otp
-    myMailContent = verifyEmailContent + "Холбоос: " + myVerifyEmailLink
+    myMailContent     = verifyEmailContent + "Холбоос: " + myVerifyEmailLink
     sendMail(email, verifyEmailSubject, myMailContent)
 
     # Close the userCursor and disconnect from the database
@@ -160,7 +161,7 @@ def userRegisterView(request):
 ######################################################################################
 def verifyEmailView(request, otp):
     try:
-        myCon = connectDB()
+        myCon      = connectDB()
         userCursor = myCon.cursor()
 
         # Retrieve the user ID associated with the provided OTP
@@ -254,11 +255,11 @@ def changePass(request):
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
     
-    id = jsons['id']
+    id  = jsons['id']
     pas = jsons['pas']
 
     try:
-        myCon = connectDB()
+        myCon      = connectDB()
         userCursor = myCon.cursor()
         
         # Check if the user exists
@@ -297,7 +298,7 @@ def changePass(request):
 
 
 def userNemeltGet(request):
-   jsons = json.loads(request.body)
+   jsons   = json.loads(request.body)
    user_id = jsons['user_id']
    if request.method == 'GET':
        myCon = connectDB()
@@ -344,18 +345,18 @@ def userNemeltUpdate(request):
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
-    user_id = jsons['user_id']
-    regDug = jsons['regDug']
+    user_id     = jsons['user_id']
+    regDug      = jsons['regDug']
     torsonOgnoo = jsons['torsonOgnoo']
-    dugaar = jsons['dugaar']
-    huis = jsons['huis']
-    irgenshil = jsons['irgenshil']
-    ysUndes = jsons['ysUndes']
-    hayg = jsons['hayg']
-    hobby = jsons['hobby']
+    dugaar      = jsons['dugaar']
+    huis        = jsons['huis']
+    irgenshil   = jsons['irgenshil']
+    ysUndes     = jsons['ysUndes']
+    hayg        = jsons['hayg']
+    hobby       = jsons['hobby']
 
     try:
-        myCon = connectDB()
+        myCon      = connectDB()
         userCursor = myCon.cursor()
 
         userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
@@ -402,21 +403,21 @@ def userNemeltInsert(request):
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
-    user_id = jsons['id']
-    regDug = jsons['regDug']
+    user_id     = jsons['id']
+    regDug      = jsons['regDug']
     torsonOgnoo = jsons['torsonOgnoo']
-    dugaar = jsons['dugaar']
-    huis = jsons['huis']
-    irgenshil = jsons['irgenshil']
-    ysUndes = jsons['ysUndes']
-    hayg = jsons['hayg']
-    hobby = jsons['hobby']
+    dugaar      = jsons['dugaar']
+    huis        = jsons['huis']
+    irgenshil   = jsons['irgenshil']
+    ysUndes     = jsons['ysUndes']
+    hayg        = jsons['hayg']
+    hobby       = jsons['hobby']
 
     try:
-        myCon = connectDB()
+        myCon      = connectDB()
         userCursor = myCon.cursor()
         userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
-        user = userCursor.fetchone()
+        user       = userCursor.fetchone()
         if not user:
             response = {
                 "responseCode": 555,
@@ -463,12 +464,12 @@ def resetPasswordView(request):
         resp["responseText"] = "Field дутуу байна"        
         return HttpResponse(json.dumps(resp), content_type="application/json")
     
-    email = jsonsData["email"]
+    email       = jsonsData["email"]
     newPassword = jsonsData["newPassword"]
-    verifyCode = createCodes(10) # Batalgaajuulakh codenii urt
+    verifyCode  = createCodes(10) # Batalgaajuulakh codenii urt
     
     try:
-        myCon = connectDB()
+        myCon      = connectDB()
         userCursor = myCon.cursor()
         # email баталгаажсан нь DB дээр бйагаа эсэхийг уншиж байна. 
         userCursor.execute('SELECT * FROM "f_user" WHERE  "email" = %s AND  "isVerified" = true', (email,))
@@ -520,7 +521,7 @@ def verifyCodeView(request):
     verifyCode = jsonsData["verifyCode"]
     
     try:
-        myCon = connectDB()
+        myCon      = connectDB()
         userCursor = myCon.cursor()
         # email баталгаажсан болон verifyCode нь DB дээр бйагаа эсэхийг уншиж байна. 
         userCursor.execute('SELECT * FROM "f_user" WHERE "verifyCode" = %s', (verifyCode,))
@@ -575,32 +576,32 @@ def getUserInfo(username, password):
 #################################################################################################################
 def updateUserView(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        userId = data.get('id')
+        data      = json.loads(request.body)
+        userId    = data.get('id')
         firstName = data.get('firstName')
-        lastName = data.get('lastName')
+        lastName  = data.get('lastName')
 
         currentUserInfo = getUserInfo(data.get('userName'), data.get('pass'))
         if not currentUserInfo:
             return HttpResponseServerError("Invalid credentials.")
 
         currentFirstName = currentUserInfo[2]  # Index 2 corresponds to 'firstName' in the SELECT query
-        currentLastName = currentUserInfo[3]  # Index 3 corresponds to 'lastName' in the SELECT query
-        currentEmail = currentUserInfo[4]  # Index 4 corresponds to 'email' in the SELECT query
+        currentLastName  = currentUserInfo[3]  # Index 3 corresponds to 'lastName' in the SELECT query
+        currentEmail     = currentUserInfo[4]  # Index 4 corresponds to 'email' in the SELECT query
 
         if firstName and firstName != currentFirstName:
             currentFirstName = firstName
-        if lastName and lastName != currentLastName:
-            currentLastName = lastName
+        if lastName  and lastName  != currentLastName:
+            currentLastName  = lastName
 
-        myCon = connectDB()
+        myCon      = connectDB()
         userCursor = myCon.cursor()
         userCursor.execute(
             'UPDATE "f_user" '
             'SET "firstName" = %s, '
-            '"lastName" = %s, '
-            '"email" = %s '
-            'WHERE "id" = %s',
+            '"lastName"      = %s, '
+            '"email"         = %s '
+            'WHERE "id"      = %s',
             (currentFirstName, currentLastName, currentEmail, userId)
         )
         userCursor.close()
