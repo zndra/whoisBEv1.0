@@ -856,3 +856,152 @@ def userInfoShowView(request):
             "responseText": "Database error"
         }
            return HttpResponse(json.dumps(response), content_type="application/json") 
+def userTurshlaga(request):
+    data = json.loads(request.body)
+    user_id=data['user_id']
+    if request.method == 'GET':
+        myCon=connectDB()
+        userCursor=myCon.cursor()
+        userCursor.execute('SELECT * FROM "f_userWork" WHERE "user_id"=%s', (user_id,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+        elif user:
+            userCursor.execute('SELECT * FROM "f_userWork" WHERE "user_id"= %s',(user_id,) )
+            columns = [column[0] for column in userCursor.description]
+   
+            response = [
+            {columns[index]: column for index, column in enumerate(value)}
+            for value in userCursor.fetchall()
+                  ]
+            userCursor.close()
+            disconnectDB(myCon)
+       
+            responseJSON = json.dumps((response), cls=DjangoJSONEncoder, default=str)
+            return HttpResponse(responseJSON, content_type="application/json")
+        else:
+            response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+            }
+            return HttpResponse(json.dumps(response), content_type="application/json") 
+
+def userTurshlagaUp(request):
+    jsons = json.loads(request.body)
+    required_fields = ["user_id", "ajil", "company", "ehelsen", "duussan"]
+
+    if not reqValidation(jsons, required_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    user_id     = jsons['user_id']
+    ajil      = jsons['ajil']
+    company = jsons['company']
+    ehelsen      = jsons['ehelsen']
+    duussan        = jsons['duussan']
+  
+
+    try:
+        myCon      = connectDB()
+        userCursor = myCon.cursor()
+
+        userCursor.execute('SELECT * FROM "f_userWork" WHERE "user_id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
+        userCursor.execute('UPDATE "f_userWork" SET "ajil" = %s,"company" = %s,"ehelsen" = %s, "duussan" = %s WHERE "user_id" = %s',
+                           (ajil, company, ehelsen, duussan,  user_id,))
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+
+        response = {
+            "responseCode": 200,
+            "responseText": "Changed successfully"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+
+def userTurshlagaIn(request):
+    jsons = json.loads(request.body)
+    required_fields = ["id", "ajil", "company", "ehelsen", "duussan"]
+
+    if not reqValidation(jsons, required_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    user_id = jsons['id']
+    ajil = jsons['ajil']
+    company = jsons['company']
+    ehelsen = jsons['ehelsen']
+    duussan = jsons['duussan']
+
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+        
+        userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if user:
+            response = {
+                "responseCode": 400,
+                "responseText": "User already exists"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
+        userCursor.execute('INSERT INTO "f_userWork" ("ajil", "company", "ehelsen", "duussan", "user_id") VALUES (%s, %s, %s, %s, %s)',
+                           (ajil, company, ehelsen, duussan, user_id,))
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+
+        response = {
+            "responseCode": 200,
+            "responseText": "Inserted successfully"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
