@@ -1005,3 +1005,43 @@ def userTurshlagaIn(request):
             "responseText": "Database error"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
+#################################################################
+
+#   Хэрэглэгчийн id-г илгээхэд бүх чадваруудыг list хэлбэрээр илгээх функц.
+def SendUserSkillsView(request):
+    jsonsData = json.loads(request.body)
+    response = {}
+    if(reqValidation( jsonsData, {"user_id"}) == False):
+        resp = aldaaniiMedegdel(550, "Field дутуу байна.")
+        responseJSON = json.dumps(response)
+        return HttpResponse(responseJSON,content_type="application/json")
+    user_id = jsonsData["user_id"]
+    try:
+        # db холболт
+        myCon      = connectDB()
+        userCursor = myCon.cursor()
+        # user_id-гаар нь хайгаад бүх мэдээллийн авах
+        userCursor.execute('SELECT "chadvarNer", "s_Tuvshin" FROM "f_userSkill" WHERE "user_id" = %s', (user_id,))
+        user = userCursor.fetchall()
+        # Хэрэглэч байгаа үгүйг шалгах
+        if not user:
+            resp = aldaaniiMedegdel(553, "Тухайн хэрэглэгч одоогоор ур чадварын тухай мэдээлэл оруулаагүй байна.")
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        # list хэлбэрээр авах
+        skills = []
+        for data in user:
+            skills.append(list(data))
+        # db salalt
+        userCursor.close()
+        disconnectDB(myCon)
+    except Exception as e:
+        response = aldaaniiMedegdel(551,"Баазын алдаа")        
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    finally:
+        disconnectDB(myCon)
+    response = aldaaniiMedegdel(551,"Амжилттай чадварын тухай мэдээллүүдийг илгээв.")
+    response["skills"]    = skills
+    return HttpResponse(json.dumps(response),content_type="application/json")
+#################################################################################
