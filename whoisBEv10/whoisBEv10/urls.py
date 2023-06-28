@@ -26,7 +26,8 @@ urlpatterns = [
     path('userTurshlaga/' ,        user.userTurshlaga,      name='userTurshlaga'   ),
     path('userTurshlagaUp/' ,      user.userTurshlagaUp,    name='userTurshlagaUp'   ),
     path('userTurshlagaIn/' ,      user.userTurshlagaIn,    name='userTurshlagaIn'   ),
-    path('SendUserSkills/' ,      user.SendUserSkillsView,    name='SendUserSkillsView'   ),
+    path('getUserSkill/' ,      user.getUserSkillView,    name='getUserSkillView'   ),
+    path('setUserSkill/' ,      user.setUserSkillView,    name='setUserSkillView'   ),
     ######################################################
 
     # тестийн service-үүд. төслөө хverifyEmailийж дуусчаад устганаа.
