@@ -853,6 +853,7 @@ def userSocialIn(request):
             "responseText": "Database error"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
+    #################################
 def userInfoUpdateView(request):
     jsons = json.loads(request.body)
     allowed_fields = ["id", "firstName", "lastName", "email", "userName"]
@@ -932,40 +933,50 @@ def userInfoUpdateView(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
 ###################################################################################
 def userInfoShowView(request):
-   jsons   = json.loads(request.body)
-   user_id = jsons['id']
-   if request.method == 'GET':
-       myCon = connectDB()
-       userCursor = myCon.cursor()
-       userCursor.execute('SELECT * FROM "f_user" WHERE "id"= %s',(user_id,) )
-       user = userCursor.fetchone()
-       if not user:
-            response = {
+    jsons = json.loads(request.body)
+    user_id = jsons['id']
+    
+    if request.method == 'GET':
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        
+        if not user:
+            resp = {
                 "responseCode": 555,
                 "responseText": "User not found"
             }
             userCursor.close()
             disconnectDB(myCon)
-            return HttpResponse(json.dumps(response), content_type="application/json")
-       elif user:
-            userCursor.execute('SELECT * FROM "f_user" WHERE "id"= %s',(user_id,) )
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        
+        elif user:
+            userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
             columns = [column[0] for column in userCursor.description]
-   
             response = [
-                    {columns[index]: column for index, column in enumerate(value)}
-                     for value in userCursor.fetchall()
-                  ]
+                {columns[index]: column for index, column in enumerate(value)}
+                for value in userCursor.fetchall()
+            ]
             userCursor.close()
             disconnectDB(myCon)
-       
-            responseJSON = json.dumps((response), cls=DjangoJSONEncoder, default=str)
+            responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
             return HttpResponse(responseJSON, content_type="application/json")
-       else:
-           response = {
-            "responseCode": 551,
-            "responseText": "Database error"
-        }
-           return HttpResponse(json.dumps(response), content_type="application/json") 
+        
+        else:
+            resp = {
+                "responseCode": 551,
+                "responseText": "Database error"
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+    
+    response = {
+        "responseCode": 200,
+        "responseText": "Inserted successfully"
+    }
+    return HttpResponse(json.dumps(response), content_type="application/json")
+
+        #############################################################################
 def userTurshlaga(request):
     data = json.loads(request.body)
     user_id=data['user_id']
