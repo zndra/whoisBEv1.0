@@ -972,7 +972,7 @@ def userInfoShowView(request):
     
     response = {
         "responseCode": 200,
-        "responseText": "Inserted successfully"
+        "responseText": " successfully"
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
 
