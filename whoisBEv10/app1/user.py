@@ -316,7 +316,10 @@ def userNemeltGet(request):
        elif user:
             userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"= %s',(user_id,) )
             columns = [column[0] for column in userCursor.description]
-   
+            resp = {
+                "responseCode": 200,
+                "responseText": "successfully"
+            }
             response = [
                     {columns[index]: column for index, column in enumerate(value)}
                      for value in userCursor.fetchall()
@@ -324,7 +327,7 @@ def userNemeltGet(request):
             userCursor.close()
             disconnectDB(myCon)
        
-            responseJSON = json.dumps((response), cls=DjangoJSONEncoder, default=str)
+            responseJSON = json.dumps((resp,response), cls=DjangoJSONEncoder, default=str)
             return HttpResponse(responseJSON, content_type="application/json")
        else:
            response = {
@@ -426,7 +429,7 @@ def userNemeltInsert(request):
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
-        
+      
         userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
         user = userCursor.fetchone()
         if user:
@@ -437,7 +440,12 @@ def userNemeltInsert(request):
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
-
+        if regDugExist(regDug):
+            resp = {
+                "responseCode": 400,
+                "responseText": "Personal id already exists"
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
         userCursor.execute('INSERT INTO "f_userNemeltMedeelel" ("regDug", "torsonOgnoo", "dugaar", "huis", "irgenshil", "ysUndes", "hayg", "hobby", "user_id") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                            (regDug, torsonOgnoo, dugaar, huis, irgenshil, ysUndes, hayg, hobby, user_id))
         myCon.commit()
@@ -1166,3 +1174,45 @@ def SendUserSkillsView(request):
     response["skills"]    = skills
     return HttpResponse(json.dumps(response),content_type="application/json")
 #################################################################################
+def userFamilyGet(request):
+   jsons   = json.loads(request.body)
+   user_id = jsons['user_id']
+   if request.method == 'GET':
+       myCon = connectDB()
+       userCursor = myCon.cursor()
+       userCursor.execute('SELECT * FROM "f_userFamily" WHERE "user_id"= %s',(user_id,) )
+       user = userCursor.fetchone()
+       if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+       if user:
+            userCursor.execute('SELECT * FROM "f_userFamily" WHERE "user_id"= %s',(user_id,) )
+            columns = [column[0] for column in userCursor.description]
+            resp = {
+                "responseCode": 200,
+                "responseText": "successfully"
+            }
+   
+            response = [
+                    {columns[index]: column for index, column in enumerate(value)}
+                       for value in userCursor.fetchall()
+                  ]
+        
+            userCursor.close()
+            disconnectDB(myCon)
+        
+       
+            responseJSON = json.dumps((resp,response,), cls=DjangoJSONEncoder, default=str)
+            return HttpResponse(responseJSON, content_type="application/json")
+       
+       else:
+           response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+           return HttpResponse(json.dumps(response), content_type="application/json")

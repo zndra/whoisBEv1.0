@@ -249,4 +249,11 @@ def reqValidation(json,keys):
             break
     return validReq
 #   def
-
+def regDugExist(regDug):
+    myCon      = connectDB()
+    userCursor = myCon.cursor()
+    userCursor.execute('SELECT COUNT(*) FROM "f_userNemeltMedeelel" WHERE "regDug" = %s', (regDug,))
+    result     = userCursor.fetchone()
+    userCursor.close()
+    disconnectDB(myCon)
+    return result[0] > 0
