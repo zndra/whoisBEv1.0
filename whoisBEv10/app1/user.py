@@ -1503,3 +1503,117 @@ def makeTransaction(request):
             "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
+    #######################
+
+
+def userFamilyInsert(request):
+    jsons = json.loads(request.body)
+    required_fields = ["id", "henBoloh", "ner", "gerBuliinBaidal", "amBul", "albanTushaal", "baiguulgaNer"]
+
+    if not reqValidation(jsons, required_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    user_id = jsons['id']
+    henBoloh = jsons['henBoloh']
+    ner = jsons['ner']
+    gerBul = jsons['gerBuliinBaidal']
+    amBul = jsons['amBul']
+    albantushaal = jsons['albanTushaal']
+    bner = jsons['baiguulgaNer']
+   
+
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
+        userCursor.execute('INSERT INTO "f_userFamily" ("henBoloh", "ner", "gerBuliinBaidal", "amBul", "albanTushaal", "baiguulgaNer", "user_id") VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                           (henBoloh, ner, gerBul, amBul, albantushaal, bner, user_id))
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+
+        response = {
+            "responseCode": 200,
+            "responseText": "Inserted successfully"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+#####################
+
+def userFamilyUpdate(request):
+    jsons = json.loads(request.body)
+    required_fields = ["id", "henBoloh", "ner", "gerBuliinBaidal", "amBul", "albanTushaal", "baiguulgaNer"]
+
+    if not reqValidation(jsons, required_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    user_id = jsons['id']
+    henBoloh = jsons['henBoloh']
+    ner = jsons['ner']
+    gerBul = jsons['gerBuliinBaidal']
+    amBul = jsons['amBul']
+    albantushaal = jsons['albanTushaal']
+    bner = jsons['baiguulgaNer']
+
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+
+        userCursor.execute('SELECT * FROM "f_userFamily" WHERE "user_id" = %s', (user_id,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "User not found"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
+        userCursor.execute('UPDATE "f_userFamily" SET "henBoloh" = %s, "ner" = %s, "gerBuliinBaidal" = %s, "amBul" = %s, "albanTushaal" = %s, "baiguulgaNer" = %s WHERE "user_id" = %s',
+                           (henBoloh, ner, gerBul, amBul, albantushaal, bner, user_id))
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+
+        response = {
+            "responseCode": 200,
+            "responseText": "Changed successfully"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Database error"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+
+
+
+       

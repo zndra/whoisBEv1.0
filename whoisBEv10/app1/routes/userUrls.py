@@ -19,6 +19,8 @@ urlpatterns = [
     path('userInfoUpdate/',        userInfoUpdateView, name='uuserInfoUpdateView'),
     path('userEduUp/',             userEduUp,          name='userEduUp'),
     path('userFamily/',            userFamilyGet,      name= 'userFamilyGet'),
+    path('userFamilyIns/',         userFamilyInsert,   name= 'userFamilyInsert'),
+    path('userFamilyUp/',          userFamilyUpdate,   name= 'userFamilyUpdate'),
     ################################################################################
     path('userSocial/',            userSocial,         name='userSocial'),
     path('userSocialUp/',          userSocialUp,       name='userSocialup'),
