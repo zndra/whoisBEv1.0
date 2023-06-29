@@ -22,12 +22,12 @@ urlpatterns = [
     path('userSocialIn/',          user.userSocialIn,       name='userSocialIn'),
     ################################################################################
     path('userEduGet/',            user.userEduGet,         name='userEduGet'),
-    path('userEduInsert/',         user.userEduInsert,     name='usereduInsert'),
+    path('userEduInsert/',         user.userEduInsert,      name='usereduInsert'),
     path('userTurshlaga/' ,        user.userTurshlaga,      name='userTurshlaga'   ),
     path('userTurshlagaUp/' ,      user.userTurshlagaUp,    name='userTurshlagaUp'   ),
     path('userTurshlagaIn/' ,      user.userTurshlagaIn,    name='userTurshlagaIn'   ),
-    path('getUserSkill/' ,      user.getUserSkillView,    name='getUserSkillView'   ),
-    path('setUserSkill/' ,      user.setUserSkillView,    name='setUserSkillView'   ),
+    path('getUserSkill/' ,         user.getUserSkillView,   name='getUserSkillView'   ),
+    path('setUserSkill/' ,         user.setUserSkillView,   name='setUserSkillView'   ),
     ######################################################
 
     # тестийн service-үүд. төслөө хverifyEmailийж дуусчаад устганаа.
