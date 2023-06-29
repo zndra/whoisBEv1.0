@@ -76,9 +76,10 @@ def userLoginView(request):
     resp["Сургууль"]["Нэр"]  = "Мандах"
     resp["Сургууль"]["Хаяг"] = "3-р хороолол"
     
-    
     return HttpResponse(json.dumps(resp), content_type="application/json")
 #   userLoginView end
+from django.http import HttpResponse
+import json
 
 def userRegisterView(request):
     jsons = json.loads(request.body)
@@ -129,19 +130,42 @@ def userRegisterView(request):
     otp = str(otp)  # Convert OTP to string
     userCursor.execute(
         'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
-        'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',  # Replace "userId" with the correct column name
+        'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',
         (firstName, lastName, email, hashed_password, username, None, 2,))
 
     # Fetch the user ID from the returned row
     userId = userCursor.fetchone()[0]
-
     # Update the "f_otp" table with the user ID and OTP
     userCursor.execute(
         'INSERT INTO "f_otp"("userId", "value") VALUES(%s, %s)',
         (userId, otp))
 
-    myCon.commit()
+    # Add user ID to other tables
+    userCursor.execute(
+        'INSERT INTO "f_userEdu"("user_id") VALUES(%s)',
+        (userId,))
 
+    userCursor.execute(
+        'INSERT INTO "f_userFamily"("user_id") VALUES(%s)',
+        (userId,))
+
+    userCursor.execute(
+        'INSERT INTO "f_userNemeltMedeelel"("user_id") VALUES(%s)',
+        (userId,))
+
+    userCursor.execute(
+        'INSERT INTO "f_userSkill"("user_id") VALUES(%s)',
+        (userId,))
+
+    userCursor.execute(
+        'INSERT INTO "f_userSocial"("user_id") VALUES(%s)',
+        (userId,))
+
+    userCursor.execute(
+        'INSERT INTO "f_userWork"("user_id") VALUES(%s)',
+        (userId,))
+
+    myCon.commit()
     # Send email verification email
     myVerifyEmailLink = verifyEmailLink + otp
     myMailContent     = verifyEmailContent + "Холбоос: " + myVerifyEmailLink
@@ -157,6 +181,8 @@ def userRegisterView(request):
         "responseText": "User registered successfully"
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
+
 
 
 ######################################################################################
