@@ -160,30 +160,6 @@ def userRegisterView(request):
 
 
 ######################################################################################
-def verifyEmailView(request, otp):
-    try:
-        myCon      = connectDB()
-        userCursor = myCon.cursor()
-
-        # Retrieve the user ID associated with the provided OTP
-        userCursor.execute('SELECT "userId" FROM "f_otp" WHERE "value" = %s', (otp,))
-        result = userCursor.fetchone()
-        
-        if result:
-            userId = result[0]
-            # Update the user's isVerified flag to True in the f_user table
-            userCursor.execute('UPDATE "f_user" SET "isVerified" = TRUE WHERE "id" = %s', (userId,))
-            myCon.commit()
-            userCursor.close()
-            disconnectDB(myCon)
-            return HttpResponse("Email verification successful")
-        else:
-            userCursor.close()
-            disconnectDB(myCon)
-            return HttpResponse("Invalid or expired OTP")
-    except Exception as e:
-        return HttpResponse("An error occurred during email verification")
-###################################################################################
 
 # Verify email view
 def verifyEmailView(request, otp):
@@ -202,13 +178,26 @@ def verifyEmailView(request, otp):
             myCon.commit()
             userCursor.close()
             disconnectDB(myCon)
-            return HttpResponse("Email verification successful")
+            resp = {
+                "responseCode": 200,
+                "responseText": "Email verification successful",
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
         else:
             userCursor.close()
             disconnectDB(myCon)
-            return HttpResponse("Invalid or expired OTP")
+            resp = {
+                "responseCode": 400,
+                "responseText": "Invalid or expired OTP",
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
     except Exception as e:
-        return HttpResponse("An error occurred during email verification")
+        resp = {
+            "responseCode": 400,
+            "responseText": "An error occurred during email verification",
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
 ###################################################################################                            
 def forgetPass(request):
     jsons = json.loads(request.body)
