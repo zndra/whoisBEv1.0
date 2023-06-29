@@ -1,2 +1,6 @@
+whoisBEv10/app1/migrations/*
+whoisBEv10/app1/__pycache__/*
+whoisBEv10/whoisBEv10/__pycache__/*
 whoisBEv10/web.config
 *.pyc
+*.dbsqlite3
