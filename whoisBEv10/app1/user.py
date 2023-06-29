@@ -578,7 +578,7 @@ def verifyCodeView(request):
 #########################################################################
 def userEduUp(request):
             jsons = json.loads(request.body)
-            required_fields = ["user_id", "haana", "elssen", "duussan", "togssonMergejil"]
+            required_fields = ["user_id", "Боловсрол", "Эрдмийн зэрэг", "Албан тушаал", "Албан байгууллагын нэр"]
         
             if not reqValidation(jsons, required_fields):
                 response = {
@@ -588,10 +588,10 @@ def userEduUp(request):
                 return HttpResponse(json.dumps(response), content_type="application/json")
         
             user_id         = jsons['user_id']
-            haana           = jsons['haana']
-            elssen          = jsons['elssen']
-            duussan         = jsons['duussan']
-            togssonMergejil = jsons['togssonMergejil']
+            haana           = jsons['Боловсрол']
+            elssen          = jsons['Эрдмийн зэрэг']
+            duussan         = jsons['Албан тушаал']
+            togssonMergejil = jsons['Албан байгууллагын нэр']
         
             try:
                 myCon      = connectDB()
@@ -608,7 +608,7 @@ def userEduUp(request):
                     disconnectDB(myCon)
                     return HttpResponse(json.dumps(response), content_type="application/json")
         
-                userCursor.execute('UPDATE "f_userEdu" SET "haana" = %s,"elssen" = %s,"duussan" = %s, "togssonMergejil" = %s, "user_id" = %s',
+                userCursor.execute('UPDATE "f_userEdu" SET "Боловсрол" = %s,"Эрдмийн зэрэг" = %s,"Албан тушаал" = %s, "Албан байгууллагын нэр" = %s WHERE "user_id" = %s',
                                    (haana, elssen, duussan, togssonMergejil, user_id,))
                 myCon.commit()
                 userCursor.close()
@@ -631,7 +631,7 @@ import traceback
 
 def userEduInsert(request):
     jsons = json.loads(request.body)
-    required_fields = ["id", "haana", "elssen", "duussan", "togssonMergejil"]
+    required_fields = ["id", "Боловсрол", "Эрдмийн зэрэг", "Албан тушаал", "Албан байгууллагын нэр"]
 
     if not reqValidation(jsons, required_fields):
         response = {
@@ -641,10 +641,10 @@ def userEduInsert(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     user_id = jsons['id']
-    haana  =  jsons['haana']
-    elssen = jsons['elssen']
-    duussan = jsons['duussan']
-    togssonMergejil = jsons['togssonMergejil']
+    haana  =  jsons['Боловсрол']
+    elssen = jsons['Эрдмийн зэрэг']
+    duussan = jsons['Албан тушаал']
+    togssonMergejil = jsons['Албан байгууллагын нэр']
 
     try:
         myCon = connectDB()
@@ -672,7 +672,7 @@ def userEduInsert(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
 
         userCursor.execute(
-            'INSERT INTO "f_userEdu" ("haana", "elssen", "duussan", "togssonMergejil","user_id") VALUES (%s, %s, %s, %s, %s)',
+            'INSERT INTO "f_userEdu" ("Боловсрол", "Эрдмийн зэрэг", "Албан тушаал", "Албан байгууллагын нэр","user_id") VALUES (%s, %s, %s, %s, %s)',
             (haana, elssen, duussan, togssonMergejil, user_id))
         myCon.commit()
         userCursor.close()
