@@ -881,7 +881,7 @@ def userSocialIn(request):
     #################################
 def userInfoUpdateView(request):
     jsons = json.loads(request.body)
-    allowed_fields = ["id", "firstName", "lastName", "email", "userName"]
+    allowed_fields = ["id", "firstName", "lastName", "userName"]
 
     if not any(field in jsons for field in allowed_fields):
         response = {
@@ -896,7 +896,7 @@ def userInfoUpdateView(request):
         myCon = connectDB()
         userCursor = myCon.cursor()
 
-        userCursor.execute('SELECT "isVerified" FROM "f_user" WHERE "id" = %s', (user_id,))
+        userCursor.execute('SELECT "isVerified", "userName" FROM "f_user" WHERE "id" = %s', (user_id,))
         result = userCursor.fetchone()
 
         if not result:
@@ -909,6 +909,9 @@ def userInfoUpdateView(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
 
         is_verified = result[0]
+        response_json = {
+            "userName": result[1]
+        }
 
         if not is_verified:
             response = {
@@ -928,12 +931,19 @@ def userInfoUpdateView(request):
         if "lastName" in jsons:
             update_fields.append('"lastName"')
             update_values.append(jsons['lastName'])
-        if "email" in jsons:
-            update_fields.append('"email"')
-            update_values.append(jsons['email'])
         if "userName" in jsons:
-            update_fields.append('"userName"')
-            update_values.append(jsons['userName'])
+            new_username = jsons['userName']
+            if new_username != response_json["userName"] and userNameExists(new_username):
+                response = {
+                    "responseCode": 560,
+                    "responseText": "Username already exists"
+                }
+                userCursor.close()
+                disconnectDB(myCon)
+                return HttpResponse(json.dumps(response), content_type="application/json")
+            else:
+                update_fields.append('"userName"')
+                update_values.append(new_username)
 
         # Construct the SQL query
         update_query = 'UPDATE "f_user" SET ' + ', '.join([field + ' = %s' for field in update_fields]) + ' WHERE "id" = %s'
@@ -956,6 +966,7 @@ def userInfoUpdateView(request):
             "responseText": "Database error"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
+
 ###################################################################################
 def userInfoShowView(request):
     jsons = json.loads(request.body)
