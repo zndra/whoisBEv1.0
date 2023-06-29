@@ -963,7 +963,7 @@ def userInfoShowView(request):
             userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
             columns = [column[0] for column in userCursor.description]
             response = [
-                {columns[index]: column for index, column in enumerate(value)}
+                {columns[index]: column for index, column in enumerate(value) if columns[index] not in ['verifyCode', 'newPass', 'deldate', 'pass']}
                 for value in userCursor.fetchall()
             ]
             userCursor.close()
@@ -980,9 +980,10 @@ def userInfoShowView(request):
     
     response = {
         "responseCode": 200,
-        "responseText": " successfully"
+        "responseText": "Successfully"
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
+
 
         #############################################################################
 def userTurshlaga(request):
