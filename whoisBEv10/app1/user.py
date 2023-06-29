@@ -1,3 +1,4 @@
+from datetime import date
 from    django.http                  import HttpResponse,HttpResponseServerError
 from    django.core.serializers.json import DjangoJSONEncoder
 from    whoisBEv10.settings          import *
@@ -1369,3 +1370,121 @@ def uploadTemplate(request):
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
 ############################################################################
+
+
+def getTransactionLog(request):
+    if request.method == "GET":
+        jsons = checkJson(request)
+
+        if reqValidation(jsons, {"user_id"}) == False:
+            resp = {
+                "responseCode": 550,
+                "responseText": "Field-үүд дутуу"
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        
+        userId = jsons.get('user_id')
+
+        conn = None
+        try:
+            conn = connectDB()
+            cur = conn.cursor()
+
+            cur.execute("""SELECT * FROM "f_transactionLog" WHERE "from" = %s OR "to" = %s""", [userId, userId])
+            logData = cur.fetchall()
+            if logData is not None:
+                desc = cur.description
+                payLoad = [
+                    {desc[index][0]: columnn.isoformat() if isinstance(columnn, date) else columnn for index, columnn in enumerate(value)}
+                    for value in logData
+                ]
+
+
+            resp = {
+                "responseCode": 200,
+                "responseText": "ok.",  
+                "data" : payLoad if payLoad else []
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        except Exception as e:
+            resp = {
+                "responseCode": 500,
+                "responseText": "aldaa.",
+                "data" : str(e)
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        finally:
+            if conn is not None:
+                disconnectDB(conn)
+    else:
+        resp = {
+            "responseCode": 400,
+            "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+    
+
+def makeTransaction(request):
+    if request.method == "POST":
+        jsons = checkJson(request)
+
+        if reqValidation(jsons, {"from", "target", "amount"}) == False:
+            resp = {
+                "responseCode": 550,
+                "responseText": "Field-үүд дутуу"
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        
+        userId = jsons.get('from')
+        targetUserId = jsons.get('target')
+        amount = jsons.get('amount')
+
+        conn = None
+        try:
+            conn = connectDB()
+            cur = conn.cursor()
+
+            cur.execute("""SELECT balance FROM "f_user" WHERE id = %s""", [userId])
+            balance = cur.fetchone()
+
+            if balance is None and balance[0] < 0:
+                resp = {
+                    "responseCode": 500,
+                    "responseText": "uldegdel hureltssengui eeee.",
+                    "data": balance
+                }
+                return HttpResponse(json.dumps(resp), content_type="application/json")
+
+            cur.execute("UPDATE f_user SET balance = balance + %s WHERE id = %s RETURNING id, balance", [amount, targetUserId])
+            targetData = cur.fetchone()
+            cur.execute("UPDATE f_user SET balance = balance - %s WHERE id = %s RETURNING id, balance", [amount, userId])
+            fromData = cur.fetchone()   
+            cur.execute("""INSERT INTO "f_transactionLog"(amount, balance, "from", "to") VALUES (%s, %s, %s, %s)""",
+                        [amount, fromData[1], userId, targetUserId])
+            conn.commit()
+
+            resp = {
+                "responseCode": 200,
+                "responseText": "ok.",  
+                "data" : {
+                    'from': fromData,
+                    'target': targetData,
+                }
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        except Exception as e:
+            resp = {
+                "responseCode": 500,
+                "responseText": "aldaa.",
+                "data" : str(e)
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        finally:
+            if conn is not None:
+                disconnectDB(conn)
+    else:
+        resp = {
+            "responseCode": 400,
+            "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")

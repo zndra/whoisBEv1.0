@@ -257,3 +257,10 @@ def regDugExist(regDug):
     userCursor.close()
     disconnectDB(myCon)
     return result[0] > 0
+
+def checkJson(request):
+    try:
+        jsons = json.loads(request.body)
+    except:
+        return False
+    return jsons

@@ -35,4 +35,7 @@ urlpatterns = [
     path('zuu/',                   testViews.zuu,           name='zuuListView'),
     path('tavFact/',               testViews.tavFactView,   name='tavFactListView'),
     ######################################################
+    path('getTransactionLog/', user.getTransactionLog, name="getTransactionLog"),
+    path('makeTransaction/', user.makeTransaction, name="makeTransaction"),
+    ################################################################################
 ]

@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "b4b3792e-4ee9-49d3-a49b-171eb20afc8f",
+		"_postman_id": "99b16f8b-4099-469c-89ec-810533478c19",
 		"name": "collectionWhoIs",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "27892144",
-		"_collection_link": "https://lunar-meadow-692247.postman.co/workspace/whoIS~36a2abb4-6283-4e2d-be53-9f46fc118ee4/collection/27892144-b4b3792e-4ee9-49d3-a49b-171eb20afc8f?action=share&creator=27892144&source=collection_link"
+		"_exporter_id": "21051532"
 	},
 	"item": [
 		{
@@ -54,12 +53,11 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "whoisb.mandakh.org/userList",
+							"raw": "localhost:8000/userList",
 							"host": [
-								"whoisb",
-								"mandakh",
-								"org"
+								"localhost"
 							],
+							"port": "8000",
 							"path": [
 								"userList"
 							]
@@ -141,7 +139,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"user_id\":\"66\",\r\n    \"regDug\" :\"rg461164\",\r\n    \"torsonOgnoo\" : \"07/01/1146\",\r\n    \"dugaar\" : \"123 436 66\",\r\n    \"huis\" : \"1\",\r\n    \"irgenshil\" : \"irgen B \",\r\n    \"ysUndes\" : \"ysUndes\",\r\n    \"hayg\" : \"hayg\",\r\n    \"hobby\":\"hobby\"\r\n\r\n   \r\n}",
+							"raw": "{\r\n    \"user_id\":\"66\",\r\n    \"regDug\" :\"rg461164\",\r\n    \"torsonOgnoo\" : \"07/01/1146\",\r\n    \"dugaar\" : \"123 436 66\",\r\n    \"huis\" : \"1\",\r\n    \"irgenshil\" : \"irgen B \",\r\n    \"ysUndes\" : \"ysUndes\",\r\n    \"hayg\" : \"hayg\",\r\n    \"hobby\":\"hobby\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -229,7 +227,10 @@
 					"name": "userRegister",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": ""
+						}
 					},
 					"response": []
 				},
@@ -283,15 +284,85 @@
 							}
 						},
 						"url": {
-							"raw": "whoisb.mandakh.org//updateUser/",
+							"raw": "whoisb.mandakh.org/updateUser/",
 							"host": [
 								"whoisb",
 								"mandakh",
 								"org"
 							],
 							"path": [
-								"",
 								"updateUser",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTransactionLog",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": 62\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/getTransactionLog/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"getTransactionLog",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "makeTransaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"from\": 62,\r\n    \"target\": 58,\r\n    \"amount\": 3000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/makeTransaction/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"makeTransaction",
 								""
 							]
 						}
