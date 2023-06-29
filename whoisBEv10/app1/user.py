@@ -263,7 +263,7 @@ def changePass(request):
     jsons = json.loads(request.body)
     
     # Validate request body
-    required_fields = ["id", "pas"]
+    required_fields = ["id", "oldpass", "newpass"]
     if not reqValidation(jsons, required_fields):
         response = {
             "responseCode": 550,
@@ -272,26 +272,27 @@ def changePass(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
     
     id  = jsons['id']
-    pas = jsons['pas']
+    oldpass = jsons['oldpass']
+    newpass = jsons['newpass']
 
     try:
         myCon      = connectDB()
         userCursor = myCon.cursor()
         
         # Check if the user exists
-        userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (id,))
+        userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s AND "pass" = %s', (id,oldpass))
         user = userCursor.fetchone()
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Мэдээлэл буруу байна"
             }
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
         
         # Update the password
-        userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "id" = %s', (pas, id))
+        userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "id" = %s', (newpass, id))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
