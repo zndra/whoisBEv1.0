@@ -821,7 +821,7 @@ def userSocialUp(request):
 
 def userSocialIn(request):
     jsons = json.loads(request.body)
-    required_fields = ["id", "ner", "site"]
+    required_fields = ["id", "app", "site"]
 
     if not reqValidation(jsons, required_fields):
         response = {
@@ -831,7 +831,7 @@ def userSocialIn(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     user_id = jsons['id']
-    ner = jsons['ner']
+    app = jsons['app']
     site = jsons['site']
 
 
@@ -852,19 +852,11 @@ def userSocialIn(request):
         userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id" = %s', (user_id,))
         user = userCursor.fetchone()
         if user:
-            response = {
-                "responseCode": 400,
-                "responseText": "User already exists"
-            }
+            userCursor.execute('INSERT INTO "f_userSocial" ("app", "ner", "user_id") VALUES (%s, %s, %s)',
+                               (app, site, user_id,))
+            myCon.commit()
             userCursor.close()
             disconnectDB(myCon)
-            return HttpResponse(json.dumps(response), content_type="application/json")
-
-        userCursor.execute('INSERT INTO "f_userSocial" ("ner", "site", "user_id") VALUES (%s, %s, %s)',
-                           (ner, site, user_id,))
-        myCon.commit()
-        userCursor.close()
-        disconnectDB(myCon)
 
         response = {
             "responseCode": 200,
