@@ -1662,6 +1662,88 @@ def usedTemplateGet(request):
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
+#   Хэрэглэгчийн id-г илгээхэд бүх чадваруудыг list хэлбэрээр илгээх функц.
+def getSkillView(request):
+    jsonsData = json.loads(request.body)
+    response = {}
+    if(reqValidation( jsonsData, {"id"}) == False):
+        resp = aldaaniiMedegdel(550, "Field дутуу байна.")
+        responseJSON = json.dumps(resp)
+        return HttpResponse(responseJSON,content_type="application/json")
+    user_id = jsonsData["id"]
+    try:
+        # db холболт
+        myCon      = connectDB()
+        userCursor = myCon.cursor()
+        # user_id-гаар нь хайгаад бүх мэдээллийн авах
+        userCursor.execute('SELECT "id", "skill" FROM "f_skill" WHERE "userId" = %s', (user_id,))
+        user = userCursor.fetchone()
+        # Хэрэглэч байгаа үгүйг шалгах
+        if not user:
+            text = ""
+            userCursor.execute('INSERT INTO "f_skill"("userId", "skill") VALUES(%s, %s) RETURNING "id"', (user_id, text,))
+            idd = userCursor.fetchone()
+            myCon.commit()
+            resp = aldaaniiMedegdel(553, "Хэрэглэгчийн чадварын тухай мэдээллийг шинээр үүсгэлээ.")
+            resp["skill"] = text
+            resp["id"] = idd
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        # db salalt
+        userCursor.close()
+        disconnectDB(myCon)
+    except Exception as e:
+        response = aldaaniiMedegdel(551,"Баазын алдаа")        
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    finally:
+        disconnectDB(myCon)
+    response = aldaaniiMedegdel(200,"Амжилттай чадварын тухай мэдээллүүдийг илгээв.")
+    response["skill"]    = user[1]
+    response["id"]    = user[0]
+    return HttpResponse(json.dumps(response),content_type="application/json")
+#################################################################################
+
+#   Хэрэглэгчийн id болон чадварыг илгээхэд update хийж илгээнэ.
+def setSkillView(request):
+    jsonsData = json.loads(request.body)
+    response = {}
+    if(reqValidation( jsonsData, {"id", "skill"}) == False):
+        resp = aldaaniiMedegdel(550, "Field дутуу байна.")
+        responseJSON = json.dumps(resp)
+        return HttpResponse(responseJSON,content_type="application/json")
+    user_id = jsonsData["id"]
+    skill = jsonsData["skill"]
+    try:
+        # db холболт
+        myCon      = connectDB()
+        userCursor = myCon.cursor()
+        # user_id-гаар нь хайгаад бүх мэдээллийн авах
+        userCursor.execute('SELECT "id", "skill" FROM "f_skill" WHERE "userId" = %s', (user_id,))
+        user = userCursor.fetchone()
+        # Хэрэглэч байгаа үгүйг шалгах
+        if not user:
+            text = ""
+            userCursor.execute('INSERT INTO "f_skill"("userId", "skill") VALUES(%s, %s) RETURNING "id"', (user_id, skill,))
+            idd = userCursor.fetchone()
+            myCon.commit()
+            resp = aldaaniiMedegdel(553, "Хэрэглэгчийн чадварын тухай мэдээллийг шинээр үүсгэлээ.")
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        userCursor.execute('UPDATE "f_skill" SET "skill" = %s WHERE "userId" = %s', (skill, int(user_id),))
+        myCon.commit()
+        # db salalt
+        userCursor.close()
+        disconnectDB(myCon)
+    except Exception as e:
+        response = aldaaniiMedegdel(551,"Баазын алдаа")        
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    finally:
+        disconnectDB(myCon)
+    response = aldaaniiMedegdel(200,"Амжилттай чадварын мэдээллийг шинэчлэлээ.")
+    return HttpResponse(json.dumps(response),content_type="application/json")
+#################################################################################
 
 
 
