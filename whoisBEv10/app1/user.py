@@ -323,7 +323,6 @@ def changePass(request):
 #######################################################################################
 # CreateCv
 
-
 def userNemeltGet(request):
     jsons = json.loads(request.body)
     user_id = jsons['user_id']
@@ -346,21 +345,20 @@ def userNemeltGet(request):
                 userCursor.execute(
                     'SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"= %s', (user_id,))
                 columns = [column[0] for column in userCursor.description]
-                resp = {
-                    "responseCode": 200,
-                    "responseText": "Амжилттай"
-                }
+                
                 response = [
-                    {columns[index]: column for index,
-                        column in enumerate(value)}
-                    for value in userCursor.fetchall()
+                    {columns[index]: column for index,column in enumerate(value)}for value in userCursor.fetchall()
                 ]
                 userCursor.close()
                 disconnectDB(myCon)
 
-                responseJSON = json.dumps(
-                    (resp, response), cls=DjangoJSONEncoder, default=str)
-                return HttpResponse(responseJSON, content_type="application/json")
+            responseJSON = response[0]  # Extract the first element from the response list
+            response = {
+                "responseCode": 200,
+                "responseText": "Амжилттай",
+                "data": responseJSON
+            }
+            return HttpResponse(json.dumps(response, cls=DjangoJSONEncoder, default=str), content_type="application/json")
         except:
             response = {
                 "responseCode": 551,
@@ -373,6 +371,8 @@ def userNemeltGet(request):
             "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
+
+
 ####################################################################
 
 
@@ -1275,23 +1275,21 @@ def userFamilyGet(request):
                 userCursor.execute(
                     'SELECT * FROM "f_userFamily" WHERE "user_id"= %s', (user_id,))
                 columns = [column[0] for column in userCursor.description]
-                resp = {
-                    "responseCode": 200,
-                    "responseText": "Амжилттай"
-                }
+                
 
                 response = [
-                    {columns[index]: column for index,
-                        column in enumerate(value)}
-                    for value in userCursor.fetchall()
+                    {columns[index]: column for index,column in enumerate(value)}for value in userCursor.fetchall()
                 ]
 
                 userCursor.close()
                 disconnectDB(myCon)
-
-                responseJSON = json.dumps(
-                    (resp, response,), cls=DjangoJSONEncoder, default=str)
-                return HttpResponse(responseJSON, content_type="application/json")
+            responseJSON = response[0]  # Extract the first element from the response list
+            response = {
+                "responseCode": 200,
+                "responseText": "Амжилттай",
+                "data": responseJSON
+            }
+            return HttpResponse(json.dumps(response, cls=DjangoJSONEncoder, default=str), content_type="application/json")
 
         except:
             response = {
