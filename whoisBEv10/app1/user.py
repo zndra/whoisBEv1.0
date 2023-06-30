@@ -248,7 +248,7 @@ def forgetPass(request):
                 
             response = {
                 "responseCode": 555,
-                "responseText": "success"
+                "responseText": "Амжилттай "
             }
         except Exception as e:
             response = {
@@ -267,7 +267,7 @@ def changePass(request):
     if not reqValidation(jsons, required_fields):
         response = {
             "responseCode": 550,
-            "responseText": "Invalid request body"
+            "responseText": "Буруу хүсэлт"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
     
@@ -300,13 +300,13 @@ def changePass(request):
     except Exception as e:
         response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     response = {
         "responseCode": 200,
-        "responseText": "Password changed successfully"
+        "responseText": "Password амжилттай солигдлоо"
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -325,7 +325,7 @@ def userNemeltGet(request):
        if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -335,7 +335,7 @@ def userNemeltGet(request):
             columns = [column[0] for column in userCursor.description]
             resp = {
                 "responseCode": 200,
-                "responseText": "successfully"
+                "responseText": "Амжилттай"
             }
             response = [
                     {columns[index]: column for index, column in enumerate(value)}
@@ -349,7 +349,7 @@ def userNemeltGet(request):
        else:
            response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
            return HttpResponse(json.dumps(response), content_type="application/json") 
        
@@ -384,7 +384,7 @@ def userNemeltUpdate(request):
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -398,14 +398,14 @@ def userNemeltUpdate(request):
 
         response = {
             "responseCode": 200,
-            "responseText": "Changed successfully"
+            "responseText": "Амжилттай солигдлоо"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     except Exception as e:
         response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -441,7 +441,7 @@ def userNemeltInsert(request):
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -452,7 +452,7 @@ def userNemeltInsert(request):
         if user:
             response = {
                 "responseCode": 400,
-                "responseText": "User already exists"
+                "responseText": "Бүртгэлтэй хэрэглэгч байна."
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -460,7 +460,7 @@ def userNemeltInsert(request):
         if regDugExist(regDug):
             resp = {
                 "responseCode": 400,
-                "responseText": "Personal id already exists"
+                "responseText": "Бүртгэлтэй хэрэглэгчийн id байна."
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
         userCursor.execute('INSERT INTO "f_userNemeltMedeelel" ("regDug", "torsonOgnoo", "dugaar", "huis", "irgenshil", "ysUndes", "hayg", "hobby", "user_id") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
@@ -471,14 +471,14 @@ def userNemeltInsert(request):
 
         response = {
             "responseCode": 200,
-            "responseText": "Inserted successfully"
+            "responseText": "Амжилттай бүртгэгдлээ"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     except Exception as e:
         response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
   #########################################################################
@@ -603,7 +603,7 @@ def userEduUp(request):
                 if not user:
                     response = {
                         "responseCode": 555,
-                        "responseText": "User not found"
+                        "responseText": "Хэрэглэгч олдсонгүй"
                     }
                     userCursor.close()
                     disconnectDB(myCon)
@@ -617,14 +617,14 @@ def userEduUp(request):
         
                 response = {
                     "responseCode": 200,
-                    "responseText": "Changed successfully"
+                    "responseText": "Амжилттай солигдлоо"
                 }
                 return HttpResponse(json.dumps(response), content_type="application/json")
         
             except Exception as e:
                 response = {
                     "responseCode": 551,
-                    "responseText": "Database error"
+                    "responseText": "Баазын алдаа"
                 }
                 return HttpResponse(json.dumps(response), content_type="application/json")
 ###############################################################################################          
@@ -655,7 +655,7 @@ def userEduInsert(request):
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -666,7 +666,7 @@ def userEduInsert(request):
         if user:
             response = {
                 "responseCode": 400,
-                "responseText": "User already exists"
+                "responseText": "Бүртгэлтэй хэрэглэгч байна."
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -681,7 +681,7 @@ def userEduInsert(request):
 
         response = {
             "responseCode": 200,
-            "responseText": "Inserted successfully"
+            "responseText": "Амжилттай бүртгэгдлээ"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -691,7 +691,7 @@ def userEduInsert(request):
 
         response = {
             "responseCode": 551,
-            "responseText": "Database error: " + str(e)
+            "responseText": "Баазын алдаа: " + str(e)
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -707,7 +707,7 @@ def userEduGet(request):
        if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -728,7 +728,7 @@ def userEduGet(request):
        else:
            response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
            return HttpResponse(json.dumps(response), content_type="application/json") 
 ################################################################################################
@@ -743,7 +743,7 @@ def userSocial(request):
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -764,7 +764,7 @@ def userSocial(request):
         else:
             response = {
              "responseCode": 551,
-             "responseText": "Database error"
+             "responseText": "Баазын алдаа"
          }
             return HttpResponse(json.dumps(response), content_type="application/json") 
 #############################################################################################
@@ -793,7 +793,7 @@ def userSocialUp(request):
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -807,14 +807,14 @@ def userSocialUp(request):
 
         response = {
             "responseCode": 200,
-            "responseText": "Changed successfully"
+            "responseText": "Амжилттай солигдлоо"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     except Exception as e:
         response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 #############################################################################################
@@ -843,7 +843,7 @@ def userSocialIn(request):
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -860,14 +860,14 @@ def userSocialIn(request):
 
         response = {
             "responseCode": 200,
-            "responseText": "Inserted successfully"
+            "responseText": "Амжилттай бүртгэгдлээ"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     except Exception as e:
         response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
     #################################
@@ -1017,7 +1017,7 @@ def userTurshlaga(request):
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -1038,7 +1038,7 @@ def userTurshlaga(request):
         else:
             response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
             }
             return HttpResponse(json.dumps(response), content_type="application/json") 
 
@@ -1069,7 +1069,7 @@ def userTurshlagaUp(request):
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -1083,14 +1083,14 @@ def userTurshlagaUp(request):
 
         response = {
             "responseCode": 200,
-            "responseText": "Changed successfully"
+            "responseText": "Амжилттай солигдлоо"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     except Exception as e:
         response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -1120,7 +1120,7 @@ def userTurshlagaIn(request):
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -1131,7 +1131,7 @@ def userTurshlagaIn(request):
         if user:
             response = {
                 "responseCode": 400,
-                "responseText": "User already exists"
+                "responseText": "Бүртгэлтэй хэрэглэгч байна."
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -1145,14 +1145,14 @@ def userTurshlagaIn(request):
 
         response = {
             "responseCode": 200,
-            "responseText": "Inserted successfully"
+            "responseText": "Амжилттай бүртгэгдлээ"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     except Exception as e:
         response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 #################################################################
@@ -1167,7 +1167,7 @@ def userFamilyGet(request):
        if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -1177,7 +1177,7 @@ def userFamilyGet(request):
             columns = [column[0] for column in userCursor.description]
             resp = {
                 "responseCode": 200,
-                "responseText": "successfully"
+                "responseText": "Амжилттай"
             }
    
             response = [
@@ -1195,7 +1195,7 @@ def userFamilyGet(request):
        else:
            response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
            return HttpResponse(json.dumps(response), content_type="application/json")
 ############################################################################
@@ -1421,14 +1421,14 @@ def getTransactionLog(request):
 
             resp = {
                 "responseCode": 200,
-                "responseText": "ok.",  
+                "responseText": "Амжилттай",  
                 "data" : payLoad if payLoad else []
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
         except Exception as e:
             resp = {
                 "responseCode": 500,
-                "responseText": "aldaa.",
+                "responseText": "Алдаа",
                 "data" : str(e)
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
@@ -1538,7 +1538,7 @@ def userFamilyInsert(request):
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -1552,14 +1552,14 @@ def userFamilyInsert(request):
 
         response = {
             "responseCode": 200,
-            "responseText": "Inserted successfully"
+            "responseText": "Амжилттай бүртгэгдлээ"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     except Exception as e:
         response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 #####################
@@ -1592,7 +1592,7 @@ def userFamilyUpdate(request):
         if not user:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -1606,14 +1606,14 @@ def userFamilyUpdate(request):
 
         response = {
             "responseCode": 200,
-            "responseText": "Changed successfully"
+            "responseText": "Амжилттай солигдлоо"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     except Exception as e:
         response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
