@@ -1339,58 +1339,6 @@ def setUserSkillView(request):
     response["nemsen"]    = nemsen
     return HttpResponse(json.dumps(response),content_type="application/json")
 #################################################################################
-def uploadTemplate(request):
-    jsons = json.loads(request.body)
-
-    # Validate request body
-    if reqValidation(jsons, {"name", "date", "tempType", "catId", "file", "userId"}) == False:
-        resp = {
-            "responseCode": 550,
-            "responseText": "Field-үүд дутуу"
-        }
-        return HttpResponse(json.dumps(resp), content_type="application/json")
-
-    name = jsons['name']
-    date = jsons['date']
-    tempType = jsons['tempType']
-    catId = jsons['catId']
-    file = jsons['file']
-    userId = jsons['userId']
-
-    try:
-        myCon = connectDB()
-        userCursor = myCon.cursor()
-
-        if not myCon:
-            raise Exception("Can not connect to the database")
-    except Exception as e:
-        resp = {
-            "responseCode": 551,
-            "responseText": "Баазын алдаа"
-        }
-        return HttpResponse(json.dumps(resp), content_type="application/json")
-
-    userCursor.execute(
-        'INSERT INTO "f_templates"("name", "date", "tempType", "catId", "file", "userId") '
-        'VALUES(%s, %s, %s, %s, %s, %s) RETURNING "id"',
-        (name, date, tempType, catId, file, userId))
-
-    templateId = userCursor.fetchone()[0]
-
-    myCon.commit()
-
-    userCursor.close()
-    disconnectDB(myCon)
-
-    resp = {
-        "responseCode": 200,
-        "responseText": "Template амжилттай солигдлоо",
-        "templateId": templateId
-    }
-    return HttpResponse(json.dumps(resp), content_type="application/json")
-############################################################################
-
-
 def getTransactionLog(request):
     if request.method == "GET":
         jsons = checkJson(request)
@@ -1616,6 +1564,56 @@ def userFamilyUpdate(request):
             "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
+    ################################################################################
+def uploadTemplate(request):
+    jsons = json.loads(request.body)
+
+    # Validate request body
+    if reqValidation(jsons, {"name", "date", "tempType", "catId", "file", "userId"}) == False:
+        resp = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    name = jsons['name']
+    date = jsons['date']
+    tempType = jsons['tempType']
+    catId = jsons['catId']
+    file = jsons['file']
+    userId = jsons['userId']
+
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+
+        if not myCon:
+            raise Exception("Can not connect to the database")
+    except Exception as e:
+        resp = {
+            "responseCode": 551,
+            "responseText": "Баазын алдаа"
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    userCursor.execute(
+        'INSERT INTO "f_templates"("name", "date", "tempType", "catId", "file", "userId") '
+        'VALUES(%s, %s, %s, %s, %s, %s) RETURNING "id"',
+        (name, date, tempType, catId, file, userId))
+
+    templateId = userCursor.fetchone()[0]
+
+    myCon.commit()
+
+    userCursor.close()
+    disconnectDB(myCon)
+
+    resp = {
+        "responseCode": 200,
+        "responseText": "Template амжилттай солигдлоо",
+        "templateId": templateId
+    }
+    return HttpResponse(json.dumps(resp), content_type="application/json")
 
 
 
