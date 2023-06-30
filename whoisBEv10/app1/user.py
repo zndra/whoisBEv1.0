@@ -1680,7 +1680,7 @@ def uploadTemplateView(request):
     jsons = json.loads(request.body)
 
     # Validate request body
-    if reqValidation(jsons, {"name", "tempId", "catId", "file", "userId"}) == False:
+    if reqValidation(jsons, {"name", "tempId", "catId", "file"}) == False:
         resp = {
             "responseCode": 550,
             "responseText": "Field-үүд дутуу"
@@ -1688,7 +1688,7 @@ def uploadTemplateView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     name = jsons['name']
-    date = date.today().strftime("%d-%m-%Y")
+    date = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
     tempId = jsons['tempId']
     catId = jsons['catId']
     file = jsons['file']
@@ -1708,10 +1708,9 @@ def uploadTemplateView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     userCursor.execute(
-        'INSERT INTO "f_templates"("name", "date", "tempType", "catId", "file", "userId") '
-        'VALUES(%s, %s, (SELECT "type" FROM "f_tempType" WHERE "id" = %s), '
-        '(SELECT "type" FROM "f_catType" WHERE "id" = %s), %s, %s) RETURNING "id"',
-        (name, date, tempId, catId, file, userId))
+    'INSERT INTO "f_templates"("name", "date", "tempId", "catId", "file", "userId") '
+    'VALUES(%s, %s, %s, %s, %s, %s) RETURNING "id"',
+    (name, date, tempId, catId, file, userId))
 
     templateId = userCursor.fetchone()[0]
 
@@ -1732,7 +1731,9 @@ def uploadTemplateView(request):
 
 def userTemplatesGet(request):
     jsons = json.loads(request.body)
-    if reqValidation(jsons, {"userId", "tempId", "tempType"}) == False:
+
+
+    if reqValidation(jsons, { "tempId", "tempType"}) == False:
         resp = {
             "responseCode": 550,
             "responseText": "Field-үүд дутуу"
@@ -1758,9 +1759,14 @@ def userTemplatesGet(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     userCursor.execute(
-        'INSERT INTO "f_userTemplates"("date", "tempType", "userId", "tempId") '
-        'VALUES(%s, %s, (SELECT "type" FROM "f_tempType" WHERE "id" = %s), %s, %s) RETURNING "id"',
-        (date, tempType, userId, tempId))
+    'INSERT INTO "f_userTemplates"("date", "tempType", "userId", "tempId") '
+    'VALUES (%s, %s, %s, %s) '
+    'RETURNING "id"',
+    (date, tempType , userId, tempId))
+
+
+
+
 
     templateId = userCursor.fetchone()[0]
 
@@ -1775,19 +1781,21 @@ def userTemplatesGet(request):
         "templateId": templateId
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 ###############################################################################
 
 
 def tempListView(request):
     myCon = connectDB()
     userCursor = myCon.cursor()
-    userCursor.execute('SELECT * FROM "f_templates" ORDER BY id ASC')
-    columns = userCursor.description
-    response = [{columns[index][0]: column for index,
+    userCursor.execute('SELECT * FROM  f_templates ORDER BY id ASC')
+    columns    = userCursor.description
+    response   = [{columns[index][0]: column for index,
                  column in enumerate(value)} for value in userCursor.fetchall()]
     userCursor.close()
     disconnectDB(myCon)
-
+    responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
+    return HttpResponse(responseJSON, content_type="application/json")
 
 def userTempListView(request):
     myCon = connectDB()
@@ -1798,6 +1806,8 @@ def userTempListView(request):
                  column in enumerate(value)} for value in userCursor.fetchall()]
     userCursor.close()
     disconnectDB(myCon)
+    responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
+    return HttpResponse(responseJSON, content_type="application/json")
 
 
 #   Хэрэглэгчийн id-г илгээхэд бүх чадваруудыг list хэлбэрээр илгээх функц.
