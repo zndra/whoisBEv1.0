@@ -323,6 +323,7 @@ def changePass(request):
 #######################################################################################
 # CreateCv
 
+
 def userNemeltGet(request):
     jsons = json.loads(request.body)
     user_id = jsons['user_id']
@@ -345,14 +346,15 @@ def userNemeltGet(request):
                 userCursor.execute(
                     'SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"= %s', (user_id,))
                 columns = [column[0] for column in userCursor.description]
-                
+
                 response = [
-                    {columns[index]: column for index,column in enumerate(value)}for value in userCursor.fetchall()
+                    {columns[index]: column for index, column in enumerate(value)}for value in userCursor.fetchall()
                 ]
                 userCursor.close()
                 disconnectDB(myCon)
 
-            responseJSON = response[0]  # Extract the first element from the response list
+            # Extract the first element from the response list
+            responseJSON = response[0]
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
@@ -755,6 +757,8 @@ def userEduInsert(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
 
 ################################################################################################
+
+
 def userEduGet(request):
     jsons = json.loads(request.body)
     user_id = jsons['user_id']
@@ -786,7 +790,8 @@ def userEduGet(request):
             ]
             userCursor.close()
             disconnectDB(myCon)
-            responseJSON = response[0]  # Extract the first element from the response list
+            # Extract the first element from the response list
+            responseJSON = response[0]
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
@@ -808,6 +813,8 @@ def userEduGet(request):
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
 ######################################################################################
+
+
 def userSocial(request):
     jsons = json.loads(request.body)
     user_id = jsons['id']
@@ -839,7 +846,8 @@ def userSocial(request):
             ]
             userCursor.close()
             disconnectDB(myCon)
-            responseJSON = response[0]  # Extract the first element from the response list
+            # Extract the first element from the response list
+            responseJSON = response[0]
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
@@ -861,6 +869,7 @@ def userSocial(request):
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
 ###########################################################################
+
 
 def userSocialUp(request):
     jsons = json.loads(request.body)
@@ -1062,6 +1071,7 @@ def userInfoUpdateView(request):
 
 ###################################################################################
 
+
 def userInfoShowView(request):
     jsons = json.loads(request.body)
     user_id = jsons['id']
@@ -1093,7 +1103,8 @@ def userInfoShowView(request):
             ]
             userCursor.close()
             disconnectDB(myCon)
-            responseJSON = response[0]  # Extract the first element from the response list
+            # Extract the first element from the response list
+            responseJSON = response[0]
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
@@ -1115,7 +1126,6 @@ def userInfoShowView(request):
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
 
-
     #############################################################################
 
 
@@ -1125,8 +1135,10 @@ def userTurshlaga(request):
     if request.method == "GET":
         myCon = connectDB()
         userCursor = myCon.cursor()
+
         userCursor.execute(
             'SELECT * FROM "f_userWork" WHERE "user_id"= %s', (user_id,))
+
         user = userCursor.fetchone()
         if not user:
             response = {
@@ -1136,6 +1148,7 @@ def userTurshlaga(request):
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
+
         elif user:
             userCursor.execute(
                 'SELECT * FROM "f_userWork" WHERE "user_id"= %s', (user_id,))
@@ -1147,10 +1160,17 @@ def userTurshlaga(request):
             ]
             userCursor.close()
             disconnectDB(myCon)
+            responseJSON = response[0]
+            response = {
+                "responseCode": 200,
+                "responseText": "Амжилттай",
+                "TurshlagaData": responseJSON
+            }
 
             responseJSON = json.dumps(
                 (response), cls=DjangoJSONEncoder, default=str)
             return HttpResponse(responseJSON, content_type="application/json")
+
         else:
             response = {
                 "responseCode": 551,
@@ -1164,8 +1184,8 @@ def userTurshlagaUp(request):
     jsons = json.loads(request.body)
 
     # Validate request body
-    required_fields = ["id", "oldAjil", "oldCompany", "oldEhelsen",
-                       "oldDuussan", "ajil", "company", "ehelsen", "duussan"]
+    required_fields = ["id", "oldAjil", "ajil",
+                       "company", "ehelsen", "duussan"]
     if not reqValidation(jsons, required_fields):
         response = {
             "responseCode": 550,
@@ -1179,17 +1199,14 @@ def userTurshlagaUp(request):
     ehelsen = jsons['ehelsen']
     duussan = jsons['duussan']
     oldAjil = jsons["oldAjil"]
-    oldCompany = jsons["oldCompany"]
-    oldEhelsen = jsons["oldEhelsen"]
-    oldDuussan = jsons["oldDuussan"]
 
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
 
         # Check if the user exists
-        userCursor.execute('SELECT * FROM "f_userWork" WHERE "user_id" = %s AND "ajil" = %s AND "company" = %s AND "ehelsen" =%s AND "duussan"=%s',
-                           (id, oldAjil, oldCompany, oldEhelsen, oldDuussan))
+        userCursor.execute('SELECT * FROM "f_userWork" WHERE "user_id" = %s AND "ajil" = %s',
+                           (id, oldAjil))
         user = userCursor.fetchone()
         if not user:
             response = {
@@ -1198,11 +1215,12 @@ def userTurshlagaUp(request):
             }
             userCursor.close()
             disconnectDB(myCon)
+
             return HttpResponse(json.dumps(response), content_type="application/json")
 
         # Update the password
-        userCursor.execute('UPDATE "f_userWork" SET "ajil" = %s, "company"  = %s, "ehelsen" =%s,  "duussan"=%s WHERE "user_id" = %s',
-                           (ajil, company, ehelsen, duussan, id))
+        userCursor.execute('UPDATE "f_userWork" SET "ajil" = %s, "company"  = %s, "ehelsen" =%s,  "duussan"=%s WHERE "user_id" = %s AND "ajil"=%s',
+                           (ajil, company, ehelsen, duussan, id, oldAjil))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
@@ -1298,15 +1316,15 @@ def userFamilyGet(request):
                 userCursor.execute(
                     'SELECT * FROM "f_userFamily" WHERE "user_id"= %s', (user_id,))
                 columns = [column[0] for column in userCursor.description]
-                
 
                 response = [
-                    {columns[index]: column for index,column in enumerate(value)}for value in userCursor.fetchall()
+                    {columns[index]: column for index, column in enumerate(value)}for value in userCursor.fetchall()
                 ]
 
                 userCursor.close()
                 disconnectDB(myCon)
-            responseJSON = response[0]  # Extract the first element from the response list
+            # Extract the first element from the response list
+            responseJSON = response[0]
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
