@@ -325,78 +325,79 @@ def changePass(request):
 
 
 def userNemeltGet(request):
-    jsons = json.loads(request.body)
-    user_id = jsons['user_id']
-    if request.method == 'GET':
-        myCon = connectDB()
-        userCursor = myCon.cursor()
-        userCursor.execute(
-            'SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"= %s', (user_id,))
-        user = userCursor.fetchone()
-        if not user:
-            response = {
+   jsons   = json.loads(request.body)
+   user_id = jsons['user_id']
+   if request.method == 'GET':
+        try: 
+             myCon = connectDB()
+             userCursor = myCon.cursor()
+             userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"= %s',(user_id,) )
+             user = userCursor.fetchone()
+             if not user:
+              response = {
                 "responseCode": 555,
                 "responseText": "Хэрэглэгч олдсонгүй"
             }
-            userCursor.close()
-            disconnectDB(myCon)
-            return HttpResponse(json.dumps(response), content_type="application/json")
-        elif user:
-            userCursor.execute(
-                'SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"= %s', (user_id,))
-            columns = [column[0] for column in userCursor.description]
-            resp = {
+              userCursor.close()
+              disconnectDB(myCon)
+              return HttpResponse(json.dumps(response), content_type="application/json")
+             if user:
+              userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id"= %s',(user_id,) )
+              columns = [column[0] for column in userCursor.description]
+              resp = {
                 "responseCode": 200,
                 "responseText": "Амжилттай"
             }
-            response = [
-                {columns[index]: column for index, column in enumerate(value)}
-                for value in userCursor.fetchall()
-            ]
-            userCursor.close()
-            disconnectDB(myCon)
-
-            responseJSON = json.dumps(
-                (resp, response), cls=DjangoJSONEncoder, default=str)
-            return HttpResponse(responseJSON, content_type="application/json")
-        else:
-            response = {
-                "responseCode": 551,
-                "responseText": "Баазын алдаа"
+              response = [
+                    {columns[index]: column for index, column in enumerate(value)}
+                     for value in userCursor.fetchall()
+                  ]
+              userCursor.close()
+              disconnectDB(myCon)
+       
+              responseJSON = json.dumps((resp,response), cls=DjangoJSONEncoder, default=str)
+              return HttpResponse(responseJSON, content_type="application/json")
+        except:
+           response = {
+            "responseCode": 551,
+            "responseText": "Баазын алдаа"
+        }
+           return HttpResponse(json.dumps(response), content_type="application/json") 
+   else:
+         response = {
+                 "responseCode": 400,
+                 "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
             }
-            return HttpResponse(json.dumps(response), content_type="application/json")
-
+         return HttpResponse(json.dumps(response), content_type="application/json")
 ####################################################################
 
 
 def userNemeltUpdate(request):
     jsons = json.loads(request.body)
-    required_fields = ["user_id", "regDug", "torsonOgnoo",
-                       "dugaar", "huis", "irgenshil", "ysUndes", "hayg", "hobby"]
-
-    if not reqValidation(jsons, required_fields):
+    required_fields = ["user_id", "regDug", "torsonOgnoo", "dugaar", "huis", "irgenshil", "ysUndes", "hayg", "hobby"]
+    if request.method == 'POST':
+      if not reqValidation(jsons, required_fields):
         response = {
             "responseCode": 550,
             "responseText": "Field-үүд дутуу"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
-    user_id = jsons['user_id']
-    regDug = jsons['regDug']
-    torsonOgnoo = jsons['torsonOgnoo']
-    dugaar = jsons['dugaar']
-    huis = jsons['huis']
-    irgenshil = jsons['irgenshil']
-    ysUndes = jsons['ysUndes']
-    hayg = jsons['hayg']
-    hobby = jsons['hobby']
+      user_id     = jsons['user_id']
+      regDug      = jsons['regDug']
+      torsonOgnoo = jsons['torsonOgnoo']
+      dugaar      = jsons['dugaar']
+      huis        = jsons['huis']
+      irgenshil   = jsons['irgenshil']
+      ysUndes     = jsons['ysUndes']
+      hayg        = jsons['hayg']
+      hobby       = jsons['hobby']
 
-    try:
-        myCon = connectDB()
+      try:
+        myCon      = connectDB()
         userCursor = myCon.cursor()
 
-        userCursor.execute(
-            'SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
+        userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
         user = userCursor.fetchone()
         if not user:
             response = {
@@ -419,19 +420,23 @@ def userNemeltUpdate(request):
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
-    except Exception as e:
+      except Exception as e:
         response = {
             "responseCode": 551,
             "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
-
+    else:
+         response = {
+                 "responseCode": 400,
+                 "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
+            }
+         return HttpResponse(json.dumps(response), content_type="application/json")
 
 ###########################################################
 def userNemeltInsert(request):
     jsons = json.loads(request.body)
-    required_fields = ["id", "regDug", "torsonOgnoo", "dugaar",
-                       "huis", "irgenshil", "ysUndes", "hayg", "hobby"]
+    required_fields = ["id", "regDug", "torsonOgnoo", "dugaar", "huis", "irgenshil", "ysUndes", "hayg", "hobby"]
 
     if not reqValidation(jsons, required_fields):
         response = {
@@ -449,12 +454,11 @@ def userNemeltInsert(request):
     ysUndes = jsons['ysUndes']
     hayg = jsons['hayg']
     hobby = jsons['hobby']
-
-    try:
+    if request.method == 'POST':
+      try:
         myCon = connectDB()
         userCursor = myCon.cursor()
-        userCursor.execute(
-            'SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+        userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
         user = userCursor.fetchone()
         if not user:
             response = {
@@ -464,9 +468,8 @@ def userNemeltInsert(request):
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
-
-        userCursor.execute(
-            'SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
+      
+        userCursor.execute('SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
         user = userCursor.fetchone()
         if user:
             response = {
@@ -494,12 +497,18 @@ def userNemeltInsert(request):
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
-    except Exception as e:
+      except Exception as e:
         response = {
             "responseCode": 551,
             "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
+    else:
+         response = {
+                 "responseCode": 400,
+                 "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
+            }
+         return HttpResponse(json.dumps(response), content_type="application/json")
   #########################################################################
 
 
@@ -1230,15 +1239,15 @@ def userTurshlagaIn(request):
 
 
 def userFamilyGet(request):
-    jsons = json.loads(request.body)
-    user_id = jsons['user_id']
-    if request.method == 'GET':
-        myCon = connectDB()
-        userCursor = myCon.cursor()
-        userCursor.execute(
-            'SELECT * FROM "f_userFamily" WHERE "user_id"= %s', (user_id,))
-        user = userCursor.fetchone()
-        if not user:
+   jsons   = json.loads(request.body)
+   user_id = jsons['user_id']
+   if request.method == 'GET':
+      try:
+         myCon = connectDB()
+         userCursor = myCon.cursor()
+         userCursor.execute('SELECT * FROM "f_userFamily" WHERE "user_id"= %s',(user_id,) )
+         user = userCursor.fetchone()
+         if not user:
             response = {
                 "responseCode": 555,
                 "responseText": "Хэрэглэгч олдсонгүй"
@@ -1246,33 +1255,38 @@ def userFamilyGet(request):
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
-        if user:
-            userCursor.execute(
-                'SELECT * FROM "f_userFamily" WHERE "user_id"= %s', (user_id,))
+         if user:
+            userCursor.execute('SELECT * FROM "f_userFamily" WHERE "user_id"= %s',(user_id,) )
             columns = [column[0] for column in userCursor.description]
             resp = {
                 "responseCode": 200,
                 "responseText": "Амжилттай"
             }
-
+   
             response = [
-                {columns[index]: column for index, column in enumerate(value)}
-                for value in userCursor.fetchall()
-            ]
-
+                    {columns[index]: column for index, column in enumerate(value)}
+                       for value in userCursor.fetchall()
+                  ]
+        
             userCursor.close()
             disconnectDB(myCon)
-
-            responseJSON = json.dumps(
-                (resp, response,), cls=DjangoJSONEncoder, default=str)
+        
+       
+            responseJSON = json.dumps((resp,response,), cls=DjangoJSONEncoder, default=str)
             return HttpResponse(responseJSON, content_type="application/json")
-
-        else:
+       
+      except:
             response = {
-                "responseCode": 551,
-                "responseText": "Баазын алдаа"
-            }
+              "responseCode": 551,
+            "responseText": "Баазын алдаа"
+        }
             return HttpResponse(json.dumps(response), content_type="application/json")
+   else:
+         response = {
+                 "responseCode": 400,
+                 "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
+            }
+         return HttpResponse(json.dumps(response), content_type="application/json")
 ############################################################################
 
 #   Хэрэглэгчийн id-г илгээхэд бүх чадваруудыг list хэлбэрээр илгээх функц.
@@ -1555,8 +1569,7 @@ def makeTransaction(request):
 
 def userFamilyInsert(request):
     jsons = json.loads(request.body)
-    required_fields = ["id", "henBoloh", "ner",
-                       "gerBuliinBaidal", "amBul", "albanTushaal", "baiguulgaNer"]
+    required_fields = ["id", "henBoloh", "ner", "dugaar"]
 
     if not reqValidation(jsons, required_fields):
         response = {
@@ -1568,51 +1581,53 @@ def userFamilyInsert(request):
     user_id = jsons['id']
     henBoloh = jsons['henBoloh']
     ner = jsons['ner']
-    gerBul = jsons['gerBuliinBaidal']
-    amBul = jsons['amBul']
-    albantushaal = jsons['albanTushaal']
-    bner = jsons['baiguulgaNer']
+    dugaar = jsons['dugaar']
+   
+    if request.method == 'POST':
+        try:
+            myCon = connectDB()
+            userCursor = myCon.cursor()
+            userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+            user = userCursor.fetchone()
+            if not user:
+                response = {
+                    "responseCode": 555,
+                    "responseText": "Хэрэглэгч олдсонгүй"
+                }
+                userCursor.close()
+                disconnectDB(myCon)
+                return HttpResponse(json.dumps(response), content_type="application/json")
 
-    try:
-        myCon = connectDB()
-        userCursor = myCon.cursor()
-        userCursor.execute(
-            'SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
-        user = userCursor.fetchone()
-        if not user:
-            response = {
-                "responseCode": 555,
-                "responseText": "Хэрэглэгч олдсонгүй"
-            }
+            userCursor.execute('INSERT INTO "f_userFamily" ("henBoloh", "ner", "dugaar", "user_id") VALUES (%s, %s, %s, %s)',
+                               (henBoloh, ner, dugaar, user_id))
+            myCon.commit()
             userCursor.close()
             disconnectDB(myCon)
+
+            response = {
+                "responseCode": 200,
+                "responseText": "Амжилттай бүртгэгдлээ"
+            }
             return HttpResponse(json.dumps(response), content_type="application/json")
 
-        userCursor.execute('INSERT INTO "f_userFamily" ("henBoloh", "ner", "gerBuliinBaidal", "amBul", "albanTushaal", "baiguulgaNer", "user_id") VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                           (henBoloh, ner, gerBul, amBul, albantushaal, bner, user_id))
-        myCon.commit()
-        userCursor.close()
-        disconnectDB(myCon)
-
-        response = {
-            "responseCode": 200,
-            "responseText": "Амжилттай бүртгэгдлээ"
-        }
-        return HttpResponse(json.dumps(response), content_type="application/json")
-
-    except Exception as e:
-        response = {
-            "responseCode": 551,
-            "responseText": "Баазын алдаа"
-        }
-        return HttpResponse(json.dumps(response), content_type="application/json")
+        except Exception as e:
+            response = {
+                "responseCode": 551,
+                "responseText": "Баазын алдаа"
+            }
+            return HttpResponse(json.dumps(response), content_type="application/json")
+    else:
+         response = {
+                 "responseCode": 400,
+                 "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
+            }
+         return HttpResponse(json.dumps(response), content_type="application/json")
 #####################
 
 
 def userFamilyUpdate(request):
     jsons = json.loads(request.body)
-    required_fields = ["id", "henBoloh", "ner",
-                       "gerBuliinBaidal", "amBul", "albanTushaal", "baiguulgaNer"]
+    required_fields = ["id", "henBoloh", "ner","dugaar"]
 
     if not reqValidation(jsons, required_fields):
         response = {
@@ -1624,17 +1639,13 @@ def userFamilyUpdate(request):
     user_id = jsons['id']
     henBoloh = jsons['henBoloh']
     ner = jsons['ner']
-    gerBul = jsons['gerBuliinBaidal']
-    amBul = jsons['amBul']
-    albantushaal = jsons['albanTushaal']
-    bner = jsons['baiguulgaNer']
-
-    try:
+    dugaar = jsons['dugaar']
+    if request.method == 'POST':
+      try:
         myCon = connectDB()
         userCursor = myCon.cursor()
 
-        userCursor.execute(
-            'SELECT * FROM "f_userFamily" WHERE "user_id" = %s', (user_id,))
+        userCursor.execute('SELECT * FROM "f_userFamily" WHERE "user_id" = %s', (user_id,))
         user = userCursor.fetchone()
         if not user:
             response = {
@@ -1645,8 +1656,8 @@ def userFamilyUpdate(request):
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
 
-        userCursor.execute('UPDATE "f_userFamily" SET "henBoloh" = %s, "ner" = %s, "gerBuliinBaidal" = %s, "amBul" = %s, "albanTushaal" = %s, "baiguulgaNer" = %s WHERE "user_id" = %s',
-                           (henBoloh, ner, gerBul, amBul, albantushaal, bner, user_id))
+        userCursor.execute('UPDATE "f_userFamily" SET "henBoloh" = %s, "ner" = %s, dugaar= %s WHERE "user_id" = %s',
+                           (henBoloh, ner, dugaar, user_id))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
@@ -1657,12 +1668,19 @@ def userFamilyUpdate(request):
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
-    except Exception as e:
+      except Exception as e:
         response = {
             "responseCode": 551,
             "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
+    else:
+         response = {
+                 "responseCode": 400,
+                 "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
+            }
+         return HttpResponse(json.dumps(response), content_type="application/json")
+
     ################################################################################
 
 
