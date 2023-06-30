@@ -1039,7 +1039,6 @@ def userInfoUpdateView(request):
 
 ###################################################################################
 
-
 def userInfoShowView(request):
     jsons = json.loads(request.body)
     user_id = jsons['id']
@@ -1088,7 +1087,8 @@ def userInfoShowView(request):
 
     response = {
         "responseCode": 200,
-        "responseText": "Амжилттай"
+        "responseText": "Амжилттай",
+        "data": {}  # Add an empty "data" field in the response
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
 
