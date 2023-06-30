@@ -39,6 +39,7 @@ def userLoginView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
     myName = jsons['name']
     myPass = jsons['pass']
+    myPass = mandakhHash(myPass)
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
@@ -47,7 +48,6 @@ def userLoginView(request):
                            " WHERE "
                            " deldate IS NULL AND "
                            " pass = %s AND "
-                           " \"isVerified\" = true AND "
                            " \"userName\" = %s ",
                            (
                                myPass,
@@ -129,20 +129,14 @@ def userRegisterView(request):
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
-    hashed_password = mandakhHash(password)
-    otp = createCodes(6)
-    otp = str(otp)  # Convert OTP to string
+    hashed_password = mandakhHash(password) 
     userCursor.execute(
         'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
         'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',
         (firstName, lastName, email, hashed_password, username, None, 2,))
 
-    # Fetch the user ID from the returned row
+
     userId = userCursor.fetchone()[0]
-    # Update the "f_otp" table with the user ID and OTP
-    userCursor.execute(
-        'INSERT INTO "f_otp"("userId", "value") VALUES(%s, %s)',
-        (userId, otp))
 
     # Add user ID to other tables
     userCursor.execute(
@@ -170,10 +164,6 @@ def userRegisterView(request):
         (userId,))
 
     myCon.commit()
-    # Send email verification email
-    myVerifyEmailLink = verifyEmailLink + otp
-    myMailContent = verifyEmailContent + "Холбоос: " + myVerifyEmailLink
-    sendMail(email, verifyEmailSubject, myMailContent)
 
     # Close the userCursor and disconnect from the database
     userCursor.close()
@@ -185,6 +175,7 @@ def userRegisterView(request):
         "responseText": "Амжилттай бүртгэгдлээ"
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 
 
 ######################################################################################
