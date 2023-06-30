@@ -1141,7 +1141,7 @@ def userTurshlagaUp(request):
     jsons = json.loads(request.body)
 
     # Validate request body
-    required_fields = ["oldAjil", "id", "oldCompany", "oldEhelsen",
+    required_fields = ["id", "oldAjil", "oldCompany", "oldEhelsen",
                        "oldDuussan", "ajil", "company", "ehelsen", "duussan"]
     if not reqValidation(jsons, required_fields):
         response = {
@@ -1153,7 +1153,6 @@ def userTurshlagaUp(request):
     id = jsons['id']
     ajil = jsons['ajil']
     company = jsons['company']
-
     ehelsen = jsons['ehelsen']
     duussan = jsons['duussan']
     oldAjil = jsons["oldAjil"]
@@ -1179,8 +1178,8 @@ def userTurshlagaUp(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
 
         # Update the password
-        userCursor.execute('UPDATE "f_userWork" SET "ajil" = %s WHERE "user_id" = %s AND "company"  = %s AND "ehelsen" =%s AND "duussan"=%s',
-                           (ajil, id, company, ehelsen, duussan))
+        userCursor.execute('UPDATE "f_userWork" SET "ajil" = %s, "company"  = %s, "ehelsen" =%s,  "duussan"=%s WHERE "user_id" = %s',
+                           (ajil, company, ehelsen, duussan, id))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
