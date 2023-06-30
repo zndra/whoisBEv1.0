@@ -206,7 +206,7 @@ def verifyEmailView(request, otp):
             disconnectDB(myCon)
             resp = {
                 "responseCode": 200,
-                "responseText": "Email амжилттай бүртгэгдлээ",
+                "responseText": "Email амжилттай баталгаажлаа",
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
         else:
@@ -1565,11 +1565,11 @@ def userFamilyUpdate(request):
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
     ################################################################################
-def uploadTemplate(request):
+def uploadTemplateView(request):
     jsons = json.loads(request.body)
 
     # Validate request body
-    if reqValidation(jsons, {"name", "date", "tempType", "catId", "file", "userId"}) == False:
+    if reqValidation(jsons, {"name", "tempType", "catId", "file", "userId"}) == False:
         resp = {
             "responseCode": 550,
             "responseText": "Field-үүд дутуу"
@@ -1577,7 +1577,7 @@ def uploadTemplate(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     name = jsons['name']
-    date = jsons['date']
+    date = date.today().strftime("%d-%m-%Y")
     tempType = jsons['tempType']
     catId = jsons['catId']
     file = jsons['file']
@@ -1610,7 +1610,54 @@ def uploadTemplate(request):
 
     resp = {
         "responseCode": 200,
-        "responseText": "Template амжилттай солигдлоо",
+        "responseText": "Template нэмэгдлээ",
+        "templateId": templateId
+    }
+    return HttpResponse(json.dumps(resp), content_type="application/json")
+############################################################################
+def usedTemplateGet(request):
+    jsons = json.loads(request.body)
+    if reqValidation(jsons, {"id", "userId","tempId", "tempType"}) == False:
+        resp = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    id = jsons['id']
+    date = date.today().strftime("%d-%m-%Y")
+    tempType = jsons['tempType']
+    userId = jsons['userId']
+    tempId = jsons['tempId']
+
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+
+        if not myCon:
+            raise Exception("Can not connect to the database")
+    except Exception as e:
+        resp = {
+            "responseCode": 551,
+            "responseText": "Баазын алдаа"
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    userCursor.execute(
+        'INSERT INTO "f_usedTemplate"("id", "date", "tempType", "userId", "tempId") '
+        'VALUES(%s, %s, %s, %s, %s) RETURNING "id"',
+        (id, date, tempType, userId, tempId))
+
+    templateId = userCursor.fetchone()[0]
+
+    myCon.commit()
+
+    userCursor.close()
+    disconnectDB(myCon)
+
+    resp = {
+        "responseCode": 200,
+        "responseText": "Template ашигласан",
         "templateId": templateId
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")

@@ -33,6 +33,8 @@ urlpatterns = [
     path('userTurshlagaIn/' ,      userTurshlagaIn,    name='userTurshlagaIn'   ),
     path('getUserSkill/' ,         getUserSkillView,   name='getUserSkillView'   ),
     path('setUserSkill/' ,         setUserSkillView,   name='setUserSkillView'   ),
+    path('usedTemplateGet/' ,      usedTemplateGet,   name='usedTemplateGet'   ),
+    path('uploadTemplate/' ,   uploadTemplateView,   name='uploadTemplateView'   ),
     ######################################################
 
     path('userList/',              userListView,       name='userListView'),
