@@ -1071,9 +1071,13 @@ def userInfoShowView(request):
             ]
             userCursor.close()
             disconnectDB(myCon)
-            responseJSON = json.dumps(
-                response, cls=DjangoJSONEncoder, default=str)
-            return HttpResponse(responseJSON, content_type="application/json")
+            responseJSON = response[0]  # Extract the first element from the response list
+            response = {
+                "responseCode": 200,
+                "responseText": "Амжилттай",
+                "data": responseJSON
+            }
+            return HttpResponse(json.dumps(response, cls=DjangoJSONEncoder, default=str), content_type="application/json")
 
         else:
             resp = {
@@ -1087,6 +1091,7 @@ def userInfoShowView(request):
         "responseText": "Амжилттай"
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
+
 
     #############################################################################
 
