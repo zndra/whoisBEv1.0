@@ -1708,7 +1708,7 @@ def getSkillView(request):
             myCon.commit()
             resp = aldaaniiMedegdel(553, "Хэрэглэгчийн чадварын тухай мэдээллийг шинээр үүсгэлээ.")
             resp["skill"] = text
-            resp["id"] = idd
+            resp["id"] = idd[0]
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(resp), content_type="application/json")
