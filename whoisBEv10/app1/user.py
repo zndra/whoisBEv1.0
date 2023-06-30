@@ -1903,3 +1903,132 @@ def setSkillView(request):
         200, "Амжилттай чадварын мэдээллийг шинэчлэлээ.")
     return HttpResponse(json.dumps(response), content_type="application/json")
 #################################################################################
+
+
+
+def getTransactionLog(request):
+    if request.method == "GET":
+        jsons = checkJson(request)
+
+        if reqValidation(jsons, {"user_id"}) == False:
+            resp = {
+                "responseCode": 550,
+                "responseText": "Field-үүд дутуу"
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        userId = jsons.get('user_id')
+
+        conn = None
+        try:
+            conn = connectDB()
+            cur = conn.cursor()
+            cur.execute("""SELECT * FROM "f_transactionLog" WHERE "from" = %s OR "to" = %s""", [userId, userId,])
+            logData = cur.fetchall()
+            cur.execute("""SELECT balance FROM "f_user" WHERE "id" = %s""", [userId,])
+            dansniiUldegdel = cur.fetchall()
+            if not dansniiUldegdel:
+                response = aldaaniiMedegdel(553, "Бүртгэлгүй хэрэглэгч байна.")
+                cur.close()
+                disconnectDB(conn)
+                return HttpResponse(json.dumps(response), content_type="application/json")
+            resp = {
+                "responseCode": 200,
+                "responseText": "Амжилттай дансны мэдээлэл харлаа.",  
+                # "data": payLoad if payLoad else [],
+                "dansniiUldegdel": dansniiUldegdel[0][0]
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        except Exception as e:
+            resp = {
+                "responseCode": 588,
+                "responseText": "Бүртгэлгүй хэрэглэгч байна",
+                "data" : str(e)
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        finally:
+            if conn is not None:
+                disconnectDB(conn)
+    else:
+        resp = {
+            "responseCode": 400,
+            "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+    
+
+def makeTransaction(request):
+    if request.method == "POST":
+        jsons = checkJson(request)
+
+        if reqValidation(jsons, {"from", "target", "amount",}) == False:
+            resp = {
+                "responseCode": 550,
+                "responseText": "Field-үүд дутуу"
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        
+        userId = jsons.get('from')
+        targetUserId = jsons.get('target')
+        amount = jsons.get('amount')
+        conn = None
+        try:
+            conn = connectDB()
+            cur = conn.cursor()
+            cur.execute("""SELECT balance FROM "f_user" WHERE "userName" = %s""", [userId,])
+            fromBalance = cur.fetchone()[0]
+            cur.execute("""SELECT balance FROM "f_user" WHERE "userName" = %s""", [targetUserId,])
+            targetBalance = cur.fetchone()[0]
+
+            if fromBalance is None or targetBalance is None: 
+                resp = {
+                    "responseCode": 588,
+                    "responseText": "Хэрэглэгчийн мэдээлэл олдсонгүй .",
+                }
+                return HttpResponse(json.dumps(resp), content_type="application/json")
+            
+            if targetBalance is None or fromBalance < int(amount):
+                resp = {
+                    "responseCode": 555,
+                    "responseText": "Таны дансны үлдэгдэл хүрэлцэхгүй байна.",
+                    "data": fromBalance
+                }
+                return HttpResponse(json.dumps(resp), content_type="application/json")
+
+            cur.execute("""UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, targetUserId])
+            targetData = cur.fetchone()
+            conn.commit()
+            print(userId)
+            cur.execute("""UPDATE f_user SET balance = balance - %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, userId])
+            fromData = cur.fetchone()   
+            cur.execute("""INSERT INTO "f_transactionLog"(amount, balance, "from", "to") VALUES (%s, %s, %s, %s)""",
+                        [int(amount), int(fromData[1]), userId, targetUserId])
+            print("fromData")
+            conn.commit()
+
+            print(type(fromData))
+            resp = {
+                "responseCode": 200,
+                "responseText": "Амжилттай шилжлээ.",  
+                "data" : {
+                    'from': fromData,
+                    'target': targetData,
+                }
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        except Exception as e:
+            resp = {
+                "responseCode": 500,
+                "responseText": "aldaa.",
+                "data" : str(e)
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+        finally:
+            if conn is not None:
+                disconnectDB(conn)
+    else:
+        resp = {
+            "responseCode": 400,
+            "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+    
