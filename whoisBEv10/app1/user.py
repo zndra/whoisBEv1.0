@@ -811,43 +811,56 @@ def userEduGet(request):
 def userSocial(request):
     jsons = json.loads(request.body)
     user_id = jsons['id']
-    if request.method == "GET":
+
+    if request.method == 'GET':
         myCon = connectDB()
         userCursor = myCon.cursor()
         userCursor.execute(
-            'SELECT * FROM "f_userSocial" WHERE "user_id"= %s', (user_id,))
+            'SELECT * FROM "f_userSocial" WHERE "user_id" = %s', (user_id,))
         user = userCursor.fetchone()
+
         if not user:
-            response = {
+            resp = {
                 "responseCode": 555,
                 "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
-            return HttpResponse(json.dumps(response), content_type="application/json")
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+
         elif user:
             userCursor.execute(
-                'SELECT * FROM "f_userSocial" WHERE "user_id"= %s', (user_id,))
+                'SELECT * FROM "f_userSocial" WHERE "user_id" = %s', (user_id,))
             columns = [column[0] for column in userCursor.description]
-
             response = [
-                {columns[index]: column for index, column in enumerate(value)}
+                {columns[index]: column for index, column in enumerate(
+                    value) if columns[index] not in []}
                 for value in userCursor.fetchall()
             ]
             userCursor.close()
             disconnectDB(myCon)
-
-            responseJSON = json.dumps(
-                (response), cls=DjangoJSONEncoder, default=str)
-            return HttpResponse(responseJSON, content_type="application/json")
-        else:
+            responseJSON = response[0]  # Extract the first element from the response list
             response = {
+                "responseCode": 200,
+                "responseText": "Амжилттай",
+                "socialData": responseJSON
+            }
+            return HttpResponse(json.dumps(response, cls=DjangoJSONEncoder, default=str), content_type="application/json")
+
+        else:
+            resp = {
                 "responseCode": 551,
                 "responseText": "Баазын алдаа"
             }
-            return HttpResponse(json.dumps(response), content_type="application/json")
-#############################################################################################
+            return HttpResponse(json.dumps(resp), content_type="application/json")
 
+    response = {
+        "responseCode": 200,
+        "responseText": "Амжилттай",
+        "socialData": {}  # Add an empty "data" field in the response
+    }
+    return HttpResponse(json.dumps(response), content_type="application/json")
+###########################################################################
 
 def userSocialUp(request):
     jsons = json.loads(request.body)
