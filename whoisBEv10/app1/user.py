@@ -105,14 +105,14 @@ def userRegisterView(request):
         if emailExists(email):
             resp = {
                 "responseCode": 400,
-                "responseText": "Email already exists"
+                "responseText": "Бүртгэлтэй email байна."
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
 
         if userNameExists(username):
             resp = {
                 "responseCode": 400,
-                "responseText": "Username already exists"
+                "responseText": "Бүртгэлтэй хэрэглэгчийн нэр байна."
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
 
@@ -178,7 +178,7 @@ def userRegisterView(request):
     # Return success response
     resp = {
         "responseCode": 200,
-        "responseText": "User registered successfully"
+        "responseText": "Амжилттай бүртгэгдлээ"
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
@@ -206,7 +206,7 @@ def verifyEmailView(request, otp):
             disconnectDB(myCon)
             resp = {
                 "responseCode": 200,
-                "responseText": "Email verification successful",
+                "responseText": "Email амжилттай бүртгэгдлээ",
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
         else:
@@ -214,13 +214,13 @@ def verifyEmailView(request, otp):
             disconnectDB(myCon)
             resp = {
                 "responseCode": 400,
-                "responseText": "Invalid or expired OTP",
+                "responseText": "Буруу эсвэл ашиглах боломжгүй холбоос байна",
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
     except Exception as e:
         resp = {
             "responseCode": 400,
-            "responseText": "An error occurred during email verification",
+            "responseText": "Баталгаажуулах үед алдаа гарлаа",
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
@@ -878,7 +878,7 @@ def userInfoUpdateView(request):
     if not any(field in jsons for field in allowed_fields):
         response = {
             "responseCode": 550,
-            "responseText": "No valid fields provided for update"
+            "responseText": "Шинэчлэх хүчинтэй талбар байхгүй байна"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -894,7 +894,7 @@ def userInfoUpdateView(request):
         if not result:
             response = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -908,7 +908,7 @@ def userInfoUpdateView(request):
         if not is_verified:
             response = {
                 "responseCode": 556,
-                "responseText": "User is not verified"
+                "responseText": "Хэрэглэгч баталгаажаагүй байна"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -928,7 +928,7 @@ def userInfoUpdateView(request):
             if new_username != response_json["userName"] and userNameExists(new_username):
                 response = {
                     "responseCode": 560,
-                    "responseText": "Username already exists"
+                    "responseText": "Бүртгэлтэй хэрэглэгчийн нэр байна."
                 }
                 userCursor.close()
                 disconnectDB(myCon)
@@ -948,14 +948,14 @@ def userInfoUpdateView(request):
 
         response = {
             "responseCode": 200,
-            "responseText": "Changed successfully"
+            "responseText": "Амжилттай солигдлоо"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     except Exception as e:
         response = {
             "responseCode": 551,
-            "responseText": "Database error"
+            "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -973,7 +973,7 @@ def userInfoShowView(request):
         if not user:
             resp = {
                 "responseCode": 555,
-                "responseText": "User not found"
+                "responseText": "Хэрэглэгч олдсонгүй"
             }
             userCursor.close()
             disconnectDB(myCon)
@@ -994,13 +994,13 @@ def userInfoShowView(request):
         else:
             resp = {
                 "responseCode": 551,
-                "responseText": "Database error"
+                "responseText": "Баазын алдаа"
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
     
     response = {
         "responseCode": 200,
-        "responseText": "Successfully"
+        "responseText": "Амжилттай"
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -1384,7 +1384,7 @@ def uploadTemplate(request):
 
     resp = {
         "responseCode": 200,
-        "responseText": "Template uploaded successfully",
+        "responseText": "Template амжилттай солигдлоо",
         "templateId": templateId
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
