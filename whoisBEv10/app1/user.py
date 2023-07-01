@@ -547,7 +547,6 @@ def resetPasswordView(request):
         userCursor.execute(
             'SELECT * FROM "f_user" WHERE  "email" = %s AND  "isVerified" = true', (email,))
         user = userCursor.fetchone()
-        print(user)
         # Хэрэглэч байгаа үгүйг шалгах
         if not user:
             resp = aldaaniiMedegdel(
@@ -599,7 +598,7 @@ def verifyCodeView(request):
         userCursor.execute(
             'SELECT "newPass" FROM "f_user" WHERE "verifyCode" = %s', (verifyCode,))
         newPass = userCursor.fetchone()[0]
-        print(newPass)
+        # print(newPass)
         # verifyCode нь таарахгүй бол алдааны мэдээлэл дамжуулан
         if not user:
             resp = aldaaniiMedegdel(553, "Баталгаажуулах код таарсангүй.")
@@ -607,9 +606,9 @@ def verifyCodeView(request):
             disconnectDB(myCon)
             return HttpResponse(json.dumps(resp), content_type="application/json")
         # pass-аа өөрчлөх
-        user = list(user)
-        userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "verifyCode" = %s', (
-            newPass, verifyCode,))
+        resetVerify = str(createCodes(7))
+        userCursor.execute('UPDATE "f_user" SET "pass" = %s, "verifyCode" = %s WHERE "verifyCode" = %s', (
+            newPass, resetVerify, verifyCode,))
         myCon.commit()
         userCursor.close()
     # Баазтай холбоо тасрах үед
