@@ -39,7 +39,8 @@ def userLoginView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
     myName = jsons['name']
     myPass = jsons['pass']
-    myPass = mandakhHash(myPass)
+    # print(myPass)
+    # myPass = mandakhHash(myPass)
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
@@ -542,7 +543,7 @@ def resetPasswordView(request):
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
-        # email баталгаажсан нь DB дээр бйагаа эсэхийг уншиж байна.
+        # email баталгаажсан нь DB дээр байгаа эсэхийг уншиж байна.
         userCursor.execute(
             'SELECT * FROM "f_user" WHERE  "email" = %s AND  "isVerified" = true', (email,))
         user = userCursor.fetchone()
@@ -578,8 +579,6 @@ def resetPasswordView(request):
 #############################################################
 
 # Баталгаажуулах кодоор нууц үгээ сэргээх /email, verifyCode/
-
-
 def verifyCodeView(request):
     jsonsData = json.loads(request.body)
     resp = {}
@@ -597,6 +596,10 @@ def verifyCodeView(request):
         userCursor.execute(
             'SELECT * FROM "f_user" WHERE "verifyCode" = %s', (verifyCode,))
         user = userCursor.fetchone()
+        userCursor.execute(
+            'SELECT "newPass" FROM "f_user" WHERE "verifyCode" = %s', (verifyCode,))
+        newPass = userCursor.fetchone()[0]
+        print(newPass)
         # verifyCode нь таарахгүй бол алдааны мэдээлэл дамжуулан
         if not user:
             resp = aldaaniiMedegdel(553, "Баталгаажуулах код таарсангүй.")
@@ -605,8 +608,8 @@ def verifyCodeView(request):
             return HttpResponse(json.dumps(resp), content_type="application/json")
         # pass-аа өөрчлөх
         user = list(user)
-        userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "verifyCode" = %s', (str(
-            user[len(user)-3]), verifyCode))
+        userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "verifyCode" = %s', (
+            newPass, verifyCode,))
         myCon.commit()
         userCursor.close()
     # Баазтай холбоо тасрах үед
