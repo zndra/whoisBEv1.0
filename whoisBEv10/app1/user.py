@@ -838,7 +838,7 @@ def userSocial(request):
             userCursor.close()
             disconnectDB(myCon)
             # Extract the first element from the response list
-            responseJSON = response[0]
+            responseJSON = response
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
