@@ -128,11 +128,11 @@ def userRegisterView(request):
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
-    hashed_password = mandakhHash(password) 
+
     userCursor.execute(
         'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
         'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',
-        (firstName, lastName, email, hashed_password, username, None, 2,))
+        (firstName, lastName, email, password, username, None, 2,))
 
 
     userId = userCursor.fetchone()[0]
