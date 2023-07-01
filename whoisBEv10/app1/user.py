@@ -39,8 +39,6 @@ def userLoginView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
     myName = jsons['name']
     myPass = jsons['pass']
-    # print(myPass)
-    # myPass = mandakhHash(myPass)
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
