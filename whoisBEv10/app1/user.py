@@ -606,7 +606,7 @@ def verifyCodeView(request):
         # pass-аа өөрчлөх
         user = list(user)
         userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "verifyCode" = %s', (str(
-            user[len(user)-2]), verifyCode))
+            user[len(user)-3]), verifyCode))
         myCon.commit()
         userCursor.close()
     # Баазтай холбоо тасрах үед
