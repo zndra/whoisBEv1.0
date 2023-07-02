@@ -1988,13 +1988,32 @@ def getTransactionLog(request):
                 cur.close()
                 disconnectDB(conn)
                 return HttpResponse(json.dumps(response), content_type="application/json")
+
+            cur.execute("""SELECT "userName" FROM "f_user" WHERE "id" = %s""", [userId,])
+            name=cur.fetchone()[0]
+            cur.execute("""SELECT "from", balance, amount, "date" FROM "f_transactionLog" WHERE "from" = %s  OR  
+                    "to" = %s ORDER BY "date" DESC LIMIT 5""", [name, name])
+            fromDate = cur.fetchall()
+            for  i in range(0, len(fromDate)):
+                    fromDate[i] = list(fromDate[i])
+            # print(fromDate)
+            myData = []
+            for i in range(0, len(fromDate)):
+                datas = {}
+                datas["userName"] = fromDate[i][0]
+                datas["balance"] = fromDate[i][1]
+                datas["amount"] = fromDate[i][2]
+                datas["date"] = str(fromDate[i][3])
+                myData.append(datas)
             resp = {
                 "responseCode": 200,
                 "responseText": "Амжилттай дансны мэдээлэл харлаа.",
                 # "data": payLoad if payLoad else [],
-                "dansniiUldegdel": dansniiUldegdel[0][0]
+                "dansniiUldegdel": dansniiUldegdel[0][0],
+                "guilgee": myData
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
+        
         except Exception as e:
             resp = {
                 "responseCode": 588,
@@ -2017,13 +2036,13 @@ def makeTransaction(request):
     if request.method == "POST":
         jsons = checkJson(request)
 
-        if reqValidation(jsons, {"from", "target", "amount", }) == False:
+        if reqValidation(jsons, {"from", "target", "amount",}) == False:
             resp = {
                 "responseCode": 550,
                 "responseText": "Field-үүд дутуу"
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
-
+        
         userId = jsons.get('from')
         targetUserId = jsons.get('target')
         amount = jsons.get('amount')
@@ -2031,22 +2050,20 @@ def makeTransaction(request):
         try:
             conn = connectDB()
             cur = conn.cursor()
-            cur.execute(
-                """SELECT balance, "userName" FROM "f_user" WHERE id = %s""", [userId,])
+            cur.execute("""SELECT balance, "userName" FROM "f_user" WHERE "userName" = %s""", [userId,])
             user = cur.fetchone()
             fromBalance = user[0]
             userName = user[1]
-            cur.execute("""SELECT balance FROM "f_user" WHERE "userName" = %s""", [
-                        targetUserId,])
+            name = user[1]
+            cur.execute("""SELECT balance FROM "f_user" WHERE "userName" = %s""", [targetUserId,])
             targetBalance = cur.fetchone()[0]
-
-            if fromBalance is None or targetBalance is None:
+       
+            if fromBalance is None or targetBalance is None: 
                 resp = {
                     "responseCode": 588,
                     "responseText": "Хэрэглэгчийн мэдээлэл олдсонгүй .",
                 }
                 return HttpResponse(json.dumps(resp), content_type="application/json")
-
             if targetBalance is None or fromBalance < int(amount):
                 resp = {
                     "responseCode": 555,
@@ -2054,48 +2071,24 @@ def makeTransaction(request):
                     "data": fromBalance
                 }
                 return HttpResponse(json.dumps(resp), content_type="application/json")
-
-            cur.execute(
-                """UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, targetUserId])
+            cur.execute("""UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, targetUserId])
+          
             targetData = cur.fetchone()
+         
             conn.commit()
-            cur.execute(
-                """UPDATE f_user SET balance = balance - %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, userName])
+            cur.execute("""UPDATE f_user SET balance = balance - %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, userName])
+
             fromData = cur.fetchone()
+         
             cur.execute("""INSERT INTO "f_transactionLog"(amount, balance, "from", "to") VALUES (%s, %s, %s, %s)""",
                         [int(amount), int(fromData[1]), userName, targetUserId])
             conn.commit()
-
-            cur.execute(
-                """SELECT "from", balance, amount, "date"  FROM "f_transactionLog" WHERE "from" = 'usuhuu' OR "to" = 'usuhuu' ORDER BY "date" DESC LIMIT 5""")
-            fromDate = cur.fetchall()
-            fromDate[0] = list(fromDate[0])
-            fromDate[1] = list(fromDate[1])
-            fromDate[2] = list(fromDate[2])
-            fromDate[3] = list(fromDate[3])
-            fromDate[4] = list(fromDate[4])
-            # print(fromDate)
-            myData = []
-            for i in range(0, 5):
-                datas = {}
-                datas["userName"] = fromDate[i][0]
-                datas["balance"] = fromDate[i][1]
-                datas["amount"] = fromDate[i][2]
-                datas["date"] = str(fromDate[i][3])
-                myData.append(datas)
-            # print(fromDate)
-#             "henees": usuhuu, FROM
-#             "balance": 1000,BALANCE
-#             "mungu": 100,AMOUNT
-#             "date": 2023.12.12,DATE
-#             "utga": "sdf"/
             resp = {
                 "responseCode": 200,
-                "responseText": "Амжилттай шилжлээ.",
-                "data": {
+                "responseText": "Амжилттай шилжлээ.",  
+                "data" : {
                     'from': fromData,
-                    'target': targetData,
-                    'gvilgee': myData
+                    'target': targetData
                 }
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
@@ -2103,7 +2096,7 @@ def makeTransaction(request):
             resp = {
                 "responseCode": 500,
                 "responseText": "aldaa.",
-                "data": str(e)
+                "data" : str(e)
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
         finally:
