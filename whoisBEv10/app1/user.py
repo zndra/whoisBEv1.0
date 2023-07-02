@@ -128,12 +128,10 @@ def userRegisterView(request):
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
-
     userCursor.execute(
         'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
         'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',
         (firstName, lastName, email, password, username, None, 2,))
-
 
     userId = userCursor.fetchone()[0]
 
@@ -174,7 +172,6 @@ def userRegisterView(request):
         "responseText": "Амжилттай бүртгэгдлээ"
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
-
 
 
 ######################################################################################
@@ -524,6 +521,8 @@ def aldaaniiMedegdel(code, tailbar):
 #############################################################
 
 # Солих нууц үгийг хадгалж авч имэйл рүү нь баталгаажуулах код илгээх функц
+
+
 def resetPasswordView(request):
     jsonsData = json.loads(request.body)
     # Хэрэв мэдээлэл дутуу байвал алдааны мэдээлэл дамжуулах
@@ -540,7 +539,8 @@ def resetPasswordView(request):
         myCon = connectDB()
         userCursor = myCon.cursor()
         # email баталгаажсан нь DB дээр байгаа эсэхийг уншиж байна.
-        userCursor.execute('SELECT "id" FROM "f_user" WHERE  "email" = %s AND  "isVerified" = true', (email,))
+        userCursor.execute(
+            'SELECT "id" FROM "f_user" WHERE  "email" = %s AND  "isVerified" = true', (email,))
         user = userCursor.fetchone()
         # Хэрэглэч байгаа үгүйг шалгах
         if (not user) or (user is None):
@@ -558,7 +558,7 @@ def resetPasswordView(request):
         userCursor.execute(
             'SELECT * FROM "f_resetPassword" WHERE "userId" = %s', (userId,))
         user = userCursor.fetchone()
-        # Хэрэв хүснэгтэнд байхгүй бол шинээр үүсгэх. Байвал өөрчлөх 
+        # Хэрэв хүснэгтэнд байхгүй бол шинээр үүсгэх. Байвал өөрчлөх
         if (not user) or (user is None):
             userCursor.execute(
                 'INSERT INTO "f_resetPassword" ("newPass", "verifyCode", "userId") VALUES (%s, %s, %s)', (str(newPassword), verifyCode, userId,))
@@ -578,6 +578,8 @@ def resetPasswordView(request):
 #############################################################
 
 # Баталгаажуулах кодоор нууц үгээ сэргээх /email, verifyCode/
+
+
 def verifyCodeView(request):
     jsonsData = json.loads(request.body)
     # Хэрэв мэдээлэл дутуу байвал алдааны мэдээлэл дамжуулах
@@ -603,9 +605,11 @@ def verifyCodeView(request):
         # verifyCode болон newPass-аа өөрчлөх
         resetVerify = str(createCodes(7))
         resetNewPass = str(createCodes(10))
-        userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "id" = %s', (newPass, userId,))
+        userCursor.execute(
+            'UPDATE "f_user" SET "pass" = %s WHERE "id" = %s', (newPass, userId,))
         myCon.commit()
-        userCursor.execute('UPDATE "f_resetPassword" SET "newPass" = %s, "verifyCode" = %s WHERE "verifyCode" = %s', (resetNewPass, resetVerify, verifyCode,))
+        userCursor.execute('UPDATE "f_resetPassword" SET "newPass" = %s, "verifyCode" = %s WHERE "verifyCode" = %s',
+                           (resetNewPass, resetVerify, verifyCode,))
         myCon.commit()
         userCursor.close()
     # Баазтай холбоо тасрах үед
@@ -614,7 +618,8 @@ def verifyCodeView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
     finally:
         disconnectDB(myCon)
-    resp = aldaaniiMedegdel(200, "Амжилттай хэрэглэгчийн нууц үгийг шинэчлэлээ")
+    resp = aldaaniiMedegdel(
+        200, "Амжилттай хэрэглэгчийн нууц үгийг шинэчлэлээ")
     return HttpResponse(json.dumps(resp), content_type="application/json")
 #########################################################################
 
@@ -1148,7 +1153,7 @@ def userTurshlaga(request):
             ]
             userCursor.close()
             disconnectDB(myCon)
-            responseJSON = response[0]
+            responseJSON = response
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
@@ -2012,13 +2017,13 @@ def makeTransaction(request):
     if request.method == "POST":
         jsons = checkJson(request)
 
-        if reqValidation(jsons, {"from", "target", "amount",}) == False:
+        if reqValidation(jsons, {"from", "target", "amount", }) == False:
             resp = {
                 "responseCode": 550,
                 "responseText": "Field-үүд дутуу"
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
-        
+
         userId = jsons.get('from')
         targetUserId = jsons.get('target')
         amount = jsons.get('amount')
@@ -2026,20 +2031,22 @@ def makeTransaction(request):
         try:
             conn = connectDB()
             cur = conn.cursor()
-            cur.execute("""SELECT balance, "userName" FROM "f_user" WHERE id = %s""", [userId,])
+            cur.execute(
+                """SELECT balance, "userName" FROM "f_user" WHERE id = %s""", [userId,])
             user = cur.fetchone()
             fromBalance = user[0]
             userName = user[1]
-            cur.execute("""SELECT balance FROM "f_user" WHERE "userName" = %s""", [targetUserId,])
+            cur.execute("""SELECT balance FROM "f_user" WHERE "userName" = %s""", [
+                        targetUserId,])
             targetBalance = cur.fetchone()[0]
 
-            if fromBalance is None or targetBalance is None: 
+            if fromBalance is None or targetBalance is None:
                 resp = {
                     "responseCode": 588,
                     "responseText": "Хэрэглэгчийн мэдээлэл олдсонгүй .",
                 }
                 return HttpResponse(json.dumps(resp), content_type="application/json")
-            
+
             if targetBalance is None or fromBalance < int(amount):
                 resp = {
                     "responseCode": 555,
@@ -2048,16 +2055,19 @@ def makeTransaction(request):
                 }
                 return HttpResponse(json.dumps(resp), content_type="application/json")
 
-            cur.execute("""UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, targetUserId])
+            cur.execute(
+                """UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, targetUserId])
             targetData = cur.fetchone()
             conn.commit()
-            cur.execute("""UPDATE f_user SET balance = balance - %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, userName])
+            cur.execute(
+                """UPDATE f_user SET balance = balance - %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, userName])
             fromData = cur.fetchone()
             cur.execute("""INSERT INTO "f_transactionLog"(amount, balance, "from", "to") VALUES (%s, %s, %s, %s)""",
                         [int(amount), int(fromData[1]), userName, targetUserId])
             conn.commit()
-        
-            cur.execute("""SELECT "from", balance, amount, "date"  FROM "f_transactionLog" WHERE "from" = 'usuhuu' OR "to" = 'usuhuu' ORDER BY "date" DESC LIMIT 5""")
+
+            cur.execute(
+                """SELECT "from", balance, amount, "date"  FROM "f_transactionLog" WHERE "from" = 'usuhuu' OR "to" = 'usuhuu' ORDER BY "date" DESC LIMIT 5""")
             fromDate = cur.fetchall()
             fromDate[0] = list(fromDate[0])
             fromDate[1] = list(fromDate[1])
@@ -2081,8 +2091,8 @@ def makeTransaction(request):
 #             "utga": "sdf"/
             resp = {
                 "responseCode": 200,
-                "responseText": "Амжилттай шилжлээ.",  
-                "data" : {
+                "responseText": "Амжилттай шилжлээ.",
+                "data": {
                     'from': fromData,
                     'target': targetData,
                     'gvilgee': myData
@@ -2093,7 +2103,7 @@ def makeTransaction(request):
             resp = {
                 "responseCode": 500,
                 "responseText": "aldaa.",
-                "data" : str(e)
+                "data": str(e)
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
         finally:
