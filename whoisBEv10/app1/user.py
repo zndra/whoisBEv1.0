@@ -523,12 +523,9 @@ def aldaaniiMedegdel(code, tailbar):
     return resp
 #############################################################
 
-# response буцаахад ашиглах
-
-
+# Солих нууц үгийг хадгалж авч имэйл рүү нь баталгаажуулах код илгээх функц
 def resetPasswordView(request):
     jsonsData = json.loads(request.body)
-    resp = {}
     # Хэрэв мэдээлэл дутуу байвал алдааны мэдээлэл дамжуулах
     if (reqValidation(jsonsData, {"newPassword", "email"}) == False):
         resp = aldaaniiMedegdel(550, "Field дутуу байна")
@@ -536,37 +533,42 @@ def resetPasswordView(request):
 
     email = jsonsData["email"]
     newPassword = jsonsData["newPassword"]
+    print(newPassword)
     verifyCode = createCodes(10)  # Batalgaajuulakh codenii urt ni 10
 
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
         # email баталгаажсан нь DB дээр байгаа эсэхийг уншиж байна.
-        userCursor.execute(
-            'SELECT * FROM "f_user" WHERE  "email" = %s AND  "isVerified" = true', (email,))
+        userCursor.execute('SELECT "id" FROM "f_user" WHERE  "email" = %s AND  "isVerified" = true', (email,))
         user = userCursor.fetchone()
         # Хэрэглэч байгаа үгүйг шалгах
-        if not user:
+        if (not user) or (user is None):
             resp = aldaaniiMedegdel(
                 553, "Уг email хаягтай хэрэглэгч олдсонгүй.")
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(resp), content_type="application/json")
+        userId = user[0]
         # Email илгээх
         mailSubject = "Баталгаажуулах код"
         mailContent = f"Нууц үг сэргээх баталгаажуулах код:\n\n{verifyCode}"
         sendMail(email, mailSubject, mailContent)
-        # newPass-ийг өөрчлөх
+        # verifyCode болон newPass-ийг өөрчлөх
         userCursor.execute(
-            'UPDATE "f_user" SET "newPass" = %s WHERE "email" = %s', (newPassword, email))
-        # verifyCode-ийг өөрчлөх
-        userCursor.execute(
-            'UPDATE "f_user" SET "verifyCode" = %s WHERE "email" = %s', (verifyCode, email))
+            'SELECT * FROM "f_resetPassword" WHERE "userId" = %s', (userId,))
+        user = userCursor.fetchone()
+        # Хэрэв хүснэгтэнд байхгүй бол шинээр үүсгэх. Байвал өөрчлөх 
+        if (not user) or (user is None):
+            userCursor.execute(
+                'INSERT INTO "f_resetPassword" ("newPass", "verifyCode", "userId") VALUES (%s, %s, %s)', (str(newPassword), verifyCode, userId,))
+        else:
+            userCursor.execute(
+                'UPDATE "f_resetPassword" SET "newPass" = %s, "verifyCode" = %s WHERE "userId" = %s', (str(newPassword), verifyCode, userId,))
         myCon.commit()
         userCursor.close()
 
     except Exception as e:
-        resp = {}
         resp = aldaaniiMedegdel(551, "Баазын алдаа")
         return HttpResponse(json.dumps(resp), content_type="application/json")
     finally:
@@ -578,46 +580,41 @@ def resetPasswordView(request):
 # Баталгаажуулах кодоор нууц үгээ сэргээх /email, verifyCode/
 def verifyCodeView(request):
     jsonsData = json.loads(request.body)
-    resp = {}
     # Хэрэв мэдээлэл дутуу байвал алдааны мэдээлэл дамжуулах
     if (reqValidation(jsonsData, {"verifyCode"}) == False):
         resp = aldaaniiMedegdel(550, "Field дутуу байна")
         return HttpResponse(json.dumps(resp), content_type="application/json")
-
     verifyCode = jsonsData["verifyCode"]
-
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
         # email баталгаажсан болон verifyCode нь DB дээр бйагаа эсэхийг уншиж байна.
         userCursor.execute(
-            'SELECT * FROM "f_user" WHERE "verifyCode" = %s', (verifyCode,))
+            'SELECT "userId", "newPass" FROM "f_resetPassword" WHERE "verifyCode" = %s', (verifyCode,))
         user = userCursor.fetchone()
-        userCursor.execute(
-            'SELECT "newPass" FROM "f_user" WHERE "verifyCode" = %s', (verifyCode,))
-        newPass = userCursor.fetchone()[0]
-        # print(newPass)
         # verifyCode нь таарахгүй бол алдааны мэдээлэл дамжуулан
-        if not user:
+        if (not user) or (user is None):
             resp = aldaaniiMedegdel(553, "Баталгаажуулах код таарсангүй.")
             userCursor.close()
             disconnectDB(myCon)
             return HttpResponse(json.dumps(resp), content_type="application/json")
-        # pass-аа өөрчлөх
+        userId = user[0]
+        newPass = user[1]
+        # verifyCode болон newPass-аа өөрчлөх
         resetVerify = str(createCodes(7))
-        userCursor.execute('UPDATE "f_user" SET "pass" = %s, "verifyCode" = %s WHERE "verifyCode" = %s', (
-            newPass, resetVerify, verifyCode,))
+        resetNewPass = str(createCodes(10))
+        userCursor.execute('UPDATE "f_user" SET "pass" = %s WHERE "id" = %s', (newPass, userId,))
+        myCon.commit()
+        userCursor.execute('UPDATE "f_resetPassword" SET "newPass" = %s, "verifyCode" = %s WHERE "verifyCode" = %s', (resetNewPass, resetVerify, verifyCode,))
         myCon.commit()
         userCursor.close()
     # Баазтай холбоо тасрах үед
     except Exception as e:
-        resp = {}
         resp = aldaaniiMedegdel(551, "Баазын алдаа")
         return HttpResponse(json.dumps(resp), content_type="application/json")
     finally:
         disconnectDB(myCon)
-    resp = aldaaniiMedegdel(
-        200, "Амжилттай хэрэглэгчийн нууц үгийг шинэчлэлээ")
+    resp = aldaaniiMedegdel(200, "Амжилттай хэрэглэгчийн нууц үгийг шинэчлэлээ")
     return HttpResponse(json.dumps(resp), content_type="application/json")
 #########################################################################
 
