@@ -2108,3 +2108,95 @@ def makeTransaction(request):
             "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
+##################################################################################
+def getUserAllInfo(request):
+    jsons = json.loads(request.body)
+    user_id = jsons['id']
+
+    if request.method == 'GET':
+        try:
+            myCon = connectDB()
+            userCursor = myCon.cursor()
+            userCursor.execute(
+                'SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+            user = userCursor.fetchone()
+
+            if not user:
+                response = {
+                    "responseCode": 555,
+                    "responseText": "Хэрэглэгч олдсонгүй"
+                }
+                userCursor.close()
+                disconnectDB(myCon)
+                return HttpResponse(json.dumps(response), content_type="application/json")
+
+            elif user:
+                userCursor.execute(
+                    'SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+                columns = [column[0] for column in userCursor.description]
+                response = {
+                    columns[index]: column for index, column in enumerate(
+                        user) if columns[index] not in ['verifyCode', 'newPass', 'deldate', 'pass']
+                }
+
+                userCursor.execute(
+                    'SELECT * FROM "f_userEdu" WHERE "user_id" = %s', (user_id,))
+                columns = [column[0] for column in userCursor.description]
+                edu_data = {
+                    columns[index]: column for index, column in enumerate(userCursor.fetchone())
+                }
+                response['education'] = edu_data
+
+                userCursor.execute(
+                    'SELECT * FROM "f_userFamily" WHERE "user_id" = %s', (user_id,))
+                columns = [column[0] for column in userCursor.description]
+                family_data = {
+                    columns[index]: column for index, column in enumerate(userCursor.fetchone())
+                }
+                response['family'] = family_data
+
+                userCursor.execute(
+                    'SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
+                columns = [column[0] for column in userCursor.description]
+                nemelt_data = {
+                    columns[index]: column for index, column in enumerate(userCursor.fetchone())
+                }
+                response['nemelt_medeelel'] = nemelt_data
+
+                userCursor.execute(
+                    'SELECT * FROM "f_userSkill" WHERE "user_id" = %s', (user_id,))
+                columns = [column[0] for column in userCursor.description]
+                skill_data = {
+                    columns[index]: column for index, column in enumerate(userCursor.fetchone())
+                }
+                response['skill'] = skill_data
+
+                userCursor.execute(
+                    'SELECT * FROM "f_userSocial" WHERE "user_id" = %s', (user_id,))
+                columns = [column[0] for column in userCursor.description]
+                social_data = {
+                    columns[index]: column for index, column in enumerate(userCursor.fetchone())
+                }
+                response['social'] = social_data
+
+                userCursor.execute(
+                    'SELECT * FROM "f_userWork" WHERE "user_id" = %s', (user_id,))
+                columns = [column[0] for column in userCursor.description]
+                work_data = {
+                    columns[index]: column for index, column in enumerate(userCursor.fetchone())
+                }
+                response['work'] = work_data
+
+                userCursor.close()
+                disconnectDB(myCon)
+
+                response = json.dumps(response, cls=DjangoJSONEncoder)
+                return HttpResponse(response, content_type="application/json")
+
+        except Exception as e:
+            response = {
+                "responseCode": 555,
+                "responseText": "Алдаа гарлаа"
+            }
+            return HttpResponse(json.dumps(response), content_type="application/json")
+###############################################################################

@@ -37,6 +37,7 @@ urlpatterns = [
     path('uploadTemplate/' ,   uploadTemplateView,   name='uploadTemplateView'   ),
     path('tempList/' ,   tempListView,   name='tempListView'   ),
     path('userTempList/' ,   userTempListView,   name='userTempListView'   ),
+    path('userAllInfo/' ,   getUserAllInfo,   name='getUserAllInfo'   ),
     path('getSkill/' ,         getSkillView,   name='getSkillView'   ),
     path('setSkill/' ,         setSkillView,   name='setSkillView'   ),
     
