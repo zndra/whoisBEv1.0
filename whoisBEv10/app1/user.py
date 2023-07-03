@@ -634,8 +634,8 @@ def verifyCodeView(request):
 
 def userEduUp(request):
     jsons = json.loads(request.body)
-    required_fields = ["user_id", "Боловсрол", "Эрдмийн зэрэг",
-                       "Албан тушаал", "Албан байгууллагын нэр"]
+    required_fields = ["user_id", "education", "direction",
+                       "elssenOn", "duussanOn"]
 
     if not reqValidation(jsons, required_fields):
         response = {
@@ -645,10 +645,10 @@ def userEduUp(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     user_id = jsons['user_id']
-    haana = jsons['Боловсрол']
-    elssen = jsons['Эрдмийн зэрэг']
-    duussan = jsons['Албан тушаал']
-    togssonMergejil = jsons['Албан байгууллагын нэр']
+    education = jsons['education']
+    direction = jsons['direction']
+    elssenOn = jsons['elssenOn']
+    duussanOn = jsons['duussanOn']
 
     try:
         myCon = connectDB()
@@ -666,8 +666,8 @@ def userEduUp(request):
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
 
-        userCursor.execute('UPDATE "f_userEdu" SET "Боловсрол" = %s,"Эрдмийн зэрэг" = %s,"Албан тушаал" = %s, "Албан байгууллагын нэр" = %s WHERE "user_id" = %s',
-                           (haana, elssen, duussan, togssonMergejil, user_id,))
+        userCursor.execute('UPDATE "f_userEdu" SET "education" = %s,"direction" = %s,"elssenOn" = %s, "duussanOn" = %s WHERE "user_id" = %s',
+                           (education, direction, elssenOn, duussanOn, user_id,))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
@@ -690,8 +690,7 @@ def userEduUp(request):
 
 def userEduInsert(request):
     jsons = json.loads(request.body)
-    required_fields = ["id", "Боловсрол", "Эрдмийн зэрэг",
-                       "Албан тушаал", "Албан байгууллагын нэр"]
+    required_fields = ["id", "education", "direction", "elssenOn", "duussanOn"]
 
     if not reqValidation(jsons, required_fields):
         response = {
@@ -701,10 +700,10 @@ def userEduInsert(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     user_id = jsons['id']
-    haana = jsons['Боловсрол']
-    elssen = jsons['Эрдмийн зэрэг']
-    duussan = jsons['Албан тушаал']
-    togssonMergejil = jsons['Албан байгууллагын нэр']
+    education = jsons['education']
+    direction = jsons['direction']
+    elssenOn = jsons['elssenOn']
+    duussanOn = jsons['duussanOn']
 
     try:
         myCon = connectDB()
@@ -734,8 +733,8 @@ def userEduInsert(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
 
         userCursor.execute(
-            'INSERT INTO "f_userEdu" ("Боловсрол", "Эрдмийн зэрэг", "Албан тушаал", "Албан байгууллагын нэр","user_id") VALUES (%s, %s, %s, %s, %s)',
-            (haana, elssen, duussan, togssonMergejil, user_id))
+            'INSERT INTO "f_userEdu" ("education", "direction", "elssenOn", "duussanOn","user_id") VALUES (%s, %s, %s, %s, %s)',
+            (education, direction, elssenOn, duussanOn, user_id))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
@@ -763,7 +762,7 @@ def userEduInsert(request):
 def userEduGet(request):
     jsons = json.loads(request.body)
     user_id = jsons['user_id']
-
+    # pled
     if request.method == 'GET':
         myCon = connectDB()
         userCursor = myCon.cursor()
@@ -792,7 +791,7 @@ def userEduGet(request):
             userCursor.close()
             disconnectDB(myCon)
             # Extract the first element from the response list
-            responseJSON = response[0]
+            responseJSON = response
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
@@ -1633,7 +1632,7 @@ def getTransactionLog(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 ####################################################################################
 
-def makeTransaction(request):
+def makeTransactionView(request):
     if request.method == "POST":
         jsons = checkJson(request)
 
@@ -1648,13 +1647,13 @@ def makeTransaction(request):
         targetUserId = jsons.get('target')
         amount = jsons.get('amount')
 
-        conn = None
+        # conn = None
         try:
             conn = connectDB()
             cur = conn.cursor()
 
             cur.execute(
-                """SELECT balance FROM "f_user" WHERE id = %s""", [userId])
+                """SELECT balance FROM "f_user" WHERE id = %s""", [userId,])
             balance = cur.fetchone()
 
             if balance is None and balance[0] < 0:
@@ -1666,13 +1665,13 @@ def makeTransaction(request):
                 return HttpResponse(json.dumps(resp), content_type="application/json")
 
             cur.execute(
-                "UPDATE f_user SET balance = balance + %s WHERE id = %s RETURNING id, balance", [amount, targetUserId])
+                """UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING id, balance""", [amount, targetUserId,])
             targetData = cur.fetchone()
             cur.execute(
-                "UPDATE f_user SET balance = balance - %s WHERE id = %s RETURNING id, balance", [amount, userId])
+                "UPDATE f_user SET balance = balance - %s WHERE id = %s RETURNING id, balance", [amount, userId,])
             fromData = cur.fetchone()
             cur.execute("""INSERT INTO "f_transactionLog"(amount, balance, "from", "to") VALUES (%s, %s, %s, %s)""",
-                        [amount, fromData[1], userId, targetUserId])
+                        [amount, fromData[1], userId, targetUserId,])
             conn.commit()
 
             resp = {
