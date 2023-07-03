@@ -290,8 +290,6 @@ def changePass(request):
 
 #######################################################################################
 # CreateCv
-
-
 def userNemeltGet(request):
     jsons = json.loads(request.body)
     required_fields = ["user_id",]
@@ -1662,8 +1660,7 @@ def userFamilyUpdate(request):
 def uploadTemplateView(request):
     jsons = json.loads(request.body)
 
-    # Validate request body
-    if reqValidation(jsons, {"name", "tempTypeId", "catId", "file"}) == False:
+    if reqValidation(jsons, {"name", "tempTypeId", "catId", "file", "userId"}) == False:
         resp = {
             "responseCode": 550,
             "responseText": "Field-үүд дутуу"
@@ -1671,7 +1668,6 @@ def uploadTemplateView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     name = jsons['name']
-    date = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
     tempTypeId = jsons['tempTypeId']
     catId = jsons['catId']
     file = jsons['file']
@@ -1690,10 +1686,24 @@ def uploadTemplateView(request):
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
+    # Check if user exists in f_user table
     userCursor.execute(
-        'INSERT INTO "f_templates"("name", "date", "tempId", "catId", "file", "userId") '
-        'VALUES(%s, %s, %s, %s, %s, %s) RETURNING "id"',
-        (name, date, tempTypeId, catId, file, userId))
+        'SELECT * FROM "f_user" WHERE "id" = %s', (userId,))
+    user = userCursor.fetchone()
+
+    if not user:
+        resp = {
+            "responseCode": 555,
+            "responseText": "Хэрэглэгч олдсонгүй"
+        }
+        userCursor.close()
+        disconnectDB(myCon)
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    userCursor.execute(
+        'INSERT INTO "f_templates"("name", "tempTypeId", "catId", "file", "userId") '
+        'VALUES(%s, %s, %s, %s, %s) RETURNING "id"',
+        (name, tempTypeId, catId, file, userId))
 
     templateId = userCursor.fetchone()[0]
 
@@ -1709,23 +1719,22 @@ def uploadTemplateView(request):
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
+
+
 ############################################################################
-
-
-def userTemplatesGet(request):
+def userTemplates(request):
     jsons = json.loads(request.body)
 
-    if reqValidation(jsons, { "userId","name","tempId"}) == False:
+    if reqValidation(jsons, {"userId", "name", "tempId"}) == False:
         resp = {
             "responseCode": 550,
             "responseText": "Field-үүд дутуу"
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
-    date = date.today().strftime("%d-%m-%Y")
     tempId = jsons['tempId']
     userId = jsons['userId']
-    name= jsons['name']
+    name = jsons['name']
 
     try:
         myCon = connectDB()
@@ -1740,13 +1749,28 @@ def userTemplatesGet(request):
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
+    # Check if the user exists
     userCursor.execute(
-        'INSERT INTO "f_userTemplates"("date","name", "userId", "tempId") '
-        'VALUES (%s, %s, %s, %s) '
-        'RETURNING "id"',
-        (date, name, userId, tempId))
+        'SELECT * FROM "f_user" WHERE "id" = %s', (userId,))
+    user = userCursor.fetchone()
 
-    templateId = userCursor.fetchone()[0]
+    if not user:
+        resp = {
+            "responseCode": 555,
+            "responseText": "Хэрэглэгч олдсонгүй"
+        }
+        userCursor.close()
+        disconnectDB(myCon)
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    # Insert the template
+    userCursor.execute(
+        'INSERT INTO "f_userTemplates"( "name", "userId", "tempId") '
+        'VALUES (%s, %s, %s) '
+        'RETURNING "id"',
+        (name, userId, tempId))
+
+    tempId = userCursor.fetchone()[0]
 
     myCon.commit()
 
@@ -1761,34 +1785,155 @@ def userTemplatesGet(request):
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
 ###############################################################################
+def userTempGet(request):
+    jsons = json.loads(request.body)
+    user_id = jsons.get('userId')
+    if user_id is None:
+        resp = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    if request.method == 'GET':
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute(
+            'SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+        user = userCursor.fetchone()
+
+        if not user:
+            resp = {
+                "responseCode": 555,
+                "responseText": "Хэрэглэгч олдсонгүй"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+
+        elif user:
+            userCursor.execute(
+                'SELECT * FROM "f_userTemplates" WHERE "userId" = %s', (user_id,))
+            columns = [column[0] for column in userCursor.description]
+            response = [
+                {columns[index]: column for index, column in enumerate(
+                    value) if columns[index] not in []}
+                for value in userCursor.fetchall()
+            ]
+            userCursor.close()
+            disconnectDB(myCon)
+            responseJSON = {"tempData": response}
+            response = {
+                "responseCode": 200,
+                "responseText": "Амжилттай",
+                **responseJSON
+            }
+            return HttpResponse(json.dumps(response, cls=DjangoJSONEncoder), content_type="application/json")
+
+        else:
+            resp = {
+                "responseCode": 551,
+                "responseText": "Баазын алдаа"
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    response = {
+        "responseCode": 200,
+        "responseText": "Амжилттай",
+        "tempData": {}
+    }
+    return HttpResponse(json.dumps(response, cls=DjangoJSONEncoder), content_type="application/json")
 
 
+def tempGet(request):
+    jsons = json.loads(request.body)
+    user_id = jsons.get('userId')
+    if user_id is None:
+        resp = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    if request.method == 'GET':
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute(
+            'SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+        user = userCursor.fetchone()
+
+        if not user:
+            resp = {
+                "responseCode": 555,
+                "responseText": "Хэрэглэгч олдсонгүй"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+
+        elif user:
+            userCursor.execute(
+                'SELECT * FROM "f_templates" WHERE "userId" = %s', (user_id,))
+            columns = [column[0] for column in userCursor.description]
+            response = [
+                {columns[index]: column for index, column in enumerate(
+                    value) if columns[index] not in []}
+                for value in userCursor.fetchall()
+            ]
+            userCursor.close()
+            disconnectDB(myCon)
+            responseJSON = {"tempData": response}
+            response = {
+                "responseCode": 200,
+                "responseText": "Амжилттай",
+                **responseJSON
+            }
+            return HttpResponse(json.dumps(response, cls=DjangoJSONEncoder), content_type="application/json")
+
+        else:
+            resp = {
+                "responseCode": 551,
+                "responseText": "Баазын алдаа"
+            }
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    response = {
+        "responseCode": 200,
+        "responseText": "Амжилттай",
+        "tempData": {}
+    }
+    return HttpResponse(json.dumps(response, cls=DjangoJSONEncoder), content_type="application/json")
+
+###############################################################################
 def tempListView(request):
     myCon = connectDB()
     userCursor = myCon.cursor()
-    userCursor.execute('SELECT * FROM  f_templates ORDER BY id ASC')
+    userCursor.execute('SELECT * FROM f_templates ORDER BY id ASC')
     columns = userCursor.description
-    response = [{columns[index][0]: column for index,
-                 column in enumerate(value)} for value in userCursor.fetchall()]
+    response = [{columns[index][0]: column for index, column in enumerate(value)} for value in userCursor.fetchall()]
     userCursor.close()
     disconnectDB(myCon)
     responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
     return HttpResponse(responseJSON, content_type="application/json")
-
+################################################################################
 
 def userTempListView(request):
     myCon = connectDB()
     userCursor = myCon.cursor()
     userCursor.execute('SELECT * FROM "f_userTemplates" ORDER BY id ASC')
-    columns = userCursor.description
-    response = [{columns[index][0]: column for index,
-                 column in enumerate(value)} for value in userCursor.fetchall()]
+    columns = [column[0] for column in userCursor.description]
+    response = [
+        {columns[index]: column for index, column in enumerate(value) if columns[index] not in []}
+        for value in userCursor.fetchall()
+    ]
     userCursor.close()
     disconnectDB(myCon)
-    responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
+    if response:
+        responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
+    else:
+        responseJSON = json.dumps({}, cls=DjangoJSONEncoder, default=str)
     return HttpResponse(responseJSON, content_type="application/json")
-
-
+##################################################################################
 #   Хэрэглэгчийн id-г илгээхэд бүх чадваруудыг list хэлбэрээр илгээх функц.
 def getSkillView(request):
     jsonsData = json.loads(request.body)
