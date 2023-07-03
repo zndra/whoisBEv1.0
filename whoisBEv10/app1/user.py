@@ -2009,7 +2009,7 @@ def getTransactionLog(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
 
-def makeTransaction(request):
+def makeTransactionView(request):
     if request.method == "POST":
         jsons = checkJson(request)
         if reqValidation(jsons, {"from", "target", "amount",}) == False:
