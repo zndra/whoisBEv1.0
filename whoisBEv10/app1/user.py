@@ -721,18 +721,6 @@ def userEduInsert(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
 
         userCursor.execute(
-            'SELECT * FROM "f_userEdu" WHERE "user_id" = %s', (user_id,))
-        user = userCursor.fetchone()
-        if user:
-            response = {
-                "responseCode": 400,
-                "responseText": "Бүртгэлтэй хэрэглэгч байна."
-            }
-            userCursor.close()
-            disconnectDB(myCon)
-            return HttpResponse(json.dumps(response), content_type="application/json")
-
-        userCursor.execute(
             'INSERT INTO "f_userEdu" ("education", "direction", "elssenOn", "duussanOn","user_id") VALUES (%s, %s, %s, %s, %s)',
             (education, direction, elssenOn, duussanOn, user_id))
         myCon.commit()
