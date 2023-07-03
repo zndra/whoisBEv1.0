@@ -1594,76 +1594,6 @@ def getTransactionLog(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 ####################################################################################
 
-def makeTransactionView(request):
-    if request.method == "POST":
-        jsons = checkJson(request)
-
-        if reqValidation(jsons, {"from", "target", "amount"}) == False:
-            resp = {
-                "responseCode": 550,
-                "responseText": "Field-үүд дутуу"
-            }
-            return HttpResponse(json.dumps(resp), content_type="application/json")
-
-        userId = jsons.get('from')
-        targetUserId = jsons.get('target')
-        amount = jsons.get('amount')
-
-        # conn = None
-        try:
-            conn = connectDB()
-            cur = conn.cursor()
-
-            cur.execute(
-                """SELECT balance FROM "f_user" WHERE id = %s""", [userId,])
-            balance = cur.fetchone()
-
-            if balance is None and balance[0] < 0:
-                resp = {
-                    "responseCode": 500,
-                    "responseText": "uldegdel hureltssengui eeee.",
-                    "data": balance
-                }
-                return HttpResponse(json.dumps(resp), content_type="application/json")
-
-            cur.execute(
-                """UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING id, balance""", [amount, targetUserId,])
-            targetData = cur.fetchone()
-            cur.execute(
-                "UPDATE f_user SET balance = balance - %s WHERE id = %s RETURNING id, balance", [amount, userId,])
-            fromData = cur.fetchone()
-            cur.execute("""INSERT INTO "f_transactionLog"(amount, balance, "from", "to") VALUES (%s, %s, %s, %s)""",
-                        [amount, fromData[1], userId, targetUserId,])
-            conn.commit()
-
-            resp = {
-                "responseCode": 200,
-                "responseText": "Амжилттай шилжлээ",
-                "data": {
-                    'from': fromData,
-                    'target': targetData,
-                }
-            }
-            return HttpResponse(json.dumps(resp), content_type="application/json")
-        except Exception as e:
-            resp = {
-                "responseCode": 500,
-                "responseText": "aldaa.",
-                "data": str(e)
-            }
-            return HttpResponse(json.dumps(resp), content_type="application/json")
-        finally:
-            if conn is not None:
-                disconnectDB(conn)
-    else:
-        resp = {
-            "responseCode": 400,
-            "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
-        }
-        return HttpResponse(json.dumps(resp), content_type="application/json")
-    ##############################################################################
-
-
 def userFamilyInsert(request):
     jsons = json.loads(request.body)
     required_fields = ["id", "henBoloh", "ner", "dugaar"]
@@ -2082,27 +2012,24 @@ def getTransactionLog(request):
 def makeTransaction(request):
     if request.method == "POST":
         jsons = checkJson(request)
-
         if reqValidation(jsons, {"from", "target", "amount",}) == False:
             resp = {
                 "responseCode": 550,
                 "responseText": "Field-үүд дутуу"
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
-        
-        userId = jsons.get('from')
-        targetUserId = jsons.get('target')
-        amount = jsons.get('amount')
-        conn = None
+        userId = jsons["from"]
+        targetUserName = jsons["target"]
+        amount = jsons["amount"]
         try:
             conn = connectDB()
             cur = conn.cursor()
-            cur.execute("""SELECT balance, "userName" FROM "f_user" WHERE "userName" = %s""", [userId,])
+            cur.execute("""SELECT balance, "userName" FROM "f_user" WHERE "id" = %s""", [userId,])
             user = cur.fetchone()
             fromBalance = user[0]
             userName = user[1]
             name = user[1]
-            cur.execute("""SELECT balance FROM "f_user" WHERE "userName" = %s""", [targetUserId,])
+            cur.execute("""SELECT balance FROM "f_user" WHERE "userName" = %s""", [targetUserName,])
             targetBalance = cur.fetchone()[0]
        
             if fromBalance is None or targetBalance is None: 
@@ -2118,17 +2045,15 @@ def makeTransaction(request):
                     "data": fromBalance
                 }
                 return HttpResponse(json.dumps(resp), content_type="application/json")
-            cur.execute("""UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, targetUserId])
+            cur.execute("""UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, targetUserName,])
           
             targetData = cur.fetchone()
          
             conn.commit()
-            cur.execute("""UPDATE f_user SET balance = balance - %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, userName])
-
+            cur.execute("""UPDATE f_user SET balance = balance - %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, userName,])
             fromData = cur.fetchone()
-         
             cur.execute("""INSERT INTO "f_transactionLog"(amount, balance, "from", "to") VALUES (%s, %s, %s, %s)""",
-                        [int(amount), int(fromData[1]), userName, targetUserId])
+                        [int(amount), int(fromData[1]), userName, targetUserName,])
             conn.commit()
             resp = {
                 "responseCode": 200,
@@ -2156,6 +2081,7 @@ def makeTransaction(request):
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 ##################################################################################
+
 def getUserAllInfo(request):
     jsons = json.loads(request.body)
     user_id = jsons['id']
