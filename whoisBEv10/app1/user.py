@@ -762,7 +762,7 @@ def userEduInsert(request):
 def userEduGet(request):
     jsons = json.loads(request.body)
     user_id = jsons['user_id']
-
+    # pled
     if request.method == 'GET':
         myCon = connectDB()
         userCursor = myCon.cursor()
@@ -791,7 +791,7 @@ def userEduGet(request):
             userCursor.close()
             disconnectDB(myCon)
             # Extract the first element from the response list
-            responseJSON = response[0]
+            responseJSON = response
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
