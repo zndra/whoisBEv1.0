@@ -728,8 +728,7 @@ def userEduInsert(request):
 
 def userEduGet(request):
     jsons = json.loads(request.body)
-    user_id = jsons['user_id']
-    # pled
+    user_id = jsons['user_id']    
     myCon = connectDB()
     userCursor = myCon.cursor()
     userCursor.execute(
@@ -2046,58 +2045,40 @@ def getTransactionLog(request):
             conn = connectDB()
             cur = conn.cursor()
             cur.execute(
-                """SELECT * FROM "f_transactionLog" WHERE "from" = %s OR "to" = %s""", [userId, userId,])
-            logData = cur.fetchall()
-            cur.execute(
-                """SELECT balance FROM "f_user" WHERE "id" = %s""", [userId,])
+                """SaELECT balance FROM "f_user" WHERE "id" = %s""", [userId,])
             dansniiUldegdel = cur.fetchall()
             if not dansniiUldegdel:
                 response = aldaaniiMedegdel(553, "Бүртгэлгүй хэрэглэгч байна.")
-                cur.close()
-                disconnectDB(conn)
-                return HttpResponse(json.dumps(response), content_type="application/json")
-
-            cur.execute("""SELECT "userName" FROM "f_user" WHERE "id" = %s""", [userId,])
-            name=cur.fetchone()[0]
-            cur.execute("""SELECT "from", balance, amount, "date" FROM "f_transactionLog" WHERE "from" = %s  OR  
-                    "to" = %s ORDER BY "date" DESC LIMIT 5""", [name, name])
-            fromDate = cur.fetchall()
-            for  i in range(0, len(fromDate)):
-                    fromDate[i] = list(fromDate[i])
-            # print(fromDate)
-            myData = []
-            for i in range(0, len(fromDate)):
-                datas = {}
-                datas["userName"] = fromDate[i][0]
-                datas["balance"] = fromDate[i][1]
-                datas["amount"] = fromDate[i][2]
-                datas["date"] = str(fromDate[i][3])
-                myData.append(datas)
-            resp = {
-                "responseCode": 200,
-                "responseText": "Амжилттай дансны мэдээлэл харлаа.",
-                # "data": payLoad if payLoad else [],
-                "dansniiUldegdel": dansniiUldegdel[0][0],
-                "guilgee": myData
-            }
-            return HttpResponse(json.dumps(resp), content_type="application/json")
+            else:
+                cur.execute("select * from \"f_transactionLog\"")
+                columns = cur.description
+                guilgee = [{columns[index][0]: column for index, column in enumerate(
+                    value)} for value in cur.fetchall()]                
+                
+                guilgee[0]['date']=str(guilgee[0]['date'])
+                response = {
+                    "responseCode": 200,
+                    "responseText": "Амжилттай дансны мэдээлэл харлаа.",
+                    "dansniiUldegdel": dansniiUldegdel[0][0],
+                    "guilgee": guilgee
+                }
+            cur.close()
         
         except Exception as e:
-            resp = {
+            response = {
                 "responseCode": 588,
-                "responseText": "Бүртгэлгүй хэрэглэгч байна",
-                "data": str(e)
+                "responseText": "Баазын алдаа",
+                # "data": str(e)
             }
-            return HttpResponse(json.dumps(resp), content_type="application/json")
         finally:
-            if conn is not None:
+            if conn is not None:                
                 disconnectDB(conn)
     else:
-        resp = {
+        response = {
             "responseCode": 400,
             "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
-        }
-        return HttpResponse(json.dumps(resp), content_type="application/json")
+        }        
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 
 def makeTransactionView(request):
