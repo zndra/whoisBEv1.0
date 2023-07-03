@@ -2045,7 +2045,7 @@ def getTransactionLog(request):
             conn = connectDB()
             cur = conn.cursor()
             cur.execute(
-                """SaELECT balance FROM "f_user" WHERE "id" = %s""", [userId,])
+                """SELECT balance FROM "f_user" WHERE "id" = %s""", [userId,])
             dansniiUldegdel = cur.fetchall()
             if not dansniiUldegdel:
                 response = aldaaniiMedegdel(553, "Бүртгэлгүй хэрэглэгч байна.")
