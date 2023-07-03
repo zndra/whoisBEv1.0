@@ -313,8 +313,16 @@ def changePass(request):
 
 def userNemeltGet(request):
     jsons = json.loads(request.body)
-    user_id = jsons['user_id']
+    required_fields = ["user_id",]
+   
     if request.method == 'GET':
+        if not reqValidation(jsons, required_fields):
+            response = {
+                "responseCode": 550,
+                "responseText": "Field-үүд дутуу"
+            }
+            return HttpResponse(json.dumps(response), content_type="application/json")
+        user_id = jsons['user_id']
         try:
             myCon = connectDB()
             userCursor = myCon.cursor()
@@ -1359,8 +1367,16 @@ def userTurshlagaIn(request):
 
 def userFamilyGet(request):
     jsons = json.loads(request.body)
-    user_id = jsons['user_id']
+    required_fields=["user_id"]
+  
     if request.method == 'GET':
+        if not reqValidation(jsons, required_fields):
+            response = {
+                "responseCode": 550,
+                "responseText": "Field-үүд дутуу"
+            }
+            return HttpResponse(json.dumps(response), content_type="application/json")
+        user_id = jsons['user_id']
         try:
             myCon = connectDB()
             userCursor = myCon.cursor()
