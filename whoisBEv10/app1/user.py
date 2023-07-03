@@ -1657,7 +1657,7 @@ def makeTransactionView(request):
 
             resp = {
                 "responseCode": 200,
-                "responseText": "ok.",
+                "responseText": "Амжилттай шилжлээ",
                 "data": {
                     'from': fromData,
                     'target': targetData,
