@@ -2,12 +2,13 @@ import traceback
 import json
 from django.http import HttpResponse
 from datetime import date
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from whoisBEv10.settings import *
 from django.db import connection
 import pytz
 import json
+import datetime
 
 
 # ene debug uyed ajillah yostoi
@@ -136,10 +137,12 @@ def userRegisterView(request):
     userId = userCursor.fetchone()[0]
 
     # Add user ID to other tables
+    current_date = datetime.date.today()
+    date = current_date.strftime("%m/%d/%Y")
 
     userCursor.execute(
-        'INSERT INTO "f_userNemeltMedeelel"("user_id") VALUES(%s)',
-        (userId,))
+        'INSERT INTO "f_userNemeltMedeelel"("user_id", "huis", "torsonOgnoo") VALUES(%s,%s,%s)',
+        (userId,1,date))
     
     myCon.commit()
 
