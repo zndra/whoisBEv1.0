@@ -626,8 +626,8 @@ def verifyCodeView(request):
 
 def userEduUp(request):
     jsons = json.loads(request.body)
-    required_fields = ["user_id", "Боловсрол", "Эрдмийн зэрэг",
-                       "Албан тушаал", "Албан байгууллагын нэр"]
+    required_fields = ["user_id", "education", "direction",
+                       "elssenOn", "duussanOn"]
 
     if not reqValidation(jsons, required_fields):
         response = {
@@ -637,10 +637,10 @@ def userEduUp(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     user_id = jsons['user_id']
-    haana = jsons['Боловсрол']
-    elssen = jsons['Эрдмийн зэрэг']
-    duussan = jsons['Албан тушаал']
-    togssonMergejil = jsons['Албан байгууллагын нэр']
+    education = jsons['education']
+    direction = jsons['direction']
+    elssenOn = jsons['elssenOn']
+    duussanOn = jsons['duussanOn']
 
     try:
         myCon = connectDB()
@@ -658,8 +658,8 @@ def userEduUp(request):
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
 
-        userCursor.execute('UPDATE "f_userEdu" SET "Боловсрол" = %s,"Эрдмийн зэрэг" = %s,"Албан тушаал" = %s, "Албан байгууллагын нэр" = %s WHERE "user_id" = %s',
-                           (haana, elssen, duussan, togssonMergejil, user_id,))
+        userCursor.execute('UPDATE "f_userEdu" SET "education" = %s,"direction" = %s,"elssenOn" = %s, "duussanOn" = %s WHERE "user_id" = %s',
+                           (education, direction, elssenOn, duussanOn, user_id,))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
@@ -682,8 +682,7 @@ def userEduUp(request):
 
 def userEduInsert(request):
     jsons = json.loads(request.body)
-    required_fields = ["id", "Боловсрол", "Эрдмийн зэрэг",
-                       "Албан тушаал", "Албан байгууллагын нэр"]
+    required_fields = ["id", "education", "direction", "elssenOn", "duussanOn"]
 
     if not reqValidation(jsons, required_fields):
         response = {
@@ -693,10 +692,10 @@ def userEduInsert(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     user_id = jsons['id']
-    haana = jsons['Боловсрол']
-    elssen = jsons['Эрдмийн зэрэг']
-    duussan = jsons['Албан тушаал']
-    togssonMergejil = jsons['Албан байгууллагын нэр']
+    education = jsons['education']
+    direction = jsons['direction']
+    elssenOn = jsons['elssenOn']
+    duussanOn = jsons['duussanOn']
 
     try:
         myCon = connectDB()
@@ -726,8 +725,8 @@ def userEduInsert(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
 
         userCursor.execute(
-            'INSERT INTO "f_userEdu" ("Боловсрол", "Эрдмийн зэрэг", "Албан тушаал", "Албан байгууллагын нэр","user_id") VALUES (%s, %s, %s, %s, %s)',
-            (haana, elssen, duussan, togssonMergejil, user_id))
+            'INSERT INTO "f_userEdu" ("education", "direction", "elssenOn", "duussanOn","user_id") VALUES (%s, %s, %s, %s, %s)',
+            (education, direction, elssenOn, duussanOn, user_id))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
