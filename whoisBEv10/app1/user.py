@@ -349,7 +349,7 @@ def userNemeltGet(request):
                 disconnectDB(myCon)
 
             # Extract the first element from the response list
-            responseJSON = response[0]
+            responseJSON = response
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
@@ -1395,7 +1395,7 @@ def userFamilyGet(request):
                 userCursor.close()
                 disconnectDB(myCon)
             # Extract the first element from the response list
-            responseJSON = response[0]
+            responseJSON = response
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
