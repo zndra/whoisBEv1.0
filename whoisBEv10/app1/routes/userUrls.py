@@ -46,6 +46,6 @@ urlpatterns = [
     path('userList/',              userListView,       name='userListView'),
     ######################################################
     path('getTransactionLog/', getTransactionLog, name="getTransactionLog"),
-    path('makeTransaction/', makeTransaction, name="makeTransaction"),
+    path('makeTransaction/', makeTransactionView, name="makeTransaction"),
     ################################################################################
 ]

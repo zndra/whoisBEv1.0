@@ -1632,7 +1632,7 @@ def getTransactionLog(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 ####################################################################################
 
-def makeTransaction(request):
+def makeTransactionView(request):
     if request.method == "POST":
         jsons = checkJson(request)
 
@@ -1647,13 +1647,13 @@ def makeTransaction(request):
         targetUserId = jsons.get('target')
         amount = jsons.get('amount')
 
-        conn = None
+        # conn = None
         try:
             conn = connectDB()
             cur = conn.cursor()
 
             cur.execute(
-                """SELECT balance FROM "f_user" WHERE id = %s""", [userId])
+                """SELECT balance FROM "f_user" WHERE id = %s""", [userId,])
             balance = cur.fetchone()
 
             if balance is None and balance[0] < 0:
@@ -1665,13 +1665,13 @@ def makeTransaction(request):
                 return HttpResponse(json.dumps(resp), content_type="application/json")
 
             cur.execute(
-                "UPDATE f_user SET balance = balance + %s WHERE id = %s RETURNING id, balance", [amount, targetUserId])
+                """UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING id, balance""", [amount, targetUserId,])
             targetData = cur.fetchone()
             cur.execute(
-                "UPDATE f_user SET balance = balance - %s WHERE id = %s RETURNING id, balance", [amount, userId])
+                "UPDATE f_user SET balance = balance - %s WHERE id = %s RETURNING id, balance", [amount, userId,])
             fromData = cur.fetchone()
             cur.execute("""INSERT INTO "f_transactionLog"(amount, balance, "from", "to") VALUES (%s, %s, %s, %s)""",
-                        [amount, fromData[1], userId, targetUserId])
+                        [amount, fromData[1], userId, targetUserId,])
             conn.commit()
 
             resp = {
