@@ -2038,7 +2038,7 @@ def makeTransactionView(request):
                     "responseText": "Хэрэглэгчийн мэдээлэл олдсонгүй .",
                 }
                 return HttpResponse(json.dumps(resp), content_type="application/json")
-            if targetBalance is None or fromBalance < int(amount):
+            if ((targetBalance is None) or (fromBalance < int(amount)) or (0 > int(amount))):
                 resp = {
                     "responseCode": 555,
                     "responseText": "Таны дансны үлдэгдэл хүрэлцэхгүй байна.",
