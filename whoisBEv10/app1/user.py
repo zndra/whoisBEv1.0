@@ -136,30 +136,11 @@ def userRegisterView(request):
     userId = userCursor.fetchone()[0]
 
     # Add user ID to other tables
-    userCursor.execute(
-        'INSERT INTO "f_userEdu"("user_id") VALUES(%s)',
-        (userId,))
-
-    userCursor.execute(
-        'INSERT INTO "f_userFamily"("user_id") VALUES(%s)',
-        (userId,))
 
     userCursor.execute(
         'INSERT INTO "f_userNemeltMedeelel"("user_id") VALUES(%s)',
         (userId,))
-
-    userCursor.execute(
-        'INSERT INTO "f_userSkill"("user_id") VALUES(%s)',
-        (userId,))
-
-    userCursor.execute(
-        'INSERT INTO "f_userSocial"("user_id") VALUES(%s)',
-        (userId,))
-
-    userCursor.execute(
-        'INSERT INTO "f_userWork"("user_id") VALUES(%s)',
-        (userId,))
-
+    
     myCon.commit()
 
     # Close the userCursor and disconnect from the database
@@ -1806,7 +1787,7 @@ def uploadTemplateView(request):
     jsons = json.loads(request.body)
 
     # Validate request body
-    if reqValidation(jsons, {"name", "tempId", "catId", "file"}) == False:
+    if reqValidation(jsons, {"name", "tempTypeId", "catId", "file"}) == False:
         resp = {
             "responseCode": 550,
             "responseText": "Field-үүд дутуу"
@@ -1815,7 +1796,7 @@ def uploadTemplateView(request):
 
     name = jsons['name']
     date = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-    tempId = jsons['tempId']
+    tempTypeId = jsons['tempTypeId']
     catId = jsons['catId']
     file = jsons['file']
     userId = jsons['userId']
@@ -1836,7 +1817,7 @@ def uploadTemplateView(request):
     userCursor.execute(
         'INSERT INTO "f_templates"("name", "date", "tempId", "catId", "file", "userId") '
         'VALUES(%s, %s, %s, %s, %s, %s) RETURNING "id"',
-        (name, date, tempId, catId, file, userId))
+        (name, date, tempTypeId, catId, file, userId))
 
     templateId = userCursor.fetchone()[0]
 
@@ -1858,7 +1839,7 @@ def uploadTemplateView(request):
 def userTemplatesGet(request):
     jsons = json.loads(request.body)
 
-    if reqValidation(jsons, {"tempId", "tempType"}) == False:
+    if reqValidation(jsons, { "userId","name","tempId"}) == False:
         resp = {
             "responseCode": 550,
             "responseText": "Field-үүд дутуу"
@@ -1866,9 +1847,9 @@ def userTemplatesGet(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     date = date.today().strftime("%d-%m-%Y")
-    tempType = jsons['tempType']
-    userId = jsons['userId']
     tempId = jsons['tempId']
+    userId = jsons['userId']
+    name= jsons['name']
 
     try:
         myCon = connectDB()
@@ -1884,10 +1865,10 @@ def userTemplatesGet(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     userCursor.execute(
-        'INSERT INTO "f_userTemplates"("date", "tempType", "userId", "tempId") '
+        'INSERT INTO "f_userTemplates"("date","name", "userId", "tempId") '
         'VALUES (%s, %s, %s, %s) '
         'RETURNING "id"',
-        (date, tempType, userId, tempId))
+        (date, name, userId, tempId))
 
     templateId = userCursor.fetchone()[0]
 
@@ -1899,7 +1880,7 @@ def userTemplatesGet(request):
     resp = {
         "responseCode": 200,
         "responseText": "Template ашигласан",
-        "templateId": templateId
+        "tempId": tempId
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
