@@ -349,7 +349,7 @@ def userNemeltGet(request):
                 disconnectDB(myCon)
 
             # Extract the first element from the response list
-            responseJSON = response
+            responseJSON = response[0]
             response = {
                 "responseCode": 200,
                 "responseText": "Амжилттай",
