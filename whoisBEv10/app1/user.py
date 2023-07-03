@@ -1775,7 +1775,9 @@ def getTransactionLog(request):
                 guilgee = [{columns[index][0]: column for index, column in enumerate(
                     value)} for value in cur.fetchall()]                
                 
-                guilgee[0]['date']=str(guilgee[0]['date'])
+                for i in range(0, len(guilgee)):
+                    guilgee[i]['date']=str(guilgee[i]['date'])
+
                 response = {
                     "responseCode": 200,
                     "responseText": "Амжилттай дансны мэдээлэл харлаа.",
