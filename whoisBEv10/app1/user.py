@@ -81,7 +81,7 @@ def userLoginView(request):
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
-#   userLoginView end
+#   userLoginView end#########################################################
 
 
 def userRegisterView(request):
@@ -251,7 +251,7 @@ def forgetPass(request):
 
     return HttpResponse(json.dumps(response), content_type="application/json")
 
-#### Change password #####
+#### Change password ########################################################
 
 
 def changePass(request):
@@ -1615,7 +1615,7 @@ def getTransactionLog(request):
             "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
-
+####################################################################################
 
 def makeTransaction(request):
     if request.method == "POST":
@@ -1684,7 +1684,7 @@ def makeTransaction(request):
             "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
-    #######################
+    ##############################################################################
 
 
 def userFamilyInsert(request):
@@ -1743,7 +1743,7 @@ def userFamilyInsert(request):
             "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
-#####################
+#########################################################################################
 
 
 def userFamilyUpdate(request):
