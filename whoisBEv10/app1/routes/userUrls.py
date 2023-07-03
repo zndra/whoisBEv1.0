@@ -1,4 +1,5 @@
 from app1.user   import *
+from app1.userTemps  import *
 from django.urls import path
 
 app_name = "userServices"
