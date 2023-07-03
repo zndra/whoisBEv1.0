@@ -1540,60 +1540,6 @@ def setUserSkillView(request):
     return HttpResponse(json.dumps(response), content_type="application/json")
 #################################################################################
 
-
-def getTransactionLog(request):
-    if request.method == "GET":
-        jsons = checkJson(request)
-
-        if reqValidation(jsons, {"user_id"}) == False:
-            resp = {
-                "responseCode": 550,
-                "responseText": "Field-үүд дутуу"
-            }
-            return HttpResponse(json.dumps(resp), content_type="application/json")
-
-        userId = jsons.get('user_id')
-
-        conn = None
-        try:
-            conn = connectDB()
-            cur = conn.cursor()
-
-            cur.execute(
-                """SELECT * FROM "f_transactionLog" WHERE "from" = %s OR "to" = %s""", [userId, userId])
-            logData = cur.fetchall()
-            if logData is not None:
-                desc = cur.description
-                payLoad = [
-                    {desc[index][0]: columnn.isoformat() if isinstance(
-                        columnn, date) else columnn for index, columnn in enumerate(value)}
-                    for value in logData
-                ]
-
-            resp = {
-                "responseCode": 200,
-                "responseText": "Амжилттай",
-                "data": payLoad if payLoad else []
-            }
-            return HttpResponse(json.dumps(resp), content_type="application/json")
-        except Exception as e:
-            resp = {
-                "responseCode": 500,
-                "responseText": "Алдаа",
-                "data": str(e)
-            }
-            return HttpResponse(json.dumps(resp), content_type="application/json")
-        finally:
-            if conn is not None:
-                disconnectDB(conn)
-    else:
-        resp = {
-            "responseCode": 400,
-            "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
-        }
-        return HttpResponse(json.dumps(resp), content_type="application/json")
-####################################################################################
-
 def userFamilyInsert(request):
     jsons = json.loads(request.body)
     required_fields = ["id", "henBoloh", "ner", "dugaar"]
@@ -1939,9 +1885,9 @@ def setSkillView(request):
 
 
 def getTransactionLog(request):
-    if request.method == "GET":
+    if request.method == "GET" or request.method == "GET":
         jsons = checkJson(request)
-
+        # 
         if reqValidation(jsons, {"user_id"}) == False:
             resp = {
                 "responseCode": 550,
