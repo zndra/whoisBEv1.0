@@ -1885,7 +1885,7 @@ def setSkillView(request):
 
 
 def getTransactionLog(request):
-    if request.method == "GET" or request.method == "GET":
+    if request.method == "GET" or request.method == "POST":
         jsons = checkJson(request)
         # 
         if reqValidation(jsons, {"user_id"}) == False:
