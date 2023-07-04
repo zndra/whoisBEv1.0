@@ -6,10 +6,11 @@ from whoisBEv10.settings import *
 from django.db import connection
 import json
 
+
 def uploadTemplateView(request):
     jsons = json.loads(request.body)
 
-    required_fields = {"name", "tempTypeId", "catId", "file", "userId"}
+    required_fields = {"name", "tempTypeId", "catId", "file"}
     if reqValidation(jsons, required_fields) == False:
         resp = {
             "responseCode": 550,
@@ -21,7 +22,6 @@ def uploadTemplateView(request):
     tempTypeId = jsons['tempTypeId']
     catId = jsons['catId']
     file = jsons['file']
-    userId = jsons['userId']
 
     try:
         myCon = connectDB()
@@ -34,20 +34,6 @@ def uploadTemplateView(request):
             "responseCode": 551,
             "responseText": "Баазын алдаа"
         }
-        return HttpResponse(json.dumps(resp), content_type="application/json")
-
-    # Check if user exists in f_user table
-    userCursor.execute(
-        'SELECT * FROM "f_user" WHERE "id" = %s', (userId,))
-    user = userCursor.fetchone()
-
-    if not user:
-        resp = {
-            "responseCode": 555,
-            "responseText": "Хэрэглэгч олдсонгүй"
-        }
-        userCursor.close()
-        disconnectDB(myCon)
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     # Check if tempTypeId exists in f_tempType table
@@ -79,9 +65,9 @@ def uploadTemplateView(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     userCursor.execute(
-        'INSERT INTO "f_templates"("name", "tempTypeId", "catId", "file", "userId") '
-        'VALUES(%s, %s, %s, %s, %s) RETURNING "id"',
-        (name, tempTypeId, catId, file, userId))
+        'INSERT INTO "f_templates"("name", "tempTypeId", "catId", "file") '
+        'VALUES(%s, %s, %s, %s) RETURNING "id"',
+        (name, tempTypeId, catId, file))
 
     templateId = userCursor.fetchone()[0]
 
@@ -96,9 +82,6 @@ def uploadTemplateView(request):
         "templateId": templateId
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
-
-
-
 
 ############################################################################
 def userTemplates(request):
@@ -511,3 +494,94 @@ def userTempDel(request):
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
 
+###############################################################################
+# def uploadTemplateView(request):
+#     jsons = json.loads(request.body)
+
+#     required_fields = {"name", "tempTypeId", "catId", "file", "userId"}
+#     if reqValidation(jsons, required_fields) == False:
+#         resp = {
+#             "responseCode": 550,
+#             "responseText": "Field-үүд дутуу"
+#         }
+#         return HttpResponse(json.dumps(resp), content_type="application/json")
+
+#     name = jsons['name']
+#     tempTypeId = jsons['tempTypeId']
+#     catId = jsons['catId']
+#     file = jsons['file']
+#     userId = jsons['userId']
+
+#     try:
+#         myCon = connectDB()
+#         userCursor = myCon.cursor()
+
+#         if not myCon:
+#             raise Exception("Can not connect to the database")
+#     except Exception as e:
+#         resp = {
+#             "responseCode": 551,
+#             "responseText": "Баазын алдаа"
+#         }
+#         return HttpResponse(json.dumps(resp), content_type="application/json")
+
+#     # Check if user exists in f_user table
+#     userCursor.execute(
+#         'SELECT * FROM "f_user" WHERE "id" = %s', (userId,))
+#     user = userCursor.fetchone()
+
+#     if not user:
+#         resp = {
+#             "responseCode": 555,
+#             "responseText": "Хэрэглэгч олдсонгүй"
+#         }
+#         userCursor.close()
+#         disconnectDB(myCon)
+#         return HttpResponse(json.dumps(resp), content_type="application/json")
+
+#     # Check if tempTypeId exists in f_tempType table
+#     userCursor.execute(
+#         'SELECT * FROM "f_tempType" WHERE "id" = %s', (tempTypeId,))
+#     tempType = userCursor.fetchone()
+
+#     if not tempType:
+#         resp = {
+#             "responseCode": 556,
+#             "responseText": "Буруу tempTypeId"
+#         }
+#         userCursor.close()
+#         disconnectDB(myCon)
+#         return HttpResponse(json.dumps(resp), content_type="application/json")
+
+#     # Check if catId exists in f_catType table
+#     userCursor.execute(
+#         'SELECT * FROM "f_catType" WHERE "id" = %s', (catId,))
+#     catType = userCursor.fetchone()
+
+#     if not catType:
+#         resp = {
+#             "responseCode": 557,
+#             "responseText": "Буруу catId"
+#         }
+#         userCursor.close()
+#         disconnectDB(myCon)
+#         return HttpResponse(json.dumps(resp), content_type="application/json")
+
+#     userCursor.execute(
+#         'INSERT INTO "f_templates"("name", "tempTypeId", "catId", "file", "userId") '
+#         'VALUES(%s, %s, %s, %s, %s) RETURNING "id"',
+#         (name, tempTypeId, catId, file, userId))
+
+#     templateId = userCursor.fetchone()[0]
+
+#     myCon.commit()
+
+#     userCursor.close()
+#     disconnectDB(myCon)
+
+#     resp = {
+#         "responseCode": 200,
+#         "responseText": "Template нэмэгдлээ",
+#         "templateId": templateId
+#     }
+#     return HttpResponse(json.dumps(resp), content_type="application/json")
