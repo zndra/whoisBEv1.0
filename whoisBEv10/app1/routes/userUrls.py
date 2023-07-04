@@ -7,6 +7,7 @@ from app1.profileFamilyViews   import *
 from app1.userWork   import *
 from app1.userEdu import *
 ###############################################
+from app1.tooAvahView import *
 
 app_name = "userServices"
 
@@ -61,4 +62,5 @@ urlpatterns = [
     path('getTransactionLog/', getTransactionLog, name="getTransactionLog"),
     path('makeTransaction/', makeTransactionView, name="makeTransaction"),
     ################################################################################
+     path('tooAvah/', tooAvah, name="tooAvah"),
 ]
