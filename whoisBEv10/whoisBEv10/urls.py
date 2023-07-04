@@ -1,5 +1,6 @@
 from app1        import user, testViews
 from django.urls import path, include
+from app1.routes.userUrls import *
 urlpatterns = [    
     #    user services
     path("", include("app1.routes.userUrls", namespace='userServices')),

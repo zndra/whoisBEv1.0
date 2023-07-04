@@ -27,7 +27,7 @@ urlpatterns = [
     path('userEduUp/',             userEduUp,          name='userEduUp'),
     ############# family ############################################################
     path('userFamily/',            userFamilyGet,      name= 'userFamilyGet'),
-    path('userFamilyDel/',            userFamilyDel,      name= 'userFamilyDel'),
+    path('userFamilyDel/',         userFamilyDel,      name= 'userFamilyDel'),
     path('userFamilyIns/',         userFamilyInsert,   name= 'userFamilyInsert'),
     path('userFamilyUp/',          userFamilyUpdate,   name= 'userFamilyUpdate'),
     ################################################################################
