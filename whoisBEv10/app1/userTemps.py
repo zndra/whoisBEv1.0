@@ -412,7 +412,7 @@ def tempDel(request):
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
 #################################################################################
-def userTempDel(request, templateId):
+def userTempDel(request):
     jsons = json.loads(request.body)
     if reqValidation(jsons, {"templateId"}) == False:
         resp = {
