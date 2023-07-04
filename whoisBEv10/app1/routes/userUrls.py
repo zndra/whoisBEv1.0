@@ -4,6 +4,7 @@ from django.urls import path
 
 ###############################################
 from app1.profileFamilyViews   import *
+from app1.userWork   import *
 ###############################################
 
 app_name = "userServices"
@@ -38,6 +39,7 @@ urlpatterns = [
     path('userTurshlaga/' ,        userTurshlaga,      name='userTurshlaga'   ),
     path('userTurshlagaUp/' ,      userTurshlagaUp,    name='userTurshlagaUp'   ),
     path('userTurshlagaIn/' ,      userTurshlagaIn,    name='userTurshlagaIn'   ),
+    path('userTurshlagaDel/' ,      userTurshlagaDel,    name='userTurshlagaDel'   ),
     path('getUserSkill/' ,         getUserSkillView,   name='getUserSkillView'   ),
     path('setUserSkill/' ,         setUserSkillView,   name='setUserSkillView'   ),
     path('userTempGet/' ,         userTempGet,   name='userTempGet'   ),
