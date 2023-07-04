@@ -2,6 +2,10 @@ from app1.user   import *
 from app1.userTemps  import *
 from django.urls import path
 
+###############################################
+from app1.profileFamilyViews   import *
+###############################################
+
 app_name = "userServices"
 
 urlpatterns = [    
@@ -19,7 +23,9 @@ urlpatterns = [
     path('userInfoShow/',          userInfoShowView,   name='userInfoShow'),
     path('userInfoUpdate/',        userInfoUpdateView, name='uuserInfoUpdateView'),
     path('userEduUp/',             userEduUp,          name='userEduUp'),
+    ############# family ############################################################
     path('userFamily/',            userFamilyGet,      name= 'userFamilyGet'),
+    path('userFamilyDel/',            userFamilyDel,      name= 'userFamilyDel'),
     path('userFamilyIns/',         userFamilyInsert,   name= 'userFamilyInsert'),
     path('userFamilyUp/',          userFamilyUpdate,   name= 'userFamilyUpdate'),
     ################################################################################

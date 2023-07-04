@@ -1,13 +1,10 @@
 import traceback
 import json
 from django.http import HttpResponse
-from datetime import date
-from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from whoisBEv10.settings import *
 from django.db import connection
 import pytz
-import json
 import datetime
 
 
