@@ -432,6 +432,7 @@ def userTempDel(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     try:
+        templateId = jsons["templateId"]
         myCon = connectDB()
         templateCursor = myCon.cursor()
 
