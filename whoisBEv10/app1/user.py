@@ -1745,7 +1745,6 @@ def setSkillView(request):
     return HttpResponse(json.dumps(response), content_type="application/json")
 #################################################################################
 
-
 def getTransactionLog(request):
     if request.method == "GET" or request.method == "POST":
         jsons = checkJson(request)
@@ -1765,17 +1764,19 @@ def getTransactionLog(request):
             cur.execute(
                 """SELECT balance FROM "f_user" WHERE "id" = %s""", [userId,])
             dansniiUldegdel = cur.fetchall()
+            cur.execute(
+                """SELECT "userName" FROM "f_user" WHERE "id" = %s""", [userId,])
+            name = cur.fetchone()[0]
             if not dansniiUldegdel:
                 response = aldaaniiMedegdel(553, "Бүртгэлгүй хэрэглэгч байна.")
             else:
-                cur.execute("select * from \"f_transactionLog\"")
+                cur.execute("""select * from \"f_transactionLog\" where "from"=%s or "to"=%s """, [name, name])
                 columns = cur.description
                 guilgee = [{columns[index][0]: column for index, column in enumerate(
                     value)} for value in cur.fetchall()]                
                 
                 for i in range(0, len(guilgee)):
                     guilgee[i]['date']=str(guilgee[i]['date'])
-
                 response = {
                     "responseCode": 200,
                     "responseText": "Амжилттай дансны мэдээлэл харлаа.",
@@ -1873,7 +1874,3 @@ def makeTransactionView(request):
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 ##################################################################################
-
-
-
-
