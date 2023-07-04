@@ -395,6 +395,15 @@ def tempDel(request):
             'DELETE FROM "f_templates" WHERE "id" = %s', (templateId,)
         )
 
+        if templateCursor.rowcount == 0:
+            response = {
+                "responseCode": 552,
+                "responseText": "Template олдсонгүй"
+            }
+            templateCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+
         myCon.commit()
         templateCursor.close()
     except Exception as e:
@@ -411,6 +420,7 @@ def tempDel(request):
         "responseText": "Template устгагдлаа"
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
+
 #################################################################################
 def userTempDel(request):
     jsons = json.loads(request.body)
@@ -422,13 +432,21 @@ def userTempDel(request):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
     try:
-        templateId = jsons["templateId"]
         myCon = connectDB()
         templateCursor = myCon.cursor()
 
         templateCursor.execute(
             'DELETE FROM "f_userTemplates" WHERE "id" = %s', (templateId,)
         )
+
+        if templateCursor.rowcount == 0:
+            response = {
+                "responseCode": 552,
+                "responseText": "Template олдсонгүй"
+            }
+            templateCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
 
         myCon.commit()
         templateCursor.close()
