@@ -376,3 +376,74 @@ def getUserAllInfo(request):
                 "responseText": "Алдаа гарлаа"
             }
             return HttpResponse(json.dumps(response), content_type="application/json")
+################################################################
+def tempDel(request):
+    jsons = json.loads(request.body)
+    if reqValidation(jsons, {"templateId"}) == False:
+        resp = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    try:
+        templateId = jsons["templateId"]
+        myCon = connectDB()
+        templateCursor = myCon.cursor()
+
+        templateCursor.execute(
+            'DELETE FROM "f_templates" WHERE "id" = %s', (templateId,)
+        )
+
+        myCon.commit()
+        templateCursor.close()
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Баазын алдаа"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    finally:
+        disconnectDB(myCon)
+
+    response = {
+        "responseCode": 200,
+        "responseText": "Template устгагдлаа"
+    }
+    return HttpResponse(json.dumps(response), content_type="application/json")
+#################################################################################
+def userTempDel(request, templateId):
+    jsons = json.loads(request.body)
+    if reqValidation(jsons, {"templateId"}) == False:
+        resp = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    try:
+        templateId = jsons["templateId"]
+        myCon = connectDB()
+        templateCursor = myCon.cursor()
+
+        templateCursor.execute(
+            'DELETE FROM "f_userTemplates" WHERE "id" = %s', (templateId,)
+        )
+
+        myCon.commit()
+        templateCursor.close()
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Баазын алдаа"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    finally:
+        disconnectDB(myCon)
+
+    response = {
+        "responseCode": 200,
+        "responseText": "Template устгагдлаа"
+    }
+    return HttpResponse(json.dumps(response), content_type="application/json")
+

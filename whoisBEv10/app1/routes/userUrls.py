@@ -46,6 +46,7 @@ urlpatterns = [
     path('userTurshlagaDel/' ,      userTurshlagaDel,    name='userTurshlagaDel'   ),
     path('getUserSkill/' ,         getUserSkillView,   name='getUserSkillView'   ),
     path('setUserSkill/' ,         setUserSkillView,   name='setUserSkillView'   ),
+    #######################################################
     path('userTempGet/' ,         userTempGet,   name='userTempGet'   ),
     path('tempGet/' ,         tempGet,   name='tempGet'   ),
     path('userTemplates/' ,     userTemplates,   name='usedTemplates'   ),
@@ -53,6 +54,9 @@ urlpatterns = [
     path('tempList/' ,   tempListView,   name='tempListView'   ),
     path('userTempList/' ,   userTempListView,   name='userTempListView'   ),
     path('userAllInfo/' ,   getUserAllInfo,   name='getUserAllInfo'   ),
+    path('userTempDel/' ,   userTempDel,   name='userTempDel'   ),
+    path('tempDel/' ,   tempDel,   name='tempDel'   ),
+    ##########################################################################
     path('getSkill/' ,         getSkillView,   name='getSkillView'   ),
     path('setSkill/' ,         setSkillView,   name='setSkillView'   ),
     
