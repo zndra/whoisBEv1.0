@@ -140,7 +140,7 @@ def userEduInsert(request):
 
         response = {
             "responseCode": 200,
-            "responseText": "Амжилттай бүртгэгдлээ"
+            "responseText": "Мэдээдэл амжилттай хадгалагдлаа."
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
