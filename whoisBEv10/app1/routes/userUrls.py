@@ -35,6 +35,7 @@ urlpatterns = [
     path('userSocial/',            userSocial,         name='userSocial'),
     path('userSocialUp/',          userSocialUp,       name='userSocialup'),
     path('userSocialIn/',          userSocialIn,       name='userSocialIn'),
+    path('userSocialDel/',         userSocialDel,      name='userSocialDel'),
     ################################################################################
     path('userEduGet/',            userEduGet,         name='userEduGet'),
     path('userEduInsert/',         userEduInsert,      name='usereduInsert'),

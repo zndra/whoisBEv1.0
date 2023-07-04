@@ -852,7 +852,10 @@ def userSocialUp(request):
 
         userCursor.execute(
             'SELECT * FROM "f_userSocial" WHERE "user_id" = %s', (user_id,))
-        user = userCursor.fetchone()
+        user = userCursor.fetchall()
+        userCursor.execute(
+            'SELECT id FROM "f_userSocial" WHERE "id" = %s', (id,))
+        idk = userCursor.fetchone()
         if not user:
             response = {
                 "responseCode": 555,
@@ -863,14 +866,13 @@ def userSocialUp(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
 
         # Check if the provided ID matches the ID in the userSocial table
-        if id != user[0]:  # Assuming the ID is the first column in the query
+        if not idk:  # Assuming the ID is the first column in the query
             response = {
                 "responseCode": 556,
                 "responseText": "ID таарсангүй"
             }
             userCursor.close()
             disconnectDB(myCon)
-            print(user)
             return HttpResponse(json.dumps(response), content_type="application/json")
 
         # Check if the app and site values are different from the old data
@@ -883,9 +885,7 @@ def userSocialUp(request):
             disconnectDB(myCon)
             return HttpResponse(json.dumps(response), content_type="application/json")
         # Update the app and site values in the userSocial table
-        userCursor.execute(
-            'UPDATE "f_userSocial" SET "app" = %s, "site" = %s WHERE "id" = %s',
-            (app, site, id,))
+        userCursor.execute('UPDATE "f_userSocial" SET "app" = %s, "site" = %s WHERE "id" = %s AND "user_id" = %s',(app, site, id,user_id))
         myCon.commit()
         userCursor.close()
         disconnectDB(myCon)
@@ -902,59 +902,6 @@ def userSocialUp(request):
         "responseText": "Амжилттай солигдлоо"
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
-
-    # # Validate request body
-    # required_fields = ["id", "app", "oldsite", "newsite"]
-    # if not reqValidation(jsons, required_fields):
-    #     response = {
-    #         "responseCode": 550,
-    #         "responseText": "Буруу хүсэлт"
-    #     }
-    #     return HttpResponse(json.dumps(response), content_type="application/json")
-
-    # id = jsons['id']
-    # app = jsons['app']
-    # oldsite = jsons['oldsite']
-    # newsite = jsons['newsite']
-
-    # try:
-    #     myCon = connectDB()
-    #     userCursor = myCon.cursor()
-
-    #     # Check if the user exists
-    #     userCursor.execute(
-    #         'SELECT * FROM "f_userSocial" WHERE "user_id" = %s AND "app" = %s AND "site" = %s', (id, app, oldsite))
-    #     user = userCursor.fetchone()
-    #     if not user:
-    #         response = {
-    #             "responseCode": 555,
-    #             "responseText": "Мэдээлэл буруу байна"
-    #         }
-    #         userCursor.close()
-    #         disconnectDB(myCon)
-    #         return HttpResponse(json.dumps(response), content_type="application/json")
-
-    #     # Update the password
-    #     userCursor.execute(
-    #         'UPDATE "f_userSocial" SET "site" = %s WHERE "user_id" = %s AND "app" = %s', (newsite, id, app))
-    #     myCon.commit()
-    #     userCursor.close()
-    #     disconnectDB(myCon)
-
-    # except Exception as e:
-    #     response = {
-    #         "responseCode": 551,
-    #         "responseText": "Баазын алдаа"
-    #     }
-    #     return HttpResponse(json.dumps(response), content_type="application/json")
-
-    # response = {
-    #     "responseCode": 200,
-    #     "responseText": "Амжилттай солигдлоо"
-    # }
-    # return HttpResponse(json.dumps(response), content_type="application/json")
-    ##############################################################
-
 
 def userSocialIn(request):
     jsons = json.loads(request.body)
@@ -1006,6 +953,57 @@ def userSocialIn(request):
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
 
+
+def userSocialDel(request):
+    jsons = json.loads(request.body)
+    required_fields = ["socialId"]
+
+    if not reqValidation(jsons, required_fields):
+        response = {
+            "responseCode": 550,
+            "responseText": "Field-үүд дутуу"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+    socialId = jsons['socialId']
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute(
+            'SELECT * FROM "f_userSocial" WHERE "id" = %s', (socialId,))
+        user = userCursor.fetchone()
+        if not user:
+            response = {
+                "responseCode": 555,
+                "responseText": "Хаяг олдсонгүй"
+            }
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+        else:
+            socialId = jsons["socialId"]
+            myCon = connectDB()
+            socialcursor = myCon.cursor()
+            socialcursor.execute('delete from "f_userSocial" WHERE "id" = %s', (socialId,))
+            myCon.commit()
+            socialcursor.close()
+        
+    except Exception as e:
+        response = {
+            "responseCode": 551,
+            "responseText": "Баазын алдаа"
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    finally:
+        disconnectDB(myCon)
+
+    response = {
+        "responseCode": 200,
+        "responseText": "Цахим хаяг устлаа"
+    }
+
+    responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
+    return HttpResponse(responseJSON, content_type="application/json")
 
 def userInfoUpdateView(request):
     jsons = json.loads(request.body)
