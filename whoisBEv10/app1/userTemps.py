@@ -9,7 +9,8 @@ import json
 def uploadTemplateView(request):
     jsons = json.loads(request.body)
 
-    if reqValidation(jsons, {"name", "tempTypeId", "catId", "file", "userId"}) == False:
+    required_fields = {"name", "tempTypeId", "catId", "file", "userId"}
+    if reqValidation(jsons, required_fields) == False:
         resp = {
             "responseCode": 550,
             "responseText": "Field-үүд дутуу"
@@ -49,6 +50,34 @@ def uploadTemplateView(request):
         disconnectDB(myCon)
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
+    # Check if tempTypeId exists in f_tempType table
+    userCursor.execute(
+        'SELECT * FROM "f_tempType" WHERE "id" = %s', (tempTypeId,))
+    tempType = userCursor.fetchone()
+
+    if not tempType:
+        resp = {
+            "responseCode": 556,
+            "responseText": "Буруу tempTypeId"
+        }
+        userCursor.close()
+        disconnectDB(myCon)
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+    # Check if catId exists in f_catType table
+    userCursor.execute(
+        'SELECT * FROM "f_catType" WHERE "id" = %s', (catId,))
+    catType = userCursor.fetchone()
+
+    if not catType:
+        resp = {
+            "responseCode": 557,
+            "responseText": "Буруу catId"
+        }
+        userCursor.close()
+        disconnectDB(myCon)
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
     userCursor.execute(
         'INSERT INTO "f_templates"("name", "tempTypeId", "catId", "file", "userId") '
         'VALUES(%s, %s, %s, %s, %s) RETURNING "id"',
@@ -67,6 +96,7 @@ def uploadTemplateView(request):
         "templateId": templateId
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 
 
 
@@ -112,6 +142,20 @@ def userTemplates(request):
         disconnectDB(myCon)
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
+    # Check if the template exists
+    userCursor.execute(
+        'SELECT * FROM "f_templates" WHERE "id" = %s', (tempId,))
+    template = userCursor.fetchone()
+
+    if not template:
+        resp = {
+            "responseCode": 556,
+            "responseText": "template олдсонгүй"
+        }
+        userCursor.close()
+        disconnectDB(myCon)
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
     # Insert the template
     userCursor.execute(
         'INSERT INTO "f_userTemplates"( "name", "userId", "tempId") '
@@ -119,7 +163,7 @@ def userTemplates(request):
         'RETURNING "id"',
         (name, userId, tempId))
 
-    tempId = userCursor.fetchone()[0]
+    userTempId = userCursor.fetchone()[0]
 
     myCon.commit()
 
@@ -129,9 +173,10 @@ def userTemplates(request):
     resp = {
         "responseCode": 200,
         "responseText": "Template ашигласан",
-        "tempId": tempId
+        "userTempId": userTempId
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 
 ###############################################################################
 def userTempGet(request):
