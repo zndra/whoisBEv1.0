@@ -454,7 +454,7 @@ def getUserAllInfo(request):
             undsen_data = {
                 columns[index]: column for index, column in enumerate(user)
             }
-            response['undsen'] = undsen_data
+            response['undsen'] = undsen_data if undsen_data else {}
 
             # Fetch education data
             userCursor.execute('SELECT * FROM "f_userEdu" WHERE "user_id" = %s', (user_id,))
@@ -480,9 +480,10 @@ def getUserAllInfo(request):
             userCursor.execute(
                 'SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
             columns = [column[0] for column in userCursor.description]
+            nemelt_row = userCursor.fetchone()
             nemelt_data = {
-                columns[index]: column for index, column in enumerate(userCursor.fetchone())
-            }
+                columns[index]: column for index, column in enumerate(nemelt_row)
+            } if nemelt_row else {}
             response['nemelt'] = nemelt_data
 
             # Fetch skill data
@@ -491,7 +492,7 @@ def getUserAllInfo(request):
             columns = [column[0] for column in userCursor.description]
             skill_data = {
                 columns[index]: column for index, column in enumerate(userCursor.fetchone())
-            }
+            } if userCursor.rowcount > 0 else {}
             response['skill'] = skill_data
 
             # Fetch social data
