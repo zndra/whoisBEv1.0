@@ -25,6 +25,7 @@ urlpatterns = [
     path('userNemeltIns/',         userNemeltInsert,   name='userNemeltInsert'),
     path('userInfoShow/',          userInfoShowView,   name='userInfoShow'),
     path('userInfoUpdate/',        userInfoUpdateView, name='uuserInfoUpdateView'),
+    path('getDashboardInfo/',      getDashboardInfoView,name='getDashboardInfoView'),
     path('userEduUp/',             userEduUp,          name='userEduUp'),
     ############# family ############################################################
     path('userFamily/',            userFamilyGet,      name= 'userFamilyGet'),
