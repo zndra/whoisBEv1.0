@@ -1715,13 +1715,13 @@ def setSkillView(request):
         userCursor = myCon.cursor()
         # user_id-гаар нь хайгаад бүх мэдээллийн авах
         userCursor.execute(
-            'SELECT "id", "skill" FROM "f_skill" WHERE "userId" = %s', (user_id,))
+            'SELECT "id", "chadvarNer" FROM "f_skill" WHERE "userId" = %s', (user_id,))
         user = userCursor.fetchone()
         # Хэрэглэч байгаа үгүйг шалгах
         if not user:
             text = ""
             userCursor.execute(
-                'INSERT INTO "f_skill"("userId", "skill") VALUES(%s, %s) RETURNING "id"', (user_id, skill,))
+                'INSERT INTO "f_skill"("userId", "chadvarNer") VALUES(%s, %s) RETURNING "id"', (user_id, skill,))
             idd = userCursor.fetchone()
             myCon.commit()
             resp = aldaaniiMedegdel(
@@ -1730,7 +1730,7 @@ def setSkillView(request):
             disconnectDB(myCon)
             return HttpResponse(json.dumps(resp), content_type="application/json")
         userCursor.execute(
-            'UPDATE "f_skill" SET "skill" = %s WHERE "userId" = %s', (skill, int(user_id),))
+            'UPDATE "f_skill" SET "chadvarNer" = %s WHERE "userId" = %s', (skill, int(user_id),))
         myCon.commit()
         # db salalt
         userCursor.close()
