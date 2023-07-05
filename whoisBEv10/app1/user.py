@@ -1666,13 +1666,13 @@ def getSkillView(request):
         userCursor = myCon.cursor()
         # user_id-гаар нь хайгаад бүх мэдээллийн авах
         userCursor.execute(
-            'SELECT "id", "skill" FROM "f_skill" WHERE "userId" = %s', (user_id,))
+            'SELECT "id", "chadvarNer" FROM "f_skill" WHERE "userId" = %s', (user_id,))
         user = userCursor.fetchone()
         # Хэрэглэч байгаа үгүйг шалгах
         if not user:
             text = ""
             userCursor.execute(
-                'INSERT INTO "f_skill"("userId", "skill") VALUES(%s, %s) RETURNING "id"', (user_id, text,))
+                'INSERT INTO "f_skill"("userId", "chadvarNer") VALUES(%s, %s) RETURNING "id"', (user_id, text,))
             idd = userCursor.fetchone()
             myCon.commit()
             resp = aldaaniiMedegdel(
