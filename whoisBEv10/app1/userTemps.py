@@ -428,10 +428,11 @@ def getUserAllInfo(request):
                 userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
             elif user_name:
                 userCursor.execute('SELECT * FROM "f_user" WHERE "userName" = %s', (user_name,))
+                user = userCursor.fetchone()
+                if user:
+                    user_id = user[0]  # Get the ID from the fetched user
 
-            user = userCursor.fetchone()
-
-            if not user:
+            if not user_id:
                 response = {
                     "responseCode": 555,
                     "responseText": "Хэрэглэгч олдсонгүй"
@@ -446,6 +447,10 @@ def getUserAllInfo(request):
             }
 
             columns = [column[0] for column in userCursor.description]
+            
+            # Fetch user data
+            userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
+            user = userCursor.fetchone()
             undsen_data = {
                 columns[index]: column for index, column in enumerate(user)
             }
@@ -488,6 +493,7 @@ def getUserAllInfo(request):
                 columns[index]: column for index, column in enumerate(userCursor.fetchone())
             }
             response['skill'] = skill_data
+
             # Fetch social data
             userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id" = %s', (user_id,))
             columns = [column[0] for column in userCursor.description]
