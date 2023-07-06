@@ -7,8 +7,6 @@ from django.core.serializers.json import DjangoJSONEncoder
 from whoisBEv10.settings import *
 import json
 from django.db import connection
-import pytz
-import datetime
 
 def userEduDel(request):
     jsons = json.loads(request.body)

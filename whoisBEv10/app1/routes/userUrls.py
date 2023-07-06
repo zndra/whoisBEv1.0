@@ -7,6 +7,7 @@ from app1.profileFamilyViews   import *
 from app1.userWork   import *
 from app1.userEdu import *
 from app1.userNemelt import *
+from app1.userSocial import *
 ###############################################
 from app1.tooAvahView import *
 
@@ -27,21 +28,22 @@ urlpatterns = [
     path('userInfoShow/',          userInfoShowView,   name='userInfoShow'),
     path('userInfoUpdate/',        userInfoUpdateView, name='uuserInfoUpdateView'),
     path('getDashboardInfo/',      getDashboardInfoView,name='getDashboardInfoView'),
-    path('userEduUp/',             userEduUp,          name='userEduUp'),
     ############# family ############################################################
     path('userFamily/',            userFamilyGet,      name= 'userFamilyGet'),
     path('userFamilyDel/',         userFamilyDel,      name= 'userFamilyDel'),
     path('userFamilyIns/',         userFamilyInsert,   name= 'userFamilyInsert'),
     path('userFamilyUp/',          userFamilyUpdate,   name= 'userFamilyUpdate'),
-    ################################################################################
+    ############## social ##################################################################
     path('userSocial/',            userSocial,         name='userSocial'),
     path('userSocialUp/',          userSocialUp,       name='userSocialup'),
     path('userSocialIn/',          userSocialIn,       name='userSocialIn'),
     path('userSocialDel/',         userSocialDel,      name='userSocialDel'),
-    ################################################################################
+    ############### education ################################################################
     path('userEduGet/',            userEduGet,         name='userEduGet'),
+    path('userEduUp/',             userEduUp,          name='userEduUp'),
     path('userEduInsert/',         userEduInsert,      name='usereduInsert'),
     path('userEduDel/',            userEduDel,         name='userEduDel'),
+    ########################################################################################
     path('userTurshlaga/' ,        userTurshlaga,      name='userTurshlaga'   ),
     path('userTurshlagaUp/' ,      userTurshlagaUp,    name='userTurshlagaUp'   ),
     path('userTurshlagaIn/' ,      userTurshlagaIn,    name='userTurshlagaIn'   ),
