@@ -1,7 +1,6 @@
 from app1.user   import *
 from app1.userTemps  import *
 from django.urls import path
-
 ###############################################
 from app1.profileFamilyViews   import *
 from app1.userWork   import *
@@ -10,6 +9,9 @@ from app1.userNemelt import *
 from app1.userSocial import *
 ###############################################
 from app1.tooAvahView import *
+from app1.userTrans import *
+from app1.userDash import *
+from app1.userSkill import *
 
 app_name = "userServices"
 
