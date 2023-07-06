@@ -7,7 +7,6 @@ from django.db import connection
 import pytz
 import datetime
 
-
 # ene debug uyed ajillah yostoi
 def userListView(request):
     myCon = connectDB()
@@ -26,7 +25,6 @@ def userListView(request):
     responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
     return HttpResponse(responseJSON, content_type="application/json")
 #   userListView
-
 
 def userLoginView(request):
     jsons = json.loads(request.body)
@@ -80,11 +78,8 @@ def userLoginView(request):
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
 #   userLoginView end#########################################################
-
-
 def userRegisterView(request):
     jsons = json.loads(request.body)
-
     # Validate request body
     if reqValidation(jsons, {"firstName", "lastName", "email", "pass", "userName"}) == False:
         resp = {
@@ -92,13 +87,11 @@ def userRegisterView(request):
             "responseText": "Field-үүд дутуу"
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
-
     firstName = jsons['firstName']
     lastName = jsons['lastName']
     email = jsons['email']
     password = jsons['pass']
     username = jsons['userName']
-
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
@@ -125,24 +118,18 @@ def userRegisterView(request):
             "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
-
     userCursor.execute(
         'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
         'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',
         (firstName, lastName, email, password, username, None, 2,))
-
     userId = userCursor.fetchone()[0]
-
     # Add user ID to other tables
     current_date = datetime.date.today()
     date = current_date.strftime("%m/%d/%Y")
-
     userCursor.execute(
         'INSERT INTO "f_userNemeltMedeelel"("user_id", "huis", "torsonOgnoo") VALUES(%s,%s,%s)',
         (userId,1,date))
-    
     myCon.commit()
-
     # Close the userCursor and disconnect from the database
     userCursor.close()
     disconnectDB(myCon)
@@ -153,8 +140,6 @@ def userRegisterView(request):
         "responseText": "Амжилттай бүртгэгдлээ"
     }
     return HttpResponse(json.dumps(resp), content_type="application/json")
-
-
 ######################################################################################
 
 # Verify email view
@@ -233,8 +218,6 @@ def forgetPass(request):
     return HttpResponse(json.dumps(response), content_type="application/json")
 
 #### Change password ########################################################
-
-
 def changePass(request):
     jsons = json.loads(request.body)
 
@@ -289,22 +272,8 @@ def changePass(request):
     return HttpResponse(json.dumps(response), content_type="application/json")
 
 #######################################################################################
-# CreateCv
-
- #########################################################################
-
-
-# response буцаахад ашиглах
-def aldaaniiMedegdel(code, tailbar):
-    resp = {}
-    resp["responseCode"] = code
-    resp["responseText"] = tailbar
-    return resp
-#############################################################
 
 # Солих нууц үгийг хадгалж авч имэйл рүү нь баталгаажуулах код илгээх функц
-
-
 def resetPasswordView(request):
     jsonsData = json.loads(request.body)
     # Хэрэв мэдээлэл дутуу байвал алдааны мэдээлэл дамжуулах
@@ -360,8 +329,6 @@ def resetPasswordView(request):
 #############################################################
 
 # Баталгаажуулах кодоор нууц үгээ сэргээх /email, verifyCode/
-
-
 def verifyCodeView(request):
     jsonsData = json.loads(request.body)
     # Хэрэв мэдээлэл дутуу байвал алдааны мэдээлэл дамжуулах
@@ -495,9 +462,7 @@ def userInfoUpdateView(request):
             "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(response), content_type="application/json")
-
 ###################################################################################
-
 
 def userInfoShowView(request):
     jsons = json.loads(request.body)
