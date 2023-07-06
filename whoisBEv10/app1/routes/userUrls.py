@@ -6,6 +6,7 @@ from django.urls import path
 from app1.profileFamilyViews   import *
 from app1.userWork   import *
 from app1.userEdu import *
+from app1.userNemelt import *
 ###############################################
 from app1.tooAvahView import *
 

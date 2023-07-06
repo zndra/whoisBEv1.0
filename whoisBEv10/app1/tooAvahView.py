@@ -16,10 +16,10 @@ def tooAvah(request):
             SELECT COUNT(*), 'user_count' AS count_type FROM "f_user"
             UNION
             SELECT COUNT(*), 'user_family_count' AS count_type FROM "f_userFamily"
-            UNION
+            UNION                                            
             SELECT COUNT(*), 'user_wallet_count' AS count_type FROM "f_transactionLog"
         '''
-
+                                                        
         userCursor.execute(query)
         results = userCursor.fetchall()
 
