@@ -1888,7 +1888,7 @@ def getDashboardInfoView(request):
             conn = connectDB()
             cur = conn.cursor()
             cur.execute(
-                """SELECT balance, "userName", "lastName" FROM "f_user" WHERE "id" = %s""", [userId,])
+                """SELECT balance, "userName", "firstName" FROM "f_user" WHERE "id" = %s""", [userId,])
             user = cur.fetchone()
             dansniiUldegdel = user[0]
             userName = user[1]
