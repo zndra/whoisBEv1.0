@@ -720,9 +720,7 @@ def userTurshlagaIn(request):
         return HttpResponse(json.dumps(response), content_type="application/json")
 ################################################################
 
-#   Хэрэглэгчийн id-г илгээхэд бүх чадваруудыг list хэлбэрээр илгээх функц.
-
-
+#   Хэрэглэгчийн id-г илгээхэд бүх чадваруудыг list хэлбэрээр илгээх функц. Version2 дээр хэрэглэнэ.
 def getUserSkillView(request):
     jsonsData = json.loads(request.body)
     response = {}
@@ -773,9 +771,7 @@ def getUserSkillView(request):
     return HttpResponse(json.dumps(response), content_type="application/json")
 #################################################################################
 
-# Profile-ийнн чадвар дээр хадгалах дарахад table-д мэдээлэл оруулж мөн шинэчлэх.
-
-
+# Profile-ийнн чадвар дээр хадгалах дарахад table-д мэдээлэл оруулж мөн шинэчлэх. Version2 дээр хэрэглэнэ.
 def setUserSkillView(request):
     jsonsData = json.loads(request.body)
     response = {}
@@ -799,8 +795,6 @@ def setUserSkillView(request):
         disconnectDB(myCon)
         return HttpResponse(json.dumps(response), content_type="application/json")
     # list хэлбэрээр авах
-    # allInfo = []
-    # allInfo = allInfoDic(user)
     allInfo = []
     for data in user:
         data = list(data)
@@ -809,21 +803,8 @@ def setUserSkillView(request):
         chadvar["chadvariinNer"] = data[1]
         chadvar["chadvariinTuvshin"] = data[2]
         allInfo.append(chadvar)
-    # def allInfoDic(user):
-    #     allInfo = []
-    #     for data in user:
-    #         data = list(data)
-    #         chadvar = {}
-    #         chadvar["id"] = data[0]
-    #         chadvar["chadvariinNer"] = data[1]
-    #         chadvar["chadvariinTuvshin"] = data[2]
-    #         allInfo.append(chadvar)
-    #     return allInfo
     # "skills" not in jsonsData
-    print(skills)
     for data in skills:
-        # print(list(data))
-        print(data)
         if not data["id"]:
             id = ""
         else:
@@ -847,7 +828,6 @@ def setUserSkillView(request):
                            "chadvariinTuvshin": tuvshin})
             nemsen += 1
         elif (not tuvshin) or (not name):
-            print(id)
             userCursor.execute(
                 'DELETE FROM "f_userSkill" WHERE "id"= %s', (int(id),))
             myCon.commit()
@@ -863,7 +843,6 @@ def setUserSkillView(request):
                 chadvar["chadvariinNer"] = data[1]
                 chadvar["chadvariinTuvshin"] = data[2]
                 allInfo.append(chadvar)
-            # allInfo = allInfoDic(user)
             ustgasan += 1
     userCursor.close()
     disconnectDB(myCon)
@@ -874,8 +853,6 @@ def setUserSkillView(request):
     return HttpResponse(json.dumps(response), content_type="application/json")
 #################################################################################
 
-
-##################################################################################
 #   Хэрэглэгчийн id-г илгээхэд бүх чадваруудыг list хэлбэрээр илгээх функц.
 def getSkillView(request):
     jsonsData = json.loads(request.body)
@@ -923,8 +900,6 @@ def getSkillView(request):
 #################################################################################
 
 #   Хэрэглэгчийн id болон чадварыг илгээхэд update хийж илгээнэ.
-
-
 def setSkillView(request):
     jsonsData = json.loads(request.body)
     response = {}
@@ -1099,7 +1074,7 @@ def makeTransactionView(request):
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 ##################################################################################
-
+# Хэрэглэгчийн нэр, үлдэгдэл, нэрийг user_id-гаар нь авч илгээх  
 def getDashboardInfoView(request):
     if request.method == "GET" or request.method == "POST":
         jsons = checkJson(request)
@@ -1137,3 +1112,4 @@ def getDashboardInfoView(request):
     else:
         response = aldaaniiMedegdel(400, "Хүлээн авах боломжгүй хүсэлт байна.")
     return HttpResponse(json.dumps(response), content_type="application/json")
+##################################################################################
