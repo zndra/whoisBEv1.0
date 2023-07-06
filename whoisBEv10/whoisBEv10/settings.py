@@ -264,3 +264,11 @@ def checkJson(request):
     except:
         return False
     return jsons
+
+# response буцаахад ашиглах
+def aldaaniiMedegdel(code, tailbar):
+    resp = {}
+    resp["responseCode"] = code
+    resp["responseText"] = tailbar
+    return resp
+####################################
