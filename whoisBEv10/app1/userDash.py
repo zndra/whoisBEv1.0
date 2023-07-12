@@ -69,3 +69,36 @@ def insertComplainView(request):
     response = aldaaniiMedegdel(200, "Амжилттай бүртгэгдлээ.")
     return HttpResponse(json.dumps(response), content_type="application/json")
 #################################################################################   
+
+def getComplainView(request):
+    jsonsData = json.loads(request.body)
+    response = {}
+    user_id = jsonsData["id"]
+    text = jsonsData["text"]
+    try:
+        # db холболт
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        # user_id-гаар нь хайгаад бүх мэдээллийн авах
+        userCursor.execute("""SELECT * FROM f_complain""")
+        columns = [column[0] for column in userCursor.description]
+        data = userCursor.fetchall()
+        for i in range(0, len(data)):
+            diki = {}
+            for j in range(0, len(data[i])):
+                diki[columns[j]] = data[i][j]
+            data[i] = diki
+        # data = list(data)
+        myCon.commit()
+        # db salalt
+        userCursor.close()
+        disconnectDB(myCon)
+    except Exception as e:
+        response = aldaaniiMedegdel(551, "Баазын алдаа")
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    finally:
+        disconnectDB(myCon)
+    response = aldaaniiMedegdel(200, "Амжилттай бүртгэгдлээ.")
+    response["data"] = data
+    return HttpResponse(json.dumps(response), content_type="application/json")
+#################################################################################   

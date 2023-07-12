@@ -31,6 +31,7 @@ urlpatterns = [
     path('userInfoUpdate/',        userInfoUpdateView, name='uuserInfoUpdateView'),
     path('getDashboardInfo/',      getDashboardInfoView,name='getDashboardInfoView'),
     path('insertComplain/',        insertComplainView, name='insertComplainView'),
+    path('getComplain/',           getComplainView,    name='getComplainView'),
     ############# family ############################################################
     path('userFamily/',            userFamilyGet,      name= 'userFamilyGet'),
     path('userFamilyDel/',         userFamilyDel,      name= 'userFamilyDel'),
