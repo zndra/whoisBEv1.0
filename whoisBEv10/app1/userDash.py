@@ -40,3 +40,32 @@ def getDashboardInfoView(request):
     else:
         response = aldaaniiMedegdel(400, "Хүлээн авах боломжгүй хүсэлт байна.")
     return HttpResponse(json.dumps(response), content_type="application/json")
+################################################################################
+
+def insertComplainView(request):
+    jsonsData = json.loads(request.body)
+    response = {}
+    if (reqValidation(jsonsData, {"id", "text"}) == False):
+        resp = aldaaniiMedegdel(550, "Field дутуу байна.")
+        responseJSON = json.dumps(response)
+        return HttpResponse(responseJSON, content_type="application/json")
+    user_id = jsonsData["id"]
+    text = jsonsData["text"]
+    try:
+        # db холболт
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        # user_id-гаар нь хайгаад бүх мэдээллийн авах
+        userCursor.execute("""INSERT INTO "f_complain"("userId", text) VALUES(%s, %s)""", (user_id, text,))
+        myCon.commit()
+        # db salalt
+        userCursor.close()
+        disconnectDB(myCon)
+    except Exception as e:
+        response = aldaaniiMedegdel(551, "Баазын алдаа")
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    finally:
+        disconnectDB(myCon)
+    response = aldaaniiMedegdel(200, "Амжилттай бүртгэгдлээ.")
+    return HttpResponse(json.dumps(response), content_type="application/json")
+#################################################################################   
