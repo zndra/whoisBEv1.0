@@ -5,6 +5,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from whoisBEv10.settings import *
 from django.db import connection
 import json
+import traceback
 
 
 def uploadTemplateView(request):
@@ -293,119 +294,8 @@ def userTempListView(request):
         responseJSON = json.dumps({}, cls=DjangoJSONEncoder, default=str)
     return HttpResponse(responseJSON, content_type="application/json")
 ###########################################################################
-import traceback
 
-# def getUserAllInfo(request):
-#     jsons = json.loads(request.body)
-#     user_id = jsons['id']
 
-#     required_fields = ["id"]
-
-#     if request.method == 'GET':
-#         if not reqValidation(jsons, required_fields):
-#             resp = {
-#                 "responseCode": 550,
-#                 "responseText": "Field-үүд дутуу"
-#             }
-#             return HttpResponse(json.dumps(resp), content_type="application/json")
-
-#         try:
-#             myCon = connectDB()
-#             userCursor = myCon.cursor()
-#             userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
-#             user = userCursor.fetchone()
-
-#             if not user:
-#                 response = {
-#                     "responseCode": 555,
-#                     "responseText": "Хэрэглэгч олдсонгүй"
-#                 }
-#                 userCursor.close()
-#                 disconnectDB(myCon)
-#                 return HttpResponse(json.dumps(response), content_type="application/json")
-
-#             response = {
-#                 "responseCode": 200,
-#                 "responseText": "Амжилттай"
-#             }
-
-#             columns = [column[0] for column in userCursor.description]
-#             undsen_data = {
-#                 columns[index]: column for index, column in enumerate(user)
-#             }
-#             response['undsen'] = undsen_data
-
-#             # Fetch education data
-#             userCursor.execute('SELECT * FROM "f_userEdu" WHERE "user_id" = %s', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             edu_data = []
-#             for row in userCursor.fetchall():
-#                 edu_data.append({
-#                     columns[index]: column for index, column in enumerate(row)
-#                 })
-#             response['education'] = edu_data
-
-#             # Fetch family data
-#             userCursor.execute('SELECT * FROM "f_userFamily" WHERE "user_id" = %s', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             family_data = []
-#             for row in userCursor.fetchall():
-#                 family_data.append({
-#                     columns[index]: column for index, column in enumerate(row)
-#                 })
-#             response['family'] = family_data
-
-#             # Fetch additional information data
-#             userCursor.execute(
-#                 'SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             nemelt_data = {
-#                 columns[index]: column for index, column in enumerate(userCursor.fetchone())
-#             }
-#             response['nemelt'] = nemelt_data
-
-#             # Fetch skill data
-#             userCursor.execute(
-#                 'SELECT * FROM "f_skill" WHERE "userId" = %s', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             skill_data = {
-#                 columns[index]: column for index, column in enumerate(userCursor.fetchone())
-#             }
-#             response['skill'] = skill_data
-
-#             # Fetch social data
-#             userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id" = %s', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             social_data = []
-#             for row in userCursor.fetchall():
-#                 social_data.append({
-#                     columns[index]: column for index, column in enumerate(row)
-#                 })
-#             response['social'] = social_data
-
-#             # Fetch work data
-#             userCursor.execute('SELECT * FROM "f_userWork" WHERE "user_id" = %s', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             work_data = []
-#             for row in userCursor.fetchall():
-#                 work_data.append({
-#                     columns[index]: column for index, column in enumerate(row)
-#                 })
-#             response['work'] = work_data
-
-#             userCursor.close()
-#             disconnectDB(myCon)
-
-#             response = json.dumps(response, cls=DjangoJSONEncoder)
-#             return HttpResponse(response, content_type="application/json")
-
-#         except Exception as e:
-#             traceback.print_exc()  # Print the exception traceback
-#             response = {
-#                 "responseCode": 555,
-#                 "responseText": "Алдаа гарлаа"
-#             }
-#             return HttpResponse(json.dumps(response), content_type="application/json")
 def getUserAllInfo(request):
     jsons = json.loads(request.body)
     user_id = jsons.get('id')
@@ -457,7 +347,7 @@ def getUserAllInfo(request):
             response['undsen'] = undsen_data if undsen_data else {}
 
             # Fetch education data
-            userCursor.execute('SELECT * FROM "f_userEdu" WHERE "user_id" = %s', (user_id,))
+            userCursor.execute('SELECT * FROM "f_userEdu" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
             columns = [column[0] for column in userCursor.description]
             edu_data = []
             for row in userCursor.fetchall():
@@ -467,7 +357,7 @@ def getUserAllInfo(request):
             response['education'] = edu_data
 
             # Fetch family data
-            userCursor.execute('SELECT * FROM "f_userFamily" WHERE "user_id" = %s', (user_id,))
+            userCursor.execute('SELECT * FROM "f_userFamily" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
             columns = [column[0] for column in userCursor.description]
             family_data = []
             for row in userCursor.fetchall():
@@ -496,7 +386,7 @@ def getUserAllInfo(request):
             response['skill'] = skill_data
 
             # Fetch social data
-            userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id" = %s', (user_id,))
+            userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
             columns = [column[0] for column in userCursor.description]
             social_data = []
             for row in userCursor.fetchall():
@@ -506,7 +396,7 @@ def getUserAllInfo(request):
             response['social'] = social_data
 
             # Fetch work data
-            userCursor.execute('SELECT * FROM "f_userWork" WHERE "user_id" = %s', (user_id,))
+            userCursor.execute('SELECT * FROM "f_userWork" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
             columns = [column[0] for column in userCursor.description]
             work_data = []
             for row in userCursor.fetchall():
@@ -899,129 +789,7 @@ def userTempDel(request):
 #             **responseJSON
 #         }
 #         return HttpResponse(json.dumps(response, cls=DjangoJSONEncoder), content_type="application/json")
-#################
-# def getUserAllInfo(request):
-#     jsons = json.loads(request.body)
-#     user_id = jsons.get('id')
-#     user_name = jsons.get('userName')
 
-#     required_fields = ["id", "userName"]
-#     if request.method == 'GET':
-#         if not (reqValidation(jsons, required_fields) or user_id or user_name):
-#             resp = {
-#                 "responseCode": 550,
-#                 "responseText": "Field-үүд дутуу"
-#             }
-#             return HttpResponse(json.dumps(resp), content_type="application/json")
-
-#         try:
-#             myCon = connectDB()
-#             userCursor = myCon.cursor()
-
-#             if user_id:
-#                 userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
-#             elif user_name:
-#                 userCursor.execute('SELECT * FROM "f_user" WHERE "userName" = %s', (user_name,))
-#                 user = userCursor.fetchone()
-#                 if user:
-#                     user_id = user[0]  # Get the ID from the fetched user
-
-#             if not user_id:
-#                 response = {
-#                     "responseCode": 555,
-#                     "responseText": "Хэрэглэгч олдсонгүй"
-#                 }
-#                 userCursor.close()
-#                 disconnectDB(myCon)
-#                 return HttpResponse(json.dumps(response), content_type="application/json")
-
-#             response = {
-#                 "responseCode": 200,
-#                 "responseText": "Амжилттай"
-#             }
-
-#             columns = [column[0] for column in userCursor.description]
-            
-#             # Fetch user data
-#             userCursor.execute('SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
-#             user = userCursor.fetchone()
-#             undsen_data = {
-#                 columns[index]: column for index, column in enumerate(user)
-#             }
-#             response['undsen'] = undsen_data if undsen_data else {}
-
-#             # Fetch education data
-#             userCursor.execute('SELECT * FROM "f_userEdu" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             edu_data = []
-#             for row in userCursor.fetchall():
-#                 edu_data.append({
-#                     columns[index]: column for index, column in enumerate(row)
-#                 })
-#             response['education'] = edu_data
-
-#             # Fetch family data
-#             userCursor.execute('SELECT * FROM "f_userFamily" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             family_data = []
-#             for row in userCursor.fetchall():
-#                 family_data.append({
-#                     columns[index]: column for index, column in enumerate(row)
-#                 })
-#             response['family'] = family_data
-
-#             # Fetch additional information data
-#             userCursor.execute(
-#                 'SELECT * FROM "f_userNemeltMedeelel" WHERE "user_id" = %s', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             nemelt_row = userCursor.fetchone()
-#             nemelt_data = {
-#                 columns[index]: column for index, column in enumerate(nemelt_row)
-#             } if nemelt_row else {}
-#             response['nemelt'] = nemelt_data
-
-#             # Fetch skill data
-#             userCursor.execute(
-#                 'SELECT * FROM "f_skill" WHERE "userId" = %s AND "deldate" IS NULL', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             skill_data = {
-#                 columns[index]: column for index, column in enumerate(userCursor.fetchone())
-#             } if userCursor.rowcount > 0 else {}
-#             response['skill'] = skill_data
-
-#             # Fetch social data
-#             userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             social_data = []
-#             for row in userCursor.fetchall():
-#                 social_data.append({
-#                     columns[index]: column for index, column in enumerate(row)
-#                 })
-#             response['social'] = social_data
-
-#             # Fetch work data
-#             userCursor.execute('SELECT * FROM "f_userWork" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
-#             columns = [column[0] for column in userCursor.description]
-#             work_data = []
-#             for row in userCursor.fetchall():
-#                 work_data.append({
-#                     columns[index]: column for index, column in enumerate(row)
-#                 })
-#             response['work'] = work_data
-
-#             userCursor.close()
-#             disconnectDB(myCon)
-
-#             response = json.dumps(response, cls=DjangoJSONEncoder)
-#             return HttpResponse(response, content_type="application/json")
-
-#         except Exception as e:
-#             traceback.print_exc()  # Print the exception traceback
-#             response = {
-#                 "responseCode": 555,
-#                 "responseText": "Алдаа гарлаа"
-#             }
-#             return HttpResponse(json.dumps(response), content_type="application/json")
 ###################################
 # def tempDel(request):
 #     jsons = json.loads(request.body)
