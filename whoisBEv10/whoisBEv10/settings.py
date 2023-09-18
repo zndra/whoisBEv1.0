@@ -121,12 +121,6 @@ pgHost     = "192.168.0.15"
 pgPassword = "whoispass"
 pgPort     = "5938"
 
-verifyEmailSubject = "WhoIs: Имэйл баталгаажуулах"
-verifyEmailContent = "Та манай системд бүртгүүлсэн байна. \n\n Доорх холбоос дээр дарж бүртгэлээ баталгаажуулна уу!\n\n"
-verifyEmailLink = "http://whois.mandakh.org/verifyEmail/"
-
-
-
 # ------------ end Bidnii nemsen tohiruulguud
 
 # bidnii nemsen function
@@ -218,16 +212,17 @@ def sendMail(receiver_address, mail_subject, mail_content):
     message = MIMEMultipart()
     message['From'] = sender_address
     message['To'] = receiver_address
-    message['Subject'] = mail_subject  # The subject line
-    # The body and the attachments for the mail
+    message['Subject'] = mail_subject  
     message.attach(MIMEText(mail_content, 'plain'))
-    # Create SMTP session for sending the mail
-    session = smtplib.SMTP_SSL('smtp.gmail.com', 465)  # use gmail with port 465
-    session.login(sender_address, sender_pass)  # login with mail_id and password
+    session = smtplib.SMTP_SSL('smtp.gmail.com', 465) 
+    session.login(sender_address, sender_pass) 
     text = message.as_string()
     session.sendmail(sender_address, receiver_address, text)
     session.quit()
 #   sendMail
+verifyEmailSubject = "WhoIs: Имэйл баталгаажуулах"
+verifyEmailContent = "Та манай системд бүртгүүлсэн байна. \n\n Доорх холбоос дээр дарж бүртгэлээ баталгаажуулна уу!\n\n"
+verifyEmailLink = "http://whois.mandakh.org/verifyEmail/"
 
 def runQuery(query):
     myCon      = connectDB()

@@ -78,22 +78,89 @@ def userLoginView(request):
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
 #   userLoginView end#########################################################
+# def userRegisterView(request):
+#     jsons = json.loads(request.body)
+#     # Validate request body
+#     if reqValidation(jsons, {"firstName", "lastName", "email", "pass", "userName"}) == False:
+#         resp = {
+#             "responseCode": 550,
+#             "responseText": "Field-үүд дутуу"
+#         }
+#         return HttpResponse(json.dumps(resp), content_type="application/json")
+#     firstName = jsons['firstName']
+#     lastName = jsons['lastName']
+#     email = jsons['email']
+#     password = jsons['pass']
+#     username = jsons['userName']
+#     try:
+#         myCon = connectDB()
+#         userCursor = myCon.cursor()
+
+#         if emailExists(email):
+#             resp = {
+#                 "responseCode": 400,
+#                 "responseText": "Бүртгэлтэй email байна."
+#             }
+#             return HttpResponse(json.dumps(resp), content_type="application/json")
+
+#         if userNameExists(username):
+#             resp = {
+#                 "responseCode": 400,
+#                 "responseText": "Бүртгэлтэй хэрэглэгчийн нэр байна."
+#             }
+#             return HttpResponse(json.dumps(resp), content_type="application/json")
+
+#         if not myCon:
+#             raise Exception("Can not connect to the database")
+#     except Exception as e:
+#         resp = {
+#             "responseCode": 551,
+#             "responseText": "Баазын алдаа"
+#         }
+#         return HttpResponse(json.dumps(resp), content_type="application/json")
+#     userCursor.execute(
+#         'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
+#         'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',
+#         (firstName, lastName, email, password, username, None, 2,))
+#     userId = userCursor.fetchone()[0]
+#     # Add user ID to other tables
+#     current_date = datetime.date.today()
+#     date = current_date.strftime("%m/%d/%Y")
+#     userCursor.execute(
+#         'INSERT INTO "f_userNemeltMedeelel"("user_id", "huis", "torsonOgnoo") VALUES(%s,%s,%s)',
+#         (userId,1,date))
+#     myCon.commit()
+#     # Close the userCursor and disconnect from the database
+#     userCursor.close()
+#     disconnectDB(myCon)
+
+#     # Return success response
+#     resp = {
+#         "responseCode": 200,
+#         "responseText": "Амжилттай бүртгэгдлээ"
+#     }
+#     return HttpResponse(json.dumps(resp), content_type="application/json")
+######################################
 def userRegisterView(request):
     jsons = json.loads(request.body)
-    # Validate request body
     if reqValidation(jsons, {"firstName", "lastName", "email", "pass", "userName"}) == False:
         resp = {
             "responseCode": 550,
             "responseText": "Field-үүд дутуу"
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
+
     firstName = jsons['firstName']
     lastName = jsons['lastName']
     email = jsons['email']
     password = jsons['pass']
     username = jsons['userName']
+
     try:
         myCon = connectDB()
+        if not myCon:
+            raise Exception("Can not connect to the database")
+
         userCursor = myCon.cursor()
 
         if emailExists(email):
@@ -110,36 +177,46 @@ def userRegisterView(request):
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
 
-        if not myCon:
-            raise Exception("Can not connect to the database")
+        userCursor.execute(
+            'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
+            'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',
+            (firstName, lastName, email, password, username, None, 2,))
+        userId = userCursor.fetchone()[0]
+
+        current_date = datetime.date.today()
+        date = current_date.strftime("%m/%d/%Y")
+        userCursor.execute(
+            'INSERT INTO "f_userNemeltMedeelel"("user_id", "huis", "torsonOgnoo") VALUES(%s,%s,%s)',
+            (userId, 1, date))
+
+        verification_code = createCodes(6)
+        userCursor.execute(
+            'INSERT INTO "f_otp"("userId", "value") VALUES(%s, %s)',
+            (userId, verification_code)
+        )
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+
+        verifyEmailSubject = "WhoIs: Имэйл баталгаажуулах"
+        verifyEmailContent = f"Та манай системд бүртгүүлсэн байна, {username}. \n\n Доорх холбоос дээр дарж бүртгэлээ баталгаажуулна уу!\n\n"
+        verifyEmailLink = f"http://whois.mandakh.org/emailVerify/{verification_code}"
+
+        sendMail(email, verifyEmailSubject, verifyEmailContent + verifyEmailLink)
+        
+        resp = {
+            "responseCode": 200,
+            "responseText": "Амжилттай бүртгэгдлээ. Баталгаажуулах имэйл илгээгдлээ.",
+        }
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
     except Exception as e:
+        print(f"Error: {str(e)}")  
         resp = {
             "responseCode": 551,
             "responseText": "Баазын алдаа"
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
-    userCursor.execute(
-        'INSERT INTO "f_user"("firstName", "lastName", "email", "pass", "userName", "deldate", "usertypeid") '
-        'VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING "id"',
-        (firstName, lastName, email, password, username, None, 2,))
-    userId = userCursor.fetchone()[0]
-    # Add user ID to other tables
-    current_date = datetime.date.today()
-    date = current_date.strftime("%m/%d/%Y")
-    userCursor.execute(
-        'INSERT INTO "f_userNemeltMedeelel"("user_id", "huis", "torsonOgnoo") VALUES(%s,%s,%s)',
-        (userId,1,date))
-    myCon.commit()
-    # Close the userCursor and disconnect from the database
-    userCursor.close()
-    disconnectDB(myCon)
-
-    # Return success response
-    resp = {
-        "responseCode": 200,
-        "responseText": "Амжилттай бүртгэгдлээ"
-    }
-    return HttpResponse(json.dumps(resp), content_type="application/json")
 ######################################################################################
 
 # Verify email view
@@ -147,15 +224,12 @@ def verifyEmailView(request, otp):
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
-
-        # Retrieve the user ID associated with the provided OTP
         userCursor.execute(
             'SELECT "userId" FROM "f_otp" WHERE "value" = %s', (otp,))
         result = userCursor.fetchone()
 
         if result:
             userId = result[0]
-            # Update the user's isVerified flag to True in the f_user table
             userCursor.execute(
                 'UPDATE "f_user" SET "isVerified" = TRUE WHERE "id" = %s', (userId,))
             myCon.commit()
