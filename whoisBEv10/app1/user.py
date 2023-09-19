@@ -39,15 +39,17 @@ def userLoginView(request):
         myCon = connectDB()
         userCursor = myCon.cursor()
         userCursor.execute("SELECT \"id\",\"userName\",\"firstName\",\"lastName\",\"email\" "
-                           " FROM f_user"
-                           " WHERE "
-                           " deldate IS NULL AND "
-                           " pass = %s AND "
-                           " \"userName\" = %s ",
-                           (
-                               myPass,
-                               myName,
-                           ))
+                   "FROM f_user "
+                   "WHERE "
+                   "deldate IS NULL AND "
+                   "pass = %s AND "
+                   "\"isVerified\" = true AND "
+                   "\"userName\" = %s",
+                   (
+                       myPass,
+                       myName,
+                   ))
+
         columns = userCursor.description
         response = [{columns[index][0]: column for index, column in enumerate(
             value)} for value in userCursor.fetchall()]
