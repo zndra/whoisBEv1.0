@@ -258,6 +258,43 @@ def verifyEmailView(request, otp):
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
 ###################################################################################
+# Flog
+def fLog(request):
+    f_log("test", "test")
+    print("Helooooooooooooooooo")
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute(
+            """SELECT * FROM f_log""")
+        result = userCursor.fetchone()
+        print(result)
+        print(result)
+        if result:
+            myCon.commit()
+            userCursor.close()
+            disconnectDB(myCon)
+    except Exception as e:
+        print("error")
+###################################################################################
+# f_log
+def f_log(request_body, response_body):
+    print("1111111111111111111111")
+    try:
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        userCursor.execute(
+            f"INSERT INTO f_log('request_body', 'response_body') VALUES({request_body}, {response_body})")
+        result = userCursor.fetchone()
+        print(result)
+        print(result)
+        if result:
+            myCon.commit()
+            userCursor.close()
+            disconnectDB(myCon)
+    except Exception as e:
+        print("error")
+###################################################################################
 
 
 def forgetPass(request):

@@ -67,10 +67,9 @@ urlpatterns = [
     ##########################################################################
     path('getSkill/' ,         getSkillView,   name='getSkillView'   ),
     path('setSkill/' ,         setSkillView,   name='setSkillView'   ),
-    
-
-
     path('userList/',              userListView,       name='userListView'),
+    path('userList/',              userListView,       name='userListView'),
+    path('fLog/',              fLog,       name='fLogView'),
     ######################################################
     path('getTransactionLog/', getTransactionLog, name="getTransactionLog"),
     path('makeTransaction/', makeTransactionView, name="makeTransaction"),
