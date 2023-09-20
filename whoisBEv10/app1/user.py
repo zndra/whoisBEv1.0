@@ -266,7 +266,7 @@ def fLog(request):
         myCon = connectDB()
         userCursor = myCon.cursor()
         userCursor.execute(
-            """SELECT * FROM f_log""")
+            'SELECT * FROM f_log')
         result = userCursor.fetchone()
         print(result)
         print(result)
@@ -284,7 +284,9 @@ def f_log(request_body, response_body):
         myCon = connectDB()
         userCursor = myCon.cursor()
         userCursor.execute(
-            f"INSERT INTO f_log('request_body', 'response_body') VALUES({request_body}, {response_body})")
+            'INSERT INTO f_log(request_body, response_body) VALUES(\'%s\', \'%s\')', (request_body, response_body))
+            # 'UPDATE "f_user" SET "pass" = %s WHERE "id" = %s', (newpass, id)
+            # f"INSERT INTO f_log('request_body', 'response_body') VALUES({request_body}, {response_body})"
         result = userCursor.fetchone()
         print(result)
         print(result)
