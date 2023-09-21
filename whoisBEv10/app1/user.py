@@ -261,41 +261,61 @@ def verifyEmailView(request, otp):
 # Flog
 def fLog(request):
     f_log("test", "test")
-    print("Helooooooooooooooooo")
+    resp = {}
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
         userCursor.execute(
             'SELECT * FROM f_log')
-        result = userCursor.fetchone()
-        print(result)
-        print(result)
+        result = userCursor.fetchall()
+        # table-д мэдээлэл байхгүй үед
+        if not result:
+            response = aldaaniiMedegdel(553, "Одоогоор мэдээлэл оруулаагүй байна.")
+            userCursor.close()
+            disconnectDB(myCon)
+            return HttpResponse(json.dumps(response), content_type="application/json")
+        datas = []
+        for data in result:
+            data = list(data)
+            chadvar = {}
+            chadvar["id"] = data[0]
+            chadvar["user_id"] = data[4]
+            chadvar["request_body"] = data[1]
+            chadvar["response_body"] = data[2]
+            chadvar["ognoo"] = str(data[3])
+            # print(data[3])
+            # chadvar["ognoo"] = data[3]
+            datas.append(chadvar)
+        resp = aldaaniiMedegdel(
+            200, "Амжилттай.")
+        resp["data"] = datas
         if result:
             myCon.commit()
             userCursor.close()
             disconnectDB(myCon)
     except Exception as e:
         print("error")
+        response = aldaaniiMedegdel(551, "Баазын алдаа")
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    return HttpResponse(json.dumps(resp), content_type="application/json")
 ###################################################################################
 # f_log
 def f_log(request_body, response_body):
-    print("1111111111111111111111")
+    print("1111111111111")
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
-        userCursor.execute(
-            'INSERT INTO f_log(request_body, response_body) VALUES(\'%s\', \'%s\')', (request_body, response_body))
-            # 'UPDATE "f_user" SET "pass" = %s WHERE "id" = %s', (newpass, id)
-            # f"INSERT INTO f_log('request_body', 'response_body') VALUES({request_body}, {response_body})"
-        result = userCursor.fetchone()
-        print(result)
-        print(result)
-        if result:
-            myCon.commit()
-            userCursor.close()
-            disconnectDB(myCon)
+        userCursor.execute('INSERT INTO f_log(request_body, response_body, ognoo) VALUES(%s, %s, default)', (request_body, response_body))
+        # result = userCursor.fetchall()
+        # print(result)
+        # if result:
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+        print( "Амжилттай бүртгэгдлээ")
     except Exception as e:
-        print("error")
+        print ("Амжилтгүй")
+        print(e)
 ###################################################################################
 
 
