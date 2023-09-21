@@ -58,6 +58,7 @@ def userLoginView(request):
         resp = {}
         resp["responseCode"] = 551
         resp["responseText"] = "Баазын алдаа"
+        # f_log(jsons, resp, )
         return HttpResponse(json.dumps(resp), content_type="application/json")
     finally:
         disconnectDB(myCon)
@@ -260,7 +261,7 @@ def verifyEmailView(request, otp):
 ###################################################################################
 # Flog
 def fLog(request):
-    f_log("test", "test")
+    f_log("test", "test", 7)
     resp = {}
     try:
         myCon = connectDB()
@@ -279,9 +280,9 @@ def fLog(request):
             data = list(data)
             chadvar = {}
             chadvar["id"] = data[0]
-            chadvar["user_id"] = data[4]
-            chadvar["request_body"] = data[1]
-            chadvar["response_body"] = data[2]
+            chadvar["userId"] = data[4]
+            chadvar["requestBody"] = data[1]
+            chadvar["responseBody"] = data[2]
             chadvar["ognoo"] = str(data[3])
             # print(data[3])
             # chadvar["ognoo"] = data[3]
@@ -300,12 +301,13 @@ def fLog(request):
     return HttpResponse(json.dumps(resp), content_type="application/json")
 ###################################################################################
 # f_log
-def f_log(request_body, response_body):
-    print("1111111111111")
+def f_log(requestBody, responseBody, userId):
+    if (userId is None) or (userId == 0):
+        userId = None
     try:
         myCon = connectDB()
         userCursor = myCon.cursor()
-        userCursor.execute('INSERT INTO f_log(request_body, response_body, ognoo) VALUES(%s, %s, default)', (request_body, response_body))
+        userCursor.execute('INSERT INTO f_log(request_body, response_body, ognoo, user_id) VALUES(%s, %s, default, %s)', (str(requestBody), str(responseBody), userId))
         # result = userCursor.fetchall()
         # print(result)
         # if result:
