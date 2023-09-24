@@ -27,6 +27,7 @@ def userListView(request):
 #   userListView
 
 def userLoginView(request):
+    myCon = None  # Initialize myCon with None
     jsons = json.loads(request.body)
     if (reqValidation(jsons, {"name", "pass", }) == False):
         resp = {}
@@ -58,10 +59,10 @@ def userLoginView(request):
         resp = {}
         resp["responseCode"] = 551
         resp["responseText"] = "Баазын алдаа"
-        # f_log(jsons, resp, )
         return HttpResponse(json.dumps(resp), content_type="application/json")
     finally:
-        disconnectDB(myCon)
+        if myCon is not None:
+            disconnectDB(myCon)
     responseCode = 521  # login error
     responseText = 'Буруу нэр/нууц үг'
     responseData = []
@@ -74,11 +75,8 @@ def userLoginView(request):
     resp["responseCode"] = responseCode
     resp["responseText"] = responseText
     resp["userData"] = responseData
-    resp["Сургууль"] = {}
-    resp["Сургууль"]["Нэр"] = "Мандах"
-    resp["Сургууль"]["Хаяг"] = "3-р хороолол"
-
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 
 #   userLoginView end#########################################################
 # def userRegisterView(request):
