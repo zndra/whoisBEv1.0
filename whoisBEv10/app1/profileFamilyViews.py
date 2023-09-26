@@ -66,7 +66,7 @@ def userFamilyGet(request):
                 return HttpResponse(json.dumps(response), content_type="application/json")
             if user:
                 userCursor.execute(
-                    'SELECT * FROM "f_userFamily" WHERE "user_id"= %s', (user_id,))
+                    'SELECT * FROM "f_userFamily" WHERE "user_id"= %s AND "deldate" IS NULL', (user_id,))
                 columns = [column[0] for column in userCursor.description]
 
                 response = [
