@@ -6,6 +6,60 @@ from whoisBEv10.settings import *
 from django.db import connection
 
 
+def delUserSkillView(request):
+    jsonsData = json.loads(request.body)
+    response = {}
+    baikhYstoiFielduud = ["id"]
+    if not reqValidation(jsonsData, baikhYstoiFielduud):
+        resp = aldaaniiMedegdel(550, "Field дутуу байна.")
+        responseJSON = json.dumps(resp)
+        return HttpResponse(responseJSON, content_type="application/json")
+    id = jsonsData["id"]
+    try:
+        # db холболт
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        # f_userSkill table-ээс чадварын мэдээллийг устгана.
+        userCursor.execute(f'DELETE FROM public."f_userSkill" WHERE "id" = {id}',)
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+    except Exception as e:
+        response = aldaaniiMedegdel(551, "Баазын алдаа")
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    finally:
+        disconnectDB(myCon)
+    response = aldaaniiMedegdel(200, "Амжилттай, устгалаа.")
+    return HttpResponse(json.dumps(response), content_type="application/json")
+######################################################################
+def insertUserSkillView(request):
+    jsonsData = json.loads(request.body)
+    response = {}
+    baikhYstoiFielduud = ["user_id", "chadvariinNer", "chadvariinTuvshin"]
+    if not reqValidation(jsonsData, baikhYstoiFielduud):
+        resp = aldaaniiMedegdel(550, "Field дутуу байна.")
+        responseJSON = json.dumps(resp)
+        return HttpResponse(responseJSON, content_type="application/json")
+    user_id = jsonsData["user_id"]
+    chadvariinNer = jsonsData["chadvariinNer"]
+    chadvariinTuvshin = jsonsData["chadvariinTuvshin"]
+    try:
+        # db холболт
+        myCon = connectDB()
+        userCursor = myCon.cursor()
+        # f_userSkill table рүү чадварын мэдээллүүдийг оруулна.
+        userCursor.execute('INSERT INTO public."f_userSkill" ("user_id", "chadvarNer", "s_Tuvshin") VALUES(%s, %s, %s)', (user_id, chadvariinNer, chadvariinTuvshin))
+        myCon.commit()
+        userCursor.close()
+        disconnectDB(myCon)
+    except Exception as e:
+        response = aldaaniiMedegdel(551, "Баазын алдаа")
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    finally:
+        disconnectDB(myCon)
+    response = aldaaniiMedegdel(200, "Амжилттай, чадварын мэдээллийг бүртгэлээ.")
+    return HttpResponse(json.dumps(response), content_type="application/json")
+######################################################################
 def getUserSkillView(request):
     jsonsData = json.loads(request.body)
     response = {}

@@ -66,6 +66,8 @@ urlpatterns = [
     path('tempDel/' ,   tempDel,   name='tempDel'   ),
     ##########################################################################
     path('getSkill/' ,         getSkillView,   name='getSkillView'   ),
+    path('insertUserSkill/' ,         insertUserSkillView,   name='insertUserSkillView'   ),
+    path('delUserSkill/' ,         delUserSkillView,   name='delUserSkillView'   ),
     path('setSkill/' ,         setSkillView,   name='setSkillView'   ),
     path('userList/',              userListView,       name='userListView'),
     path('userList/',              userListView,       name='userListView'),
