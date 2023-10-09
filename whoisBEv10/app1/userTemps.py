@@ -30,7 +30,7 @@ def uploadTemplateView(request):
         userCursor = myCon.cursor()
 
         if not myCon:
-            raise Exception("Can not connect to the database")
+            raise Exception("Баазтай холбогдоход алдаа гарлаа")
     except Exception as e:
         resp = {
             "responseCode": 551,
@@ -38,7 +38,6 @@ def uploadTemplateView(request):
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
-    # Check if tempTypeId exists in f_tempType table
     userCursor.execute(
         'SELECT * FROM "f_tempType" WHERE "id" = %s', (tempTypeId,))
     tempType = userCursor.fetchone()
@@ -52,7 +51,6 @@ def uploadTemplateView(request):
         disconnectDB(myCon)
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
-    # Check if catId exists in f_catType table
     userCursor.execute(
         'SELECT * FROM "f_catType" WHERE "id" = %s', (catId,))
     catType = userCursor.fetchone()
@@ -72,9 +70,7 @@ def uploadTemplateView(request):
         (name, tempTypeId, catId, file))
 
     templateId = userCursor.fetchone()[0]
-
     myCon.commit()
-
     userCursor.close()
     disconnectDB(myCon)
 
