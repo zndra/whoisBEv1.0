@@ -75,7 +75,8 @@ urlpatterns = [
     ######################################################
     path('getTransactionLog/', getTransactionLog, name="getTransactionLog"),
     path('makeTransaction/', makeTransactionView, name="makeTransaction"),
-    path('adminTrans/', adminMakeTransactionView, name="adminMakeTransactionView"),
+    path('adminTrans/', adminTransactionView, name="adminTransactionView"),
+    path('getAdminLog/', getAdminTransactionLog, name="getAdminTransactionLog"),
 
     ################################################################################
      path('tooAvah/', tooAvah, name="tooAvah"),

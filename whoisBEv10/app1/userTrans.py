@@ -136,61 +136,81 @@ def makeTransactionView(request):
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
     ##### admin make transaction
-def adminMakeTransactionView(request):
+
+def adminTransactionView(request):
     if request.method == "POST":
         jsons = checkJson(request)
-        if reqValidation(jsons, {"target", "amount",}) == False:
+        if reqValidation(jsons, {"target", "amount"}) == False:
             resp = {
                 "responseCode": 550,
                 "responseText": "Field-үүд дутуу"
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
-        
         targetUserName = jsons["target"]
         amount = jsons["amount"]
-        
         try:
             conn = connectDB()
             cur = conn.cursor()
-            cur.execute("""SELECT balance, "userName" FROM "f_user" WHERE "userName" = %s""", [targetUserName,])
-            target_user = cur.fetchone()
-            
-            if target_user is None:
+            cur.execute("""SELECT balance FROM "f_user" WHERE "userName" = %s""", [targetUserName])
+            targetBalance = cur.fetchone()
+
+            if targetBalance is None:
                 resp = {
                     "responseCode": 588,
                     "responseText": "Хэрэглэгчийн мэдээлэл олдсонгүй .",
                 }
                 return HttpResponse(json.dumps(resp), content_type="application/json")
-            
-            targetUserName = target_user[1]
-            
-            cur.execute("""UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING "userName", balance""", [amount, targetUserName,])
-          
+
+            cur.execute("""UPDATE f_user SET balance = balance + %s WHERE "userName" = %s RETURNING "userName", balance""",
+                        [amount, targetUserName])
             targetData = cur.fetchone()
-         
+
+            cur.execute("""INSERT INTO "f_adminTransactionLog" (amount, balance, "to") VALUES (%s, %s, %s)""",
+                        [int(amount), int(targetBalance[0]), targetUserName])
             conn.commit()
-            
+
             resp = {
                 "responseCode": 200,
-                "responseText": "Амжилттай шилжлээ.",  
-                "data" : {
+                "responseText": "Амжилттай шилжлээ.",
+                "data": {
                     'target': targetData
                 }
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
+
         except Exception as e:
             resp = {
                 "responseCode": 500,
                 "responseText": "Алдаа гарлаа",
-                "data" : str(e)
+                "data": str(e)
             }
             return HttpResponse(json.dumps(resp), content_type="application/json")
+
         finally:
             if conn is not None:
                 disconnectDB(conn)
+
     else:
         resp = {
             "responseCode": 400,
             "responseText": "Хүлээн авах боломжгүй хүсэлт байна.",
         }
         return HttpResponse(json.dumps(resp), content_type="application/json")
+
+#########admin transaction log
+def getAdminTransactionLog(request):
+    myCon = connectDB()
+    userCursor = myCon.cursor()
+    userCursor.execute('SELECT * FROM "f_adminTransactionLog" ORDER BY id ASC')
+    columns = userCursor.description
+    response = [{columns[index][0]: column for index,
+                 column in enumerate(value)} for value in userCursor.fetchall()]
+    userCursor.close()
+    disconnectDB(myCon)
+    for item in response:
+        if 'created_at' in item:
+            item['created_at'] = item['created_at'].astimezone(
+                pytz.utc).replace(tzinfo=None)
+    responseJSON = json.dumps(response, cls=DjangoJSONEncoder, default=str)
+    return HttpResponse(responseJSON, content_type="application/json")
+
