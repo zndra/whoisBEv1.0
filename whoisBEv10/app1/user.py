@@ -559,6 +559,9 @@ def userInfoUpdateView(request):
         if "lastName" in jsons:
             update_fields.append('"lastName"')
             update_values.append(jsons['lastName'])
+        if "profile" in jsons:
+            update_fields.append('"profile"')
+            update_values.append(jsons['profile'])
         if "userName" in jsons:
             new_username = jsons['userName']
             if new_username != response_json["userName"] and userNameExists(new_username):
