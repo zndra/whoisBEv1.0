@@ -25,57 +25,6 @@ def userListView(request):
     return HttpResponse(responseJSON, content_type="application/json")
 #   userListView
 
-def uploadProfile(request):
-    jsons = json.loads(request.body)
-    required_fields = ["id", "path"]
-
-    if not reqValidation(jsons, required_fields):
-        response = {
-            "responseCode": 550,
-            "responseText": "Field-үүд дутуу"
-        }
-        return HttpResponse(json.dumps(response), content_type="application/json")
-    user_id = jsons['id']
-    profile = jsons['path']
-    try:
-        myCon = connectDB()  
-        userCursor = myCon.cursor()
-        userCursor.execute(
-            'SELECT * FROM "f_user" WHERE "id" = %s', (user_id,))
-        user = userCursor.fetchone()
-        if not user:
-            response = {
-                "responseCode": 555,
-                "responseText": "Хэрэглэгч олдсонгүй"
-            }
-            userCursor.close()
-            disconnectDB(myCon)
-            return HttpResponse(json.dumps(response), content_type="application/json")
-
-        userCursor.execute(
-            'UPDATE "f_user" SET "profile" = %s WHERE "id" = %s',
-            (profile, user_id))
-        myCon.commit()
-        userCursor.close()
-        disconnectDB(myCon)
-
-        response = {
-            "responseCode": 200,
-            "responseText": "Мэдээдэл амжилттай хадгалагдлаа."
-        }
-        return HttpResponse(json.dumps(response), content_type="application/json")
-
-    except Exception as e:
-        error_message = traceback.format_exc()
-        print(error_message)
-
-        response = {
-            "responseCode": 551,
-            "responseText": "Баазын алдаа: " + str(e)
-        }
-        return HttpResponse(json.dumps(response), content_type="application/json")
-
-#upload profile picture
 def userLoginView(request):
     myCon = None  # Initialize myCon with None
     jsons = json.loads(request.body)
@@ -559,7 +508,7 @@ def verifyCodeView(request):
 
 def userInfoUpdateView(request):
     jsons = json.loads(request.body)
-    allowed_fields = ["id", "firstName", "lastName", "userName"]
+    allowed_fields = ["id", "firstName", "lastName", "userName","profile"]
 
     if not any(field in jsons for field in allowed_fields):
         response = {
