@@ -26,6 +26,7 @@ def userSocial(request):
             {columns[index]: value for index, value in enumerate(row)}
             for row in userCursor.fetchall()
         ]
+        print(response_data)
         
         userCursor.close()
         disconnectDB(myCon)
