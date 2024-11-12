@@ -117,7 +117,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 pgDbName   = "dbwhois"
 pgUser     = "uwhois"
-pgHost     = "192.168.0.15"
+pgHost     = "202.131.254.138"
 pgPassword = "whoispass"
 pgPort     = "5938"
 

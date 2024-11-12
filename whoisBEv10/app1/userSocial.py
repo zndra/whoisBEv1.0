@@ -1,60 +1,55 @@
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse  
 from django.core.serializers.json import DjangoJSONEncoder
 from whoisBEv10.settings import *
 from datetime import date
-def userSocial(request):
-    jsons = json.loads(request.body)
-    user_id = jsons['id']
+import json
 
-    if request.method == 'GET':
+def userSocial(request):
+    if request.method != 'GET':
+        return JsonResponse({"responseCode": 405, "responseText": "Method Not Allowed"}, status=405)
+
+    try:
+        json_data = json.loads(request.body)
+        user_id = json_data['id']
+        
+        if not user_id:
+            return JsonResponse({"responseCode": 400, "responseText": "User ID is required"}, status=400)
+
+        # Connect to the database
         myCon = connectDB()
         userCursor = myCon.cursor()
-        userCursor.execute(
-            'SELECT * FROM "f_userSocial" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
-        user = userCursor.fetchone()
 
-        if not user:
-            resp = {
-                "responseCode": 555,
-                "responseText": "Хэрэглэгч олдсонгүй"
-            }
+        # Fetch user social data
+        userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
+        social_data = userCursor.fetchall()
+        
+        # Check if user data is found
+        if not social_data:
             userCursor.close()
             disconnectDB(myCon)
-            return HttpResponse(json.dumps(resp), content_type="application/json")
+            return JsonResponse({"responseCode": 555, "responseText": "Хэрэглэгч олдсонгүй"})
 
-        elif user:
-            userCursor.execute(
-                'SELECT * FROM "f_userSocial" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
-            columns = [column[0] for column in userCursor.description]
-            response = [
-                {columns[index]: column for index, column in enumerate(
-                    value) if columns[index] not in []}
-                for value in userCursor.fetchall()
-            ]
-            userCursor.close()
-            disconnectDB(myCon)
-            responseJSON = response
-            response = {
-                "responseCode": 200,
-                "responseText": "Амжилттай",
-                "socialData": responseJSON
-            }
-            return HttpResponse(json.dumps(response, cls=DjangoJSONEncoder, default=str), content_type="application/json")
+        # Map data to column names
+        columns = [column[0] for column in userCursor.description]
+        response_data = [
+            {columns[index]: value for index, value in enumerate(row)}
+            for row in social_data
+        ]
+        
+        userCursor.close()
+        disconnectDB(myCon)
 
-        else:
-            resp = {
-                "responseCode": 551,
-                "responseText": "Баазын алдаа"
-            }
-            return HttpResponse(json.dumps(resp), content_type="application/json")
+        # Return the success response with user data
+        return JsonResponse({
+            "responseCode": 200,
+            "responseText": "Амжилттай",
+            "socialData": response_data
+        })
 
-    response = {
-        "responseCode": 200,
-        "responseText": "Амжилттай",
-        "socialData": {} 
-    }
-    return HttpResponse(json.dumps(response), content_type="application/json")
+    except Exception as e:
+        return JsonResponse({"responseCode": 551, "responseText": f"Баазын алдаа: {str(e)}"}, status=500)
+
 ###########################################################################
 
 def userSocialUp(request):
