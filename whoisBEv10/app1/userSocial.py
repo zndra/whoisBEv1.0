@@ -13,28 +13,18 @@ def userSocial(request):
         json_data = json.loads(request.body)
         user_id = json_data['id']
         
-        if not user_id:
-            return JsonResponse({"responseCode": 400, "responseText": "User ID is required"}, status=400)
-
-        # Connect to the database
+        
         myCon = connectDB()
         userCursor = myCon.cursor()
 
-        # Fetch user social data
-        userCursor.execute('SELECT * FROM "f_userSocial" WHERE "user_id" = %s AND "deldate" IS NULL', (user_id,))
-        social_data = userCursor.fetchall()
+       
+        userCursor.execute('SELECT * FROM "f_userSocial"')
         
-        # Check if user data is found
-        if not social_data:
-            userCursor.close()
-            disconnectDB(myCon)
-            return JsonResponse({"responseCode": 555, "responseText": "Хэрэглэгч олдсонгүй"})
-
-        # Map data to column names
+        
         columns = [column[0] for column in userCursor.description]
         response_data = [
             {columns[index]: value for index, value in enumerate(row)}
-            for row in social_data
+            for row in userCursor.fetchall()
         ]
         
         userCursor.close()
